@@ -1118,7 +1118,7 @@ function pctEst2(c, atDate) {
   const ref = atDate ? new Date(atDate+'T00:00:00') : new Date();
   ref.setHours(0,0,0,0);
   const s = new Date(startStr+'T00:00:00');
-  // Fecha fin real (incluye prórrogas + suspensiones)
+  // Fecha fin vigente (solo prórrogas — las suspensiones no la mueven)
   const finStr = fechaFinReal(c);
   const fin = finStr ? new Date(finStr+'T00:00:00') : new Date(c.fend+'T00:00:00');
   if(ref <= s) return 0;
@@ -1426,7 +1426,7 @@ dashboard() {
   const roots = D.ct.filter(c => !c.pid);
   const alerts = D.ct
     .filter(c => ['bw','br'].includes(status(c).cls))
-    .sort((a,b) => (daysLeft(a.fend)||999) - (daysLeft(b.fend)||999));
+    .sort((a,b) => (daysLeft(fechaFinReal(a)||a.fend)||999) - (daysLeft(fechaFinReal(b)||b.fend)||999));
   const avgReal = D.ct.length
     ? Math.round(D.ct.reduce((sum,c) => sum + pctReal(c.id), 0) / D.ct.length) : 0;
 
@@ -1437,7 +1437,7 @@ dashboard() {
     const r   = pctReal(c.id);
     const est = pctEst2(c) ?? 0;
     const sem = semaforo(r, est);
-    const d   = daysLeft(c.fend);
+    const d   = daysLeft(fechaFinReal(c) || c.fend);
     const tad = D.ad.filter(a => a.cid == c.id).reduce((s,a) => s+Number(a.valor||0), 0);
     const val = Number(c.valor||0) + tad;
     let diasHtml = '';
@@ -1544,7 +1544,7 @@ dashboard() {
   <div class="alertas-box">
     ${alerts.slice(0,8).map(c => {
       const e = status(c);
-      const d = daysLeft(c.fend);
+      const d = daysLeft(fechaFinReal(c) || c.fend);
       const r = pctReal(c.id);
       const est = pctEst2(c) ?? 0;
       const dif = r - est;
@@ -2209,7 +2209,9 @@ function rowCt(c, lvl) {
       <span style="font-size:11px;color:var(--mu2)">${sv ? sv.nombre : '—'}</span>
     </div></td>
     <td class="mc">${cop(c.valor)}</td>
-    <td class="dc">${fmt(c.fend)}</td>
+    <td class="dc">${(() => { const fr = fechaFinReal(c) || c.fend; return fr && fr !== c.fend
+      ? `<span title="Prorrogado — fin contractual: ${fmt(c.fend)}">${fmt(fr)} <span style="font-size:9px;color:var(--bl)">▲P</span></span>`
+      : fmt(c.fend); })()}</td>
     <td style="text-align:center">
       <span style="font-size:12px;font-weight:700;color:${sem.color}">${real}%</span>
     </td>
@@ -2346,18 +2348,27 @@ function diasSuspendidos(cid) {
 }
 
 function fechaFinReal(c) {
-  // Fecha fin = fend + días de prórrogas + días suspendidos
+  // Fecha fin VIGENTE = fecha fin contractual + prórrogas.
+  // Las suspensiones / reinicios NO modifican la fecha de terminación:
+  // solo se registran como días de tiempo detenido (ver diasSuspendidos).
   if(!c.fend) return null;
   let fin = new Date(c.fend+'T00:00:00');
-  // Sumar días de prórrogas (si no tienen nfin explícita, tomar la mayor)
+  // Tomar la prórroga con la mayor nueva fecha fin
   D.pr.filter(p => p.cid == c.id && p.nfin).forEach(p => {
     const d = new Date(p.nfin+'T00:00:00');
     if(d > fin) fin = d;
   });
-  // Sumar días suspendidos
-  const ds = diasSuspendidos(c.id);
-  if(ds > 0) fin = new Date(fin.getTime() + ds * 86400000);
   return isoDateLocal(fin);
+}
+
+// Fecha fin solo de referencia: qué pasaría si los días suspendidos
+// se reconocieran como plazo adicional (informativo, no se usa en estados)
+function fechaFinConSusp(c) {
+  const base = fechaFinReal(c);
+  if(!base) return null;
+  const ds = diasSuspendidos(c.id);
+  if(!ds) return base;
+  return isoDateLocal(new Date(new Date(base+'T00:00:00').getTime() + ds * 86400000));
 }
 
 function suspActiva(cid) {
@@ -3715,7 +3726,7 @@ function verCt(id) {
         ${sv ? `<span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> <b>${sv.nombre}</b>${sv.cargo?' · '+sv.cargo:''}${c.pid && !c.svid ? ' <span style="font-size:9px;opacity:.6;font-style:italic">(del padre)</span>' : ''}</span>` : ''}
         ${c.contratista ? `<span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><rect x="1" y="2" width="14" height="13" rx="1"/><path d="M5 15V9h6v6"/><path d="M5 5h2M9 5h2M5 7.5h2M9 7.5h2"/></svg> ${c.contratista}</span>` : ''}
         ${c.fai ? `<span style="color:${sem.color}"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><rect x="1" y="3" width="14" height="12" rx="1"/><path d="M1 7h14M5 1v4M11 1v4"/></svg> Acta: <b>${fmt(c.fai)}</b></span>` : (c.fstart ? `<span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><rect x="1" y="3" width="14" height="12" rx="1"/><path d="M1 7h14M5 1v4M11 1v4"/></svg> <b>${fmt(c.fstart)}</b></span>` : '')}
-        <span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><path d="M3 2h10M3 14h10M5 2C5 7 11 7 11 14M11 2C11 7 5 7 5 14"/></svg> Fin: <b>${fmt(c.fend)}</b></span>
+        <span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><path d="M3 2h10M3 14h10M5 2C5 7 11 7 11 14M11 2C11 7 5 7 5 14"/></svg> Fin: <b>${fmt(fechaFinReal(c) || c.fend)}</b>${(fechaFinReal(c) && fechaFinReal(c) !== c.fend) ? ` <span style="font-size:10px;color:var(--bl);font-weight:600" title="Fin contractual inicial: ${fmt(c.fend)}">(prorrogado)</span>` : ''}</span>
         <span style="color:var(--bl);font-weight:700"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="8" cy="8" r="6"/><path d="M8 4v1.5M8 10.5V12M10 6.5C10 5.7 9.1 5 8 5s-2 .7-2 1.5c0 .9.9 1.3 2 1.5 1.1.2 2 .7 2 1.5S9.1 11 8 11s-2-.7-2-1.5"/></svg> ${cop(Number(c.valor||0)+tad)}</span>
         ${est!==null ? `<span style="background:${sem.color}18;color:${sem.color};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">${sem.lbl} · ${real>=est?'+':''}${real-est}% vs prog.</span>` : ''}
       </div>
@@ -3756,8 +3767,10 @@ function verCt(id) {
             <h3>Fechas</h3>
             <div class="ct-field"><span class="ct-fl">Fecha contractual</span><span class="ct-fv">${fmt(c.fstart)}</span></div>
             ${c.fai ? `<div class="ct-field"><span class="ct-fl">Acta de inicio</span><span class="ct-fv accent">${fmt(c.fai)}</span></div>` : ''}
-            <div class="ct-field"><span class="ct-fl">Fecha fin</span><span class="ct-fv">${fmt(c.fend)}</span></div>
+            <div class="ct-field"><span class="ct-fl">Fecha fin contractual</span><span class="ct-fv">${fmt(c.fend)}</span></div>
             ${prs.length ? `<div class="ct-field"><span class="ct-fl">Última prórroga</span><span class="ct-fv accent">${fmt(prs.sort((a,b)=>b.nfin.localeCompare(a.nfin))[0].nfin)}</span></div>` : ''}
+            <div class="ct-field"><span class="ct-fl">Fecha fin vigente</span><span class="ct-fv accent" title="Fecha fin contractual + prórrogas. Las suspensiones no la modifican.">${fmt(fechaFinReal(c) || c.fend)}</span></div>
+            ${diasSuspendidos(c.id) > 0 ? `<div class="ct-field"><span class="ct-fl">Días suspendidos</span><span class="ct-fv" style="color:var(--am-t)">${diasSuspendidos(c.id)} d · no altera la fecha fin</span></div>` : ''}
           </div>
         </div>
         <div>
@@ -5442,7 +5455,7 @@ function vSO(id){
   h+='<div class="vdit"><div class="vdil">Valor inicial</div><div class="vdiv2" style="color:var(--bl)">'+cop(c.valor)+'</div></div>';
   h+='<div class="vdit"><div class="vdil">Valor total</div><div class="vdiv2" style="color:var(--bl)">'+cop(Number(c.valor||0)+tad)+'</div></div>';
   h+='<div class="vdit"><div class="vdil">Inicio</div><div class="vdiv2">'+fmt(c.fstart)+'</div></div>';
-  h+='<div class="vdit"><div class="vdil">Fin</div><div class="vdiv2">'+fmt(c.fend)+'</div></div>';
+  h+='<div class="vdit"><div class="vdil">Fin'+((fechaFinReal(c)&&fechaFinReal(c)!==c.fend)?' (prorrogado)':'')+'</div><div class="vdiv2">'+fmt(fechaFinReal(c)||c.fend)+'</div></div>';
   h+='<div class="vdit vdfu"><div class="vdil">Contratista</div><div class="vdiv2">'+(c.contratista||'—')+'</div></div>';
   h+='</div>';
   // Supervisor
@@ -6921,14 +6934,18 @@ function suspensionesHTML(cid) {
   const td   = today();
   const activa = sus.find(s => !s.freinicio);
   const totalDias = diasSuspendidos(cid);
-  const finReal = fechaFinReal(c);
+  const finReal = fechaFinReal(c);          // vigente (solo prórrogas)
+  const finRef  = fechaFinConSusp(c);       // referencia informativa
 
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
     <div>
       <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:600">Suspensiones y reinicios (${sus.length})</div>
       ${totalDias > 0 ? `<div style="font-size:12px;color:var(--mu2);margin-top:3px">
         Días suspendidos: <b style="color:var(--am)">${totalDias} días</b>
-        ${finReal ? ` · Nueva fecha fin: <b style="color:var(--accent)">${fmt(finReal)}</b>` : ''}
+        ${finReal ? ` · Fecha fin vigente: <b style="color:var(--accent)">${fmt(finReal)}</b> <span style="font-size:10.5px;opacity:.8">(según prórrogas)</span>` : ''}
+      </div>
+      <div style="font-size:11px;color:var(--mu);margin-top:2px">
+        Las suspensiones no modifican la fecha de terminación${finRef && finRef !== finReal ? ` — de reconocerse el plazo suspendido sería ${fmt(finRef)}` : ''}
       </div>` : ''}
     </div>
     ${!activa ? `<button class="btn bgr" onclick="openSusp(${cid})">
@@ -6992,7 +7009,7 @@ function openSusp(cid) {
   $('mTitle').textContent = 'Registrar suspensión';
   $('mBody').innerHTML = `<div class="fg">
     <div class="fl2 full" style="background:var(--am-d);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--am-t);margin-bottom:4px">
-      El tiempo de ejecución se detendrá desde la fecha de suspensión. La fecha fin del contrato se recalculará automáticamente al reiniciar.
+      El tiempo de ejecución se detendrá desde la fecha de suspensión. La fecha fin del contrato NO cambia: solo se modifica mediante prórrogas.
     </div>
     <div class="fl2"><label>Fecha de suspensión *</label><input id="su_fi" type="date" value="${today()}"></div>
     <div class="fl2 full"><label>Motivo / Observaciones</label><textarea id="su_obs" placeholder="Ej: Suspensión por condiciones climáticas, orden judicial, etc."></textarea></div>
@@ -7476,7 +7493,7 @@ function exportarExcel() {
   const ctRows = [
     ['Supervisor','ID','No. Contrato','Tipo','Nivel','Objeto','Contratista','Contratante','Rep. Legal',
      'Valor Inicial (COP)','Modalidad','Fecha Firma','Fecha Acta Inicio','Fecha Fin Original',
-     'Días Suspendidos','Fecha Fin Real','Estado','% Avance Real','% Avance Estimado',
+     'Días Suspendidos','Fecha Fin Vigente (con prórrogas)','Estado','% Avance Real','% Avance Estimado',
      'Valor Adiciones (COP)','Valor Total (COP)','Observaciones']
   ];
 
