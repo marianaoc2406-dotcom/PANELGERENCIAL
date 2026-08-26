@@ -1417,6 +1417,7 @@ function render() {
     mn.style.transition = 'opacity .18s ease, transform .18s ease';
     mn.style.opacity = '1';
     mn.style.transform = 'translateY(0)';
+    try{ if(typeof initChartsFor==='function') initChartsFor(view); }catch(e){}
   });
 }
 
@@ -1505,6 +1506,10 @@ dashboard() {
   </div>
 
   ${roots.length > 0 ? `
+  <div class="ds-section">Avance de obras · real vs programado</div>
+  <div class="panel" style="margin-bottom:22px"><div class="pb"><div style="position:relative;height:${Math.min(460, Math.max(160, roots.length*40+46))}px"><canvas id="dashAvanceChart"></canvas></div></div></div>
+  <div class="ds-section">Distribución de contratos por estado</div>
+  <div class="panel" style="margin-bottom:22px"><div class="pb"><div style="position:relative;height:300px"><canvas id="dashEstadosChart"></canvas></div></div></div>
   <div class="ds-section">Contratos principales</div>
   <div class="ct-cards">
     ${roots.map(c => ctCard(c)).join('')}
@@ -1623,6 +1628,8 @@ supervisores() {
       <div class="ksub">derivados sin asignar</div>
     </div>
   </div>
+
+  ${D.sv.length ? `<div class="panel" style="margin-bottom:16px"><div class="ph"><span class="ptitle">Avance promedio por supervisor</span></div><div class="pb"><div style="position:relative;height:${Math.min(420, Math.max(140, D.sv.length*38+40))}px"><canvas id="svAvanceChart"></canvas></div></div></div>` : ''}
 
   <div style="display:flex;flex-direction:column;gap:16px">
     ${D.sv.map(sv => {
@@ -2023,6 +2030,14 @@ pagos() {
       <div class="kbar"><div class="kfill ${totalContratos&&totalPagos/totalContratos>1?'rd':''}" style="width:${totalContratos?Math.min(100,Math.round(totalPagos/totalContratos*100)):0}%"></div></div>
     </div>
   </div>
+
+  <!-- Gráficas de pagos -->
+  <div class="pgrid c2" style="margin-bottom:16px">
+    <div class="panel"><div class="ph"><span class="ptitle">Pagos acumulados en el tiempo</span></div><div class="pb"><div style="position:relative;height:270px"><canvas id="pagosAcumChart"></canvas></div></div></div>
+    <div class="panel"><div class="ph"><span class="ptitle">Pagado vs saldo por contrato</span></div><div class="pb"><div style="position:relative;height:270px"><canvas id="pagosContratoChart"></canvas></div></div></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px"><div class="ph"><span class="ptitle">Pagos por mes</span></div><div class="pb"><div style="position:relative;height:250px"><canvas id="pagosMesChart"></canvas></div></div></div>
 
   <!-- Tabla global de pagos por contrato -->
   <div class="panel">
@@ -3757,6 +3772,10 @@ function verCt(id) {
 
     <!-- INFO ──────────────────────────────────────── -->
     <div class="ctp-pane on" id="ctpInfo">
+      <div class="ct-info-card" style="margin-bottom:16px">
+        <h3>Avance del contrato</h3>
+        <div style="position:relative;height:150px;margin-top:6px"><canvas id="ctMiniChart"></canvas></div>
+      </div>
       <div class="ct-info-grid">
         <div>
           <div class="ct-info-card" style="margin-bottom:16px">
@@ -3956,6 +3975,7 @@ function verCt(id) {
     </div>
 
   </div>`;
+  try{ if(typeof initCtMiniChart==='function') setTimeout(function(){ initCtMiniChart(id); }, 30); }catch(e){}
 }
 
 var ctPagePrevView = 'contratos';
@@ -4857,6 +4877,132 @@ body{font-family:'Instrument Sans',sans-serif;font-size:13px;color:#1a1f2e;backg
 .ctx-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0}
 .ctx-label{flex:1}
 .ctx-badge{font-size:9px;font-weight:700;background:var(--accent-d);color:var(--accent);padding:1px 6px;border-radius:8px}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODERNIZACIÓN VISUAL v2 · EDESO Panel Gerencial
+   Solo capa visual — no cambia estructura ni lógica.
+   Refina tokens y componentes base; se propaga a toda la app.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Tokens refinados (esta declaración gana por orden) ── */
+:root{
+  /* Neutros más limpios y aireados */
+  --bg:#f5f7fb;
+  --sf:#ffffff; --sf2:#f7f9fd; --sf3:#eef2f9;
+  --bd:#e6eaf2; --bd2:#d3dae7;
+  --tx:#151c2e; --mu:#6a7690; --mu2:#3f4a66;
+  /* Rojo EDESO como acento (se conserva la identidad) */
+  --accent:#C8232A; --accent-d:#fdeceb; --accent-t:#a01c22;
+  /* Sombras más sutiles y en capas (estilo SaaS) */
+  --card-shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.05);
+  --card-shadow-hover:0 8px 24px rgba(16,24,40,.10), 0 2px 6px rgba(16,24,40,.05);
+  --radius:14px;
+}
+
+/* ── Base: suavizado de fuente y render más nítido ── */
+html,body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
+
+/* ── Superficies / tarjetas: bordes hairline y sombra pulida ── */
+.kcard2,.ctc,.panel,.ct-info-card,.gsc,.alertas-box{
+  border-color:var(--bd);
+  box-shadow:var(--card-shadow);
+  transition:transform .16s cubic-bezier(.16,1,.3,1), box-shadow .16s ease, border-color .16s ease;
+}
+.kcard2:hover,.ctc:hover{ box-shadow:var(--card-shadow-hover); border-color:var(--bd2); }
+
+/* KPIs: números con más carácter y etiqueta más calmada */
+.kcard2{ padding:22px 24px; }
+.kcard2 .klbl,.klbl{ color:var(--mu); }
+.kcard2 .kval2{ letter-spacing:-.03em; }
+.kval,.gsv,.ctp-pct,.vdpct{ letter-spacing:-.03em; }
+
+/* Franja superior de KPI un poco más fina y elegante */
+.kcard2::after{ height:3px; }
+
+/* ── Badges: píldoras más limpias y consistentes ── */
+.b{
+  border-radius:999px !important;
+  font-weight:600 !important;
+  letter-spacing:.01em;
+  padding:3px 11px;
+  font-size:11px;
+  line-height:1.5;
+}
+.bd_{ width:6px; height:6px; }
+
+/* ── Botones: base más pulida, foco accesible ── */
+.btn{
+  border-radius:10px;
+  font-weight:600;
+  letter-spacing:.01em;
+  transition:transform .12s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease, color .15s ease;
+}
+.btn:active{ transform:translateY(1px); }
+.bgr{ box-shadow:0 1px 2px rgba(200,35,42,.18), 0 2px 8px rgba(200,35,42,.16); }
+.bgr:hover{ box-shadow:0 4px 14px rgba(200,35,42,.28); }
+.bgh{ background:#fff; }
+.bgh:hover{ background:var(--sf2); }
+.sm{ border-radius:8px; }
+
+/* ── Inputs / selects / textarea: foco con anillo suave del acento ── */
+.fl2 input,.fl2 select,.fl2 textarea{
+  border-radius:10px;
+  border-color:var(--bd2);
+  transition:border-color .14s ease, box-shadow .14s ease, background .14s ease;
+}
+.fl2 input:focus,.fl2 select:focus,.fl2 textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-d);
+}
+.fl2 label{ color:var(--mu); font-weight:600; }
+
+/* ── Sidebar: item activo más limpio y legible ── */
+.ni{ font-size:13px; }
+.ni.on{
+  background:linear-gradient(90deg,var(--accent-d),rgba(200,35,42,.05));
+  color:var(--accent-t);
+  font-weight:700;
+  box-shadow:inset 0 0 0 1px rgba(200,35,42,.10);
+}
+.ni.on::before{ box-shadow:none; }
+.ns{ color:var(--mu); opacity:.85; }
+.nc{ border-radius:999px; }
+
+/* ── Tablas: encabezado calmado y filas más fáciles de escanear ── */
+.etbl th{
+  color:var(--mu);
+  background:var(--sf2);
+  border-bottom:1px solid var(--bd);
+  font-weight:700;
+  letter-spacing:.1em;
+}
+.etbl td{ border-bottom:1px solid var(--bd); }
+.etbl tr:hover td{ background:var(--sf2); }
+
+/* ── Paneles: encabezado sobrio ── */
+.panel{ border-radius:var(--radius); }
+.ph{ background:var(--sf2) !important; border-bottom:1px solid var(--bd); }
+.ptitle{ color:var(--mu2); letter-spacing:.12em; }
+
+/* ── Pestañas del contrato: subrayado más definido ── */
+.ctp-tab2.on{ border-bottom-width:2.5px; }
+
+/* ── Toast: sombra más suave ── */
+.toast{ border-radius:12px; box-shadow:0 10px 30px rgba(16,24,40,.16); }
+
+/* ── Barra de acento en tarjetas de contrato ── */
+.ctc-bar{ height:3px; }
+
+/* ── Piso de calidad: foco visible por teclado y reduce-motion ── */
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* Scrollbar un poco más discreto */
+::-webkit-scrollbar-thumb{ background:var(--bd2); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover{ background:var(--mu); }
+
 </style>
 </head>
 <body>
@@ -7373,6 +7519,268 @@ function delSusp(id, cid) {
 }
 
 // ── EXPORTAR / IMPORTAR ──────────────────────────────────
+// ═══════════════ GRÁFICAS (Chart.js) ═══════════════
+// Gráficas nativas para Pagos y Avance de obras. No alteran datos ni lógica.
+window._edesoCharts = window._edesoCharts || {};
+
+function _destroyChart(id){
+  if(window._edesoCharts[id]){ try{ window._edesoCharts[id].destroy(); }catch(e){} delete window._edesoCharts[id]; }
+}
+
+// Formato corto de dinero para los ejes (COP)
+function _moneyShort(v){
+  v = Number(v)||0; var a = Math.abs(v);
+  if(a >= 1e9) return '$'+(v/1e9).toFixed(1).replace('.0','')+' MM';
+  if(a >= 1e6) return '$'+(v/1e6).toFixed(1).replace('.0','')+' M';
+  if(a >= 1e3) return '$'+Math.round(v/1e3)+' K';
+  return '$'+Math.round(v);
+}
+function _cutLabel(s, n){ s = String(s||''); return s.length > (n||22) ? s.slice(0, n||22)+'…' : s; }
+function _chartEmpty(canvasId, msg){
+  var c = document.getElementById(canvasId);
+  if(c && c.parentElement) c.parentElement.innerHTML =
+    '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--mu);font-size:12.5px;text-align:center;padding:12px">'+msg+'</div>';
+}
+
+// Colores base (deben ser valores reales, el canvas no resuelve variables CSS)
+var _CH = { gr:'#16a34a', am:'#d97706', bl:'#2563eb', rd:'#C8232A', mu:'#6a7690', grid:'#eef2f9' };
+
+function initChartsFor(view){
+  if(typeof Chart === 'undefined'){
+    ['dashAvanceChart','dashEstadosChart','pagosAcumChart','pagosContratoChart','pagosMesChart','svAvanceChart'].forEach(function(id){
+      if(document.getElementById(id)) _chartEmpty(id, 'No se pudieron cargar las gráficas (Chart.js no disponible).');
+    });
+    return;
+  }
+  try{
+    if(view === 'dashboard'){ initDashAvanceChart(); initDashEstadosChart(); }
+    if(view === 'pagos'){ initPagosAcumChart(); initPagosContratoChart(); initPagosMesChart(); }
+    if(view === 'supervisores'){ initSvAvanceChart(); }
+  }catch(e){ /* nunca romper el render por una gráfica */ }
+}
+
+// ── Dashboard: avance real vs programado por obra (raíz) ──
+function initDashAvanceChart(){
+  var ctx = document.getElementById('dashAvanceChart'); if(!ctx) return;
+  var roots = D.ct.filter(function(c){ return !c.pid; });
+  if(!roots.length){ _chartEmpty('dashAvanceChart', 'Sin contratos para graficar.'); return; }
+  var labels = roots.map(function(c){ return _cutLabel(c.alias || c.num, 26); });
+  var real = roots.map(function(c){ return pctReal(c.id); });
+  var prog = roots.map(function(c){ var e = pctEst2(c); return (e==null?0:e); });
+  _destroyChart('dashAvanceChart');
+  window._edesoCharts['dashAvanceChart'] = new Chart(ctx.getContext('2d'), {
+    type:'bar',
+    data:{ labels:labels, datasets:[
+      { label:'Programado', data:prog, backgroundColor:'rgba(106,118,144,.35)', borderRadius:4 },
+      { label:'Real',       data:real, backgroundColor:_CH.rd, borderRadius:4 }
+    ]},
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      scales:{
+        x:{ min:0, max:100, ticks:{ callback:function(v){ return v+'%'; } }, grid:{ color:_CH.grid } },
+        y:{ grid:{ display:false } }
+      },
+      plugins:{
+        legend:{ position:'top', labels:{ boxWidth:12, font:{ size:11 } } },
+        tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+': '+c.parsed.x+'%'; } } }
+      }
+    }
+  });
+}
+
+// ── Pagos: curva de pagos acumulados en el tiempo ──
+function initPagosAcumChart(){
+  var ctx = document.getElementById('pagosAcumChart'); if(!ctx) return;
+  var pays = D.pa.filter(function(p){ return p.fecha && Number(p.valor); })
+                 .slice().sort(function(a,b){ return (a.fecha||'').localeCompare(b.fecha||''); });
+  if(!pays.length){ _chartEmpty('pagosAcumChart', 'Aún no hay pagos registrados.'); return; }
+  var labels = [], data = [], acc = 0;
+  pays.forEach(function(p){ acc += Number(p.valor||0); labels.push(fmt(p.fecha)); data.push(acc); });
+  var totalContr = D.ct.reduce(function(s,c){
+    var tad = D.ad.filter(function(a){ return a.cid==c.id; }).reduce(function(ss,a){ return ss+Number(a.valor||0); }, 0);
+    return s + Number(c.valor||0) + tad;
+  }, 0);
+  _destroyChart('pagosAcumChart');
+  window._edesoCharts['pagosAcumChart'] = new Chart(ctx.getContext('2d'), {
+    type:'line',
+    data:{ labels:labels, datasets:[
+      { label:'Pagado acumulado', data:data, borderColor:_CH.gr, backgroundColor:'rgba(22,163,74,.12)', fill:true, tension:.25, pointRadius:3, borderWidth:2 },
+      { label:'Valor contratado', data:labels.map(function(){ return totalContr; }), borderColor:'rgba(37,99,235,.6)', borderDash:[6,4], pointRadius:0, borderWidth:1.5, fill:false }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ callback:function(v){ return _moneyShort(v); } }, grid:{ color:_CH.grid } },
+        x:{ grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:true, maxTicksLimit:8 } }
+      },
+      plugins:{
+        legend:{ position:'top', labels:{ boxWidth:12, font:{ size:11 } } },
+        tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+': '+cop(c.parsed.y); } } }
+      }
+    }
+  });
+}
+
+// ── Pagos: pagado vs saldo por contrato (top por valor) ──
+function initPagosContratoChart(){
+  var ctx = document.getElementById('pagosContratoChart'); if(!ctx) return;
+  var rows = D.ct.map(function(c){
+    var tad = D.ad.filter(function(a){ return a.cid==c.id; }).reduce(function(s,a){ return s+Number(a.valor||0); }, 0);
+    var val = Number(c.valor||0) + tad;
+    var pag = D.pa.filter(function(p){ return p.cid==c.id; }).reduce(function(s,p){ return s+Number(p.valor||0); }, 0);
+    return { c:c, val:val, pag:pag, saldo:Math.max(0, val - pag) };
+  }).filter(function(r){ return r.val > 0; }).sort(function(a,b){ return b.val - a.val; }).slice(0, 8);
+  if(!rows.length){ _chartEmpty('pagosContratoChart', 'Sin contratos con valor para graficar.'); return; }
+  var labels = rows.map(function(r){ return _cutLabel(r.c.alias || r.c.num, 24); });
+  _destroyChart('pagosContratoChart');
+  window._edesoCharts['pagosContratoChart'] = new Chart(ctx.getContext('2d'), {
+    type:'bar',
+    data:{ labels:labels, datasets:[
+      { label:'Pagado', data:rows.map(function(r){ return r.pag; }),   backgroundColor:_CH.gr, borderRadius:3 },
+      { label:'Saldo',  data:rows.map(function(r){ return r.saldo; }), backgroundColor:'rgba(217,119,6,.6)', borderRadius:3 }
+    ]},
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      scales:{
+        x:{ stacked:true, ticks:{ callback:function(v){ return _moneyShort(v); } }, grid:{ color:_CH.grid } },
+        y:{ stacked:true, grid:{ display:false } }
+      },
+      plugins:{
+        legend:{ position:'top', labels:{ boxWidth:12, font:{ size:11 } } },
+        tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+': '+cop(c.parsed.x); } } }
+      }
+    }
+  });
+}
+
+// ═══════════════ GRÁFICAS ADICIONALES ═══════════════
+
+// ── Dashboard: dona de estados de contratos ──
+function initDashEstadosChart(){
+  var ctx = document.getElementById('dashEstadosChart'); if(!ctx) return;
+  if(!D.ct.length){ _chartEmpty('dashEstadosChart', 'Sin contratos para graficar.'); return; }
+  var estados = D.estados || [];
+  var labels = [], data = [], colors = [];
+  estados.forEach(function(e){
+    var n = D.ct.filter(function(c){ return c.estado === e.id; }).length;
+    if(n > 0){ labels.push(e.label); data.push(n); colors.push(e.color || _CH.mu); }
+  });
+  var sinEstado = D.ct.filter(function(c){ return !c.estado || !estados.some(function(e){ return e.id===c.estado; }); }).length;
+  if(sinEstado > 0){ labels.push('Sin estado'); data.push(sinEstado); colors.push('#c8d0e0'); }
+  if(!data.length){ _chartEmpty('dashEstadosChart', 'Sin datos de estado.'); return; }
+  _destroyChart('dashEstadosChart');
+  window._edesoCharts['dashEstadosChart'] = new Chart(ctx.getContext('2d'), {
+    type:'doughnut',
+    data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderColor:'#fff', borderWidth:2 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins:{
+        legend:{ position:'right', labels:{ boxWidth:12, font:{ size:11.5 }, padding:10 } },
+        tooltip:{ callbacks:{ label:function(c){
+          var tot = c.dataset.data.reduce(function(s,v){ return s+v; }, 0);
+          var pct = tot ? Math.round(c.parsed/tot*100) : 0;
+          return ' '+c.label+': '+c.parsed+' ('+pct+'%)';
+        } } }
+      }
+    }
+  });
+}
+
+// ── Pagos: pagos por mes (barras) ──
+function initPagosMesChart(){
+  var ctx = document.getElementById('pagosMesChart'); if(!ctx) return;
+  var pays = D.pa.filter(function(p){ return p.fecha && Number(p.valor); });
+  if(!pays.length){ _chartEmpty('pagosMesChart', 'Aún no hay pagos registrados.'); return; }
+  var meses = {};
+  pays.forEach(function(p){
+    var k = String(p.fecha).slice(0,7); // YYYY-MM
+    meses[k] = (meses[k] || 0) + Number(p.valor||0);
+  });
+  var keys = Object.keys(meses).sort();
+  var nombresMes = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var labels = keys.map(function(k){ var p = k.split('-'); return nombresMes[Number(p[1])-1] + ' ' + p[0]; });
+  var data = keys.map(function(k){ return meses[k]; });
+  _destroyChart('pagosMesChart');
+  window._edesoCharts['pagosMesChart'] = new Chart(ctx.getContext('2d'), {
+    type:'bar',
+    data:{ labels:labels, datasets:[{ label:'Pagado en el mes', data:data, backgroundColor:_CH.gr, borderRadius:4 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{
+        y:{ beginAtZero:true, ticks:{ callback:function(v){ return _moneyShort(v); } }, grid:{ color:_CH.grid } },
+        x:{ grid:{ display:false } }
+      },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label:function(c){ return cop(c.parsed.y); } } }
+      }
+    }
+  });
+}
+
+// ── Supervisores: avance promedio por supervisor ──
+function initSvAvanceChart(){
+  var ctx = document.getElementById('svAvanceChart'); if(!ctx) return;
+  if(!D.sv.length){ _chartEmpty('svAvanceChart', 'Sin supervisores.'); return; }
+  var rows = D.sv.map(function(sv){
+    var cts = D.ct.filter(function(c){ return c.svid == sv.id && c.tipo !== 'interadministrativo'; });
+    var avg = cts.length ? Math.round(cts.reduce(function(s,c){ return s + pctReal(c.id); }, 0) / cts.length) : 0;
+    return { nombre:sv.nombre, avg:avg, n:cts.length };
+  });
+  var labels = rows.map(function(r){ return _cutLabel(r.nombre, 24); });
+  var data = rows.map(function(r){ return r.avg; });
+  var colors = rows.map(function(r){ return r.avg >= 80 ? _CH.gr : r.avg >= 40 ? _CH.am : _CH.rd; });
+  _destroyChart('svAvanceChart');
+  window._edesoCharts['svAvanceChart'] = new Chart(ctx.getContext('2d'), {
+    type:'bar',
+    data:{ labels:labels, datasets:[{ label:'Avance promedio', data:data, backgroundColor:colors, borderRadius:4 }] },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      scales:{
+        x:{ min:0, max:100, ticks:{ callback:function(v){ return v+'%'; } }, grid:{ color:_CH.grid } },
+        y:{ grid:{ display:false } }
+      },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label:function(c){ return c.parsed.x + '% (' + rows[c.dataIndex].n + ' contrato(s))'; } } }
+      }
+    }
+  });
+}
+
+// ── Ficha del contrato: mini-gráfica de avance (físico / programado / financiero) ──
+function initCtMiniChart(id){
+  if(typeof Chart === 'undefined') return;
+  var ctx = document.getElementById('ctMiniChart'); if(!ctx) return;
+  var c = D.ct.find(function(x){ return x.id == id; }); if(!c) return;
+  var real = pctReal(id);
+  var prog = pctEst2(c); prog = (prog == null ? 0 : prog);
+  var tad = D.ad.filter(function(a){ return a.cid==id; }).reduce(function(s,a){ return s+Number(a.valor||0); }, 0);
+  var valTotal = Number(c.valor||0) + tad;
+  var pagado = D.pa.filter(function(p){ return p.cid==id; }).reduce(function(s,p){ return s+Number(p.valor||0); }, 0);
+  var fin = valTotal ? Math.round(pagado/valTotal*100) : 0;
+  _destroyChart('ctMiniChart');
+  window._edesoCharts['ctMiniChart'] = new Chart(ctx.getContext('2d'), {
+    type:'bar',
+    data:{
+      labels:['Físico (real)', 'Programado', 'Financiero'],
+      datasets:[{ data:[real, prog, fin], backgroundColor:[_CH.rd, 'rgba(106,118,144,.45)', _CH.gr], borderRadius:4 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      scales:{
+        x:{ min:0, max:100, ticks:{ callback:function(v){ return v+'%'; } }, grid:{ color:_CH.grid } },
+        y:{ grid:{ display:false } }
+      },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label:function(cc){ return cc.parsed.x + '%'; } } }
+      }
+    }
+  });
+}
+
 function exportarDatos() {
   var exportData = {
     version: '1.0',
