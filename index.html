@@ -1456,7 +1456,7 @@ dashboard() {
           <span class="ctc-num" style="color:${sem.color}">${c.num}${c.tipo?' · '+c.tipo:''}</span>
           ${badge(e.cls, e.lbl)}
         </div>
-        <div class="ctc-obj">${c.obj}</div>
+        <div class="ctc-obj">${c.alias ? '<b style="color:var(--accent-t)">'+escapeHtml(c.alias)+'</b> · ' : ''}${c.obj}</div>
         <div class="ctc-meta">
           ${sv ? (sv.foto ? avatarHTML(sv.foto, sv.nombre, 38) : '<div class="av" style="background:'+sem.color+'18;color:'+sem.color+';border-color:'+sem.color+'30;width:26px;height:26px;font-size:9px">'+ini(sv.nombre)+'</div>') : '<div class="av" style="background:var(--sf2);width:26px;height:26px;font-size:9px">?</div>'}
           <span class="ctc-sv">${sv?sv.nombre:'Sin supervisor'}</span>
@@ -1870,7 +1870,7 @@ contratos() {
   </div>
   <div class="panel">
     <div class="ph">
-      <input placeholder="Buscar número, objeto, contratista…" style="background:var(--sf);border:1px solid var(--bd2);border-radius:4px;padding:6px 10px;color:var(--tx);font-size:12.5px;font-family:'Instrument Sans',sans-serif;outline:none;width:240px" oninput="filterCt(this.value)">
+      <input placeholder="Buscar alias, número, objeto, contratista…" style="background:var(--sf);border:1px solid var(--bd2);border-radius:4px;padding:6px 10px;color:var(--tx);font-size:12.5px;font-family:'Instrument Sans',sans-serif;outline:none;width:240px" oninput="filterCt(this.value)">
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn sm bgh fc on" onclick="setFc(this,'all')">Todos</button>
         <button class="btn sm bgh fc" onclick="setFc(this,'act')">Activos</button>
@@ -2155,7 +2155,7 @@ function nodeHTML(c, lvl) {
     <div class="th2 ${levelCls(lvl)}" onclick="toggleTree('${tid}', this)">
       <span class="tarr" style="${ch.length?'transform:rotate(90deg)':''}">${ch.length?'▶':''}</span>
       <span class="tnum">${c.num}</span>
-      <span class="tobj" title="${c.obj}">${c.obj}</span>
+      <span class="tobj" title="${escapeAttr(c.obj)}">${c.alias ? escapeHtml(c.alias) : c.obj}</span>
       <div class="tmeta">
         ${c.tipo ? `<span style="font-size:10px;color:var(--mu2);background:var(--sf2);padding:1px 6px;border-radius:3px">${c.tipo}</span>` : ''}
         ${badge(e.cls, e.lbl)}
@@ -2208,7 +2208,7 @@ function rowCt(c, lvl) {
       </div>
     </td>
     <td style="font-size:11px;color:var(--mu2)">${c.tipo||'—'}</td>
-    <td class="oc" style="font-size:${isChild?'12':'12.5'}px">${c.obj}</td>
+    <td class="oc" title="${escapeAttr(c.obj)}" style="font-size:${isChild?'12':'12.5'}px">${c.alias ? '<b style="color:var(--accent-t)">'+escapeHtml(c.alias)+'</b>' : c.obj}</td>
     <td><div style="display:flex;align-items:center;gap:7px">
       ${sv ? avatarHTML(sv.foto, sv.nombre, 32) : ''}
       <span style="font-size:11px;color:var(--mu2)">${sv ? sv.nombre : '—'}</span>
@@ -2261,7 +2261,7 @@ function filterCt(q) {
   if(fcFilter === 'exp')  list = list.filter(c => status(c).cls === 'br');
   if(fcFilter === 'liq')  list = list.filter(c => c.estado === 'liquidacion' || c.estado === 'suspendido');
   if(fcFilter === 'done') list = list.filter(c => c.estado === 'liquidado' || c.estado === 'terminado');
-  if(q) list = list.filter(c => (c.num+c.obj+(c.contratista||'')+(c.contratante||'')).toLowerCase().includes(q.toLowerCase()));
+  if(q) list = list.filter(c => (c.num+c.obj+(c.alias||'')+(c.contratista||'')+(c.contratante||'')).toLowerCase().includes(q.toLowerCase()));
   body.innerHTML = list.length
     ? list.map(c => rowCt(c, 0)).join('')
     : `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--mu)">Sin resultados</td></tr>`;
@@ -3716,7 +3716,8 @@ function verCt(id) {
         </button>
         <div class="ctp-titles" style="flex:1;min-width:0">
           <div class="ctp-tipo" style="color:${sem.color}">${c.num} &nbsp;·&nbsp; ${c.tipo||'Contrato'}</div>
-          <div class="ctp-nombre" title="${c.obj}">${c.obj}</div>
+          <div class="ctp-nombre" title="${escapeAttr(c.obj)}">${c.alias ? escapeHtml(c.alias) : c.obj}</div>
+          ${c.alias ? `<div style="font-size:12.5px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px" title="${escapeAttr(c.obj)}">${c.obj}</div>` : ''}
         </div>
         <div class="ctp-kpis">
           ${badge(e.cls, e.lbl)}
@@ -4155,6 +4156,7 @@ function openCt(padreId, editId) {
         <option value="pct"   ${c?.trackingMode==='pct'?'selected':''}>📋 % programado / ejecutado</option>
       </select>
     </div>
+    <div class="fl2 full"><label>Alias / nombre corto <span style="text-transform:none;letter-spacing:0;color:var(--mu2);font-weight:400">— para reconocerlo fácil y buscarlo</span></label><input id="calias" value="${escapeAttr(c?.alias||'')}" placeholder="Ej: Parque Principal, Vía La Playa, Colegio San José…"></div>
     <div class="fl2 full"><label>Objeto del contrato *</label><textarea id="cobj">${c?.obj||''}</textarea></div>
     <div class="fl2 full"><label>${isSub ? 'Contrato padre *' : 'Supervisor EDESO'}</label>
       ${isSub
@@ -4257,7 +4259,7 @@ function saveCt(id, isSub) {
     : undefined;
 
   const trackingMode = ['obra','consultoria'].includes(tipo) ? ($('ctracking')?.value||'gantt') : null;
-  const data  = { num, obj, tipo, trackingMode, contratista:$('ccont').value.trim(), contratante:$('ccontante')?.value.trim()||null, repLegal:$('creplegal')?.value.trim()||null, valor:$('cval').value||null, mod:$('cmod').value, fstart, fend, fai, obs:$('cobs2').value.trim(), estado:$('cestado')?.value||'', pid:pid||null, svid:svid||null, lat, lng, aiu:{adm:aiuAdm, imp:aiuImp, util:aiuUtil} };
+  const data  = { num, obj, alias:$('calias')?.value.trim()||'', tipo, trackingMode, contratista:$('ccont').value.trim(), contratante:$('ccontante')?.value.trim()||null, repLegal:$('creplegal')?.value.trim()||null, valor:$('cval').value||null, mod:$('cmod').value, fstart, fend, fai, obs:$('cobs2').value.trim(), estado:$('cestado')?.value||'', pid:pid||null, svid:svid||null, lat, lng, aiu:{adm:aiuAdm, imp:aiuImp, util:aiuUtil} };
   if(obrasVigiladas !== undefined) data.obrasVigiladas = obrasVigiladas;
 
   if(id && id !== 'null') { Object.assign(D.ct.find(c => c.id == id), data); }
@@ -5153,7 +5155,7 @@ function vGetLista(){
   var q=document.getElementById('vsrch')?document.getElementById('vsrch').value.toLowerCase():'';
   var ftipo=vFTipo;
   return D.ct.filter(function(c){
-    var matchQ=!q||(c.num||'').toLowerCase().indexOf(q)>=0||(c.obj||'').toLowerCase().indexOf(q)>=0||(c.contratista||'').toLowerCase().indexOf(q)>=0;
+    var matchQ=!q||(c.num||'').toLowerCase().indexOf(q)>=0||(c.obj||'').toLowerCase().indexOf(q)>=0||(c.alias||'').toLowerCase().indexOf(q)>=0||(c.contratista||'').toLowerCase().indexOf(q)>=0;
     var matchT=ftipo==='Todos'||(c.tipo||'')===(ftipo);
     return matchQ&&matchT;
   });
@@ -5284,6 +5286,7 @@ function vRA(){
     obras = obras.filter(function(c){
       return (c.num||'').toLowerCase().includes(q)
           || (c.obj||'').toLowerCase().includes(q)
+          || (c.alias||'').toLowerCase().includes(q)
           || (c.contratista||'').toLowerCase().includes(q);
     });
   }
