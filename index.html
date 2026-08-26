@@ -750,6 +750,9 @@ nav.collapsed .ni:hover::after{opacity:1}
 const KEY = 'edeso_v4';
 let D = JSON.parse(localStorage.getItem(KEY) || 'null') || { sv:[], ct:[], pr:[], ad:[], ac:[], ap:[], cta:[], co:[], pl:[], su:[], pa:[] };
 if(!D.pl) D.pl = [];
+// Pendientes / checklist por contrato
+if(!D.pe) D.pe = [];
+D.pe.forEach(p => { if(!p.estado) p.estado='pendiente'; if(!p.prioridad) p.prioridad='media'; });
 if(!D.su) D.su = []; // migración suspensiones
 if(!D.pa) D.pa = []; // migración pagos
 // co[] = cortes de seguimiento: {id, cid, fecha, pctEst, pctReal, obs}
@@ -830,7 +833,7 @@ function __edesoLoadPanel(remote){
   if(!remote || typeof remote!=='object') return;
   for(var k in D){ if(Object.prototype.hasOwnProperty.call(D,k)) delete D[k]; }
   Object.assign(D, remote);
-  ['sv','ct','pr','ad','ac','ap','cta','co','pl','su','pa'].forEach(function(k){ if(!D[k]) D[k]=[]; });
+  ['sv','ct','pr','ad','ac','ap','cta','co','pl','su','pa','pe'].forEach(function(k){ if(!D[k]) D[k]=[]; });
   try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
 }
 function __edesoLoadObras(remote){
@@ -1538,6 +1541,8 @@ dashboard() {
     return '<div class="ds-section" style="color:var(--am)">⚠ Pólizas por vencer (próximos 30 días)</div>'
       +'<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">'+rows+'</div>';
   })()}
+
+  ${pendientesDashHTML()}
 
   ${alerts.length > 0 ? `
   <div class="ds-section">Alertas activas</div>
@@ -3741,6 +3746,7 @@ function verCt(id) {
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPol')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/></svg> Pólizas<span class="nc" id="nc_pol">0</span></div>
         ${ch.length ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpDer')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M6 10l4-4"/><path d="M4.5 11.5a3 3 0 000-4.2l-.8-.8a3 3 0 00-4.2 4.2l.8.8a3 3 0 002.1.8"/><path d="M11.5 4.5a3 3 0 000 4.2l.8.8a3 3 0 004.2-4.2l-.8-.8a3 3 0 00-2.1-.8"/></svg> Derivados (${ch.length})</div>` : ''}
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpAp')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 14c0-2.8 1.8-5 4-5M15 14c0-2.8-1.8-5-4-5"/></svg> Apoyos (${apoyos.length})</div>
+        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPe')" style="color:var(--am-t)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M5.5 8l2 2 3.5-4"/><rect x="2" y="2" width="12" height="12" rx="2"/></svg> Pendientes ${(function(){var n=(D.pe||[]).filter(p=>p.cid==id&&p.estado!=='ok').length;return n?'<span class="nc" style="background:var(--am-d);color:var(--am-t);border-color:var(--am)">'+n+'</span>':'';})()}</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPagos');renderPagosContrato(${id})" style="color:var(--gr)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="8" cy="8" r="6"/><path d="M8 4v1.5M8 10.5V12M10 6.5C10 5.7 9.1 5 8 5s-2 .7-2 1.5c0 .9.9 1.3 2 1.5 1.1.2 2 .7 2 1.5S9.1 11 8 11s-2-.7-2-1.5"/></svg> 💰 Pagos ${D.pa.filter(p=>p.cid==id).length?'('+D.pa.filter(p=>p.cid==id).length+')':''}</div>
       </div>
     </div>
@@ -3939,6 +3945,9 @@ function verCt(id) {
           </div>
         </div>`).join('')}
     </div>
+
+    <!-- PENDIENTES ──────────────────────────────────── -->
+    <div class="ctp-pane" id="ctpPe">${pendientesHTML(id)}</div>
 
     <!-- PAGOS ──────────────────────────────────────── -->
     <div class="ctp-pane" id="ctpPagos">
@@ -4350,6 +4359,7 @@ function delCt(id) {
     D.co  = D.co.filter(x  => x.cid != cid);
     D.cta = D.cta.filter(x => x.cid != cid);
     D.pa  = D.pa.filter(p  => p.cid != cid);
+    D.pe  = D.pe.filter(p  => p.cid != cid);
     // Limpiar obrasVigiladas que apunten a este contrato
     D.ct.forEach(c => { if(c.obrasVigiladas) c.obrasVigiladas = c.obrasVigiladas.filter(id => id != cid); });
   }
@@ -5970,6 +5980,298 @@ function delPol(id, cid) {
 }
 
 
+// ═══════════════ PENDIENTES / CHECKLIST POR CONTRATO ═══════════════
+var PEND_EST = {
+  pendiente: { lbl:'Pendiente', cls:'bw', color:'#d97706', bg:'#fef3c7', next:'proceso' },
+  proceso:   { lbl:'En proceso', cls:'bi', color:'#2563eb', bg:'#dbeafe', next:'ok' },
+  ok:        { lbl:'Resuelto',   cls:'bg', color:'#16a34a', bg:'#dcfce7', next:'pendiente' }
+};
+var PEND_PRIO = {
+  alta:  { lbl:'Alta',  color:'#dc2626', bg:'#fee2e2' },
+  media: { lbl:'Media', color:'#d97706', bg:'#fef3c7' },
+  baja:  { lbl:'Baja',  color:'#6b7a99', bg:'#eef1f7' }
+};
+
+function pendVencInfo(p) {
+  if(!p.fvence) return null;
+  var diff = Math.ceil((new Date(p.fvence+'T00:00:00') - new Date(today()+'T00:00:00')) / 86400000);
+  if(p.estado === 'ok') return { txt:'Resuelto', color:'var(--gr)', diff:diff, vencido:false };
+  if(diff < 0)  return { txt:'Vencido hace '+Math.abs(diff)+'d', color:'var(--accent)', diff:diff, vencido:true };
+  if(diff === 0) return { txt:'Vence hoy', color:'var(--am-t)', diff:0, vencido:false };
+  if(diff <= 7) return { txt:'Vence en '+diff+'d', color:'var(--am-t)', diff:diff, vencido:false };
+  return { txt:fmt(p.fvence), color:'var(--mu2)', diff:diff, vencido:false };
+}
+
+function pendResumen(cid) {
+  if(!D.pe) D.pe=[];
+  var list = D.pe.filter(function(p){ return p.cid == cid; });
+  var ok = list.filter(function(p){ return p.estado==='ok'; }).length;
+  var proc = list.filter(function(p){ return p.estado==='proceso'; }).length;
+  var pend = list.filter(function(p){ return p.estado==='pendiente'; }).length;
+  var venc = list.filter(function(p){ var v=pendVencInfo(p); return v && v.vencido; }).length;
+  return { total:list.length, ok:ok, proc:proc, pend:pend, venc:venc, pct: list.length ? Math.round(ok/list.length*100) : 0 };
+}
+
+var pendFiltro = {}; // cid -> 'todos'|'abiertos'|'ok'|'vencidos'
+
+function setPendFiltro(cid, f) {
+  pendFiltro[cid] = f;
+  var wrap = document.getElementById('ctpPe');
+  if(wrap) wrap.innerHTML = pendientesHTML(cid);
+}
+
+function pendientesHTML(cid) {
+  if(!D.pe) D.pe=[];
+  var list = D.pe.filter(function(p){ return p.cid == cid; });
+  var r = pendResumen(cid);
+  var filtro = pendFiltro[cid] || 'todos';
+
+  var html = '';
+
+  // Barra de progreso + resumen
+  html += '<div style="background:#fff;border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:var(--card-shadow)">';
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:'+(r.total?'12px':'0')+'">';
+  html += '<div><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:700">Pendientes del contrato</div>';
+  html += '<div style="font-size:22px;font-weight:800;color:var(--tx);line-height:1.1;margin-top:2px">'+r.ok+'<span style="font-size:14px;color:var(--mu);font-weight:600"> / '+r.total+' resueltos</span></div></div>';
+  html += '<button class="btn bgr" onclick="openPend('+cid+')"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-1px;margin-right:5px"><path d="M8 3v10M3 8h10"/></svg>Nuevo pendiente</button>';
+  html += '</div>';
+
+  if(r.total) {
+    html += '<div style="height:8px;background:var(--sf3);border-radius:5px;overflow:hidden;display:flex">';
+    if(r.ok)   html += '<div style="height:100%;width:'+(r.ok/r.total*100)+'%;background:var(--gr)"></div>';
+    if(r.proc) html += '<div style="height:100%;width:'+(r.proc/r.total*100)+'%;background:var(--bl)"></div>';
+    if(r.pend) html += '<div style="height:100%;width:'+(r.pend/r.total*100)+'%;background:var(--am)"></div>';
+    html += '</div>';
+    // Chips de filtro
+    html += '<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">';
+    var chips = [
+      ['todos','Todos', r.total],
+      ['abiertos','Abiertos', r.pend + r.proc],
+      ['ok','Resueltos', r.ok],
+      ['vencidos','Vencidos', r.venc]
+    ];
+    chips.forEach(function(c){
+      var on = filtro === c[0];
+      var isVenc = c[0]==='vencidos' && c[2]>0;
+      html += '<button onclick="setPendFiltro('+cid+',\''+c[0]+'\')" style="border:1px solid '+(on?'var(--accent)':'var(--bd2)')+';background:'+(on?'var(--accent-d)':'#fff')+';color:'+(on?'var(--accent-t)':(isVenc?'var(--accent)':'var(--mu2)'))+';border-radius:20px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s">'+c[1]+' <b>'+c[2]+'</b></button>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+
+  if(!list.length) {
+    html += '<div style="background:var(--sf2);border-radius:10px;padding:32px;text-align:center;color:var(--mu)">'
+      + '<svg width="26" height="26" viewBox="0 0 16 16" fill="none" stroke="var(--mu)" stroke-width="1.3" style="margin-bottom:8px"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5.5 8l2 2 3.5-4"/></svg>'
+      + '<div style="font-size:13.5px;font-weight:600;color:var(--mu2);margin-bottom:4px">Sin pendientes registrados</div>'
+      + '<div style="font-size:11.5px">Registra tareas por resolver: acta de inicio, pólizas, documentos, visitas… con responsable y fecha límite.</div></div>';
+    return html;
+  }
+
+  // Filtrar y ordenar
+  var vis = list.filter(function(p){
+    if(filtro==='abiertos') return p.estado!=='ok';
+    if(filtro==='ok') return p.estado==='ok';
+    if(filtro==='vencidos') { var v=pendVencInfo(p); return v && v.vencido; }
+    return true;
+  });
+  var prioRank = { alta:0, media:1, baja:2 };
+  vis.sort(function(a,b){
+    if((a.estado==='ok')!==(b.estado==='ok')) return a.estado==='ok'?1:-1; // resueltos al final
+    var pr = prioRank[a.prioridad||'media'] - prioRank[b.prioridad||'media'];
+    if(pr) return pr;
+    if(a.fvence && b.fvence) return a.fvence.localeCompare(b.fvence);
+    if(a.fvence) return -1; if(b.fvence) return 1;
+    return (a.fcreado||0) - (b.fcreado||0);
+  });
+
+  if(!vis.length) {
+    html += '<div style="background:var(--sf2);border-radius:10px;padding:24px;text-align:center;color:var(--mu);font-size:12.5px">Ningún pendiente en este filtro.</div>';
+    return html;
+  }
+
+  html += '<div style="display:flex;flex-direction:column;gap:9px">';
+  vis.forEach(function(p){
+    var est = PEND_EST[p.estado] || PEND_EST.pendiente;
+    var prio = PEND_PRIO[p.prioridad] || PEND_PRIO.media;
+    var venc = pendVencInfo(p);
+    var done = p.estado === 'ok';
+    html += '<div style="background:#fff;border:1px solid var(--bd);border-left:4px solid '+prio.color+';border-radius:10px;padding:13px 15px;'+(done?'opacity:.72':'')+'">';
+    html += '<div style="display:flex;align-items:flex-start;gap:12px">';
+
+    // Checkbox / estado clicable
+    html += '<button onclick="cyclePendEstado('+p.id+','+cid+')" title="Cambiar estado" style="flex-shrink:0;width:26px;height:26px;border-radius:8px;border:2px solid '+est.color+';background:'+est.bg+';cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-top:1px">';
+    if(done) html += '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="'+est.color+'" stroke-width="2.5"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+    else if(p.estado==='proceso') html += '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="'+est.color+'" stroke-width="2"><path d="M8 4v4l3 2"/><circle cx="8" cy="8" r="6.5"/></svg>';
+    html += '</button>';
+
+    html += '<div style="flex:1;min-width:0">';
+    // Título
+    html += '<div style="font-size:13.5px;font-weight:600;color:var(--tx);'+(done?'text-decoration:line-through;color:var(--mu2)':'')+'">'+escapeHtml(p.titulo)+'</div>';
+    // Meta row
+    html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px">';
+    html += '<span style="font-size:10px;font-weight:700;color:'+est.color+';background:'+est.bg+';padding:2px 9px;border-radius:20px">'+est.lbl+'</span>';
+    html += '<span style="font-size:10px;font-weight:700;color:'+prio.color+';background:'+prio.bg+';padding:2px 9px;border-radius:20px">Prioridad '+prio.lbl.toLowerCase()+'</span>';
+    if(p.responsable) html += '<span style="font-size:11px;color:var(--mu2);display:inline-flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/></svg>'+escapeHtml(p.responsable)+'</span>';
+    if(venc) html += '<span style="font-size:11px;font-weight:600;color:'+venc.color+';display:inline-flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6h12M5 1.5v3M11 1.5v3"/></svg>'+venc.txt+'</span>';
+    html += '</div>';
+    // Observación
+    if(p.obs) html += '<div style="font-size:11.5px;color:var(--mu2);margin-top:7px;line-height:1.5;background:var(--sf2);border-radius:7px;padding:7px 10px">'+escapeHtml(p.obs)+'</div>';
+    html += '</div>';
+
+    // Acciones
+    html += '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">';
+    html += '<button class="btn sm bgh" onclick="openPend('+cid+','+p.id+')" style="padding:4px 8px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2l3 3L5 14H2v-3L11 2z"/></svg></button>';
+    html += '<button class="btn sm brd" onclick="delPend('+p.id+','+cid+')" style="padding:4px 8px">×</button>';
+    html += '</div>';
+
+    html += '</div></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function cyclePendEstado(id, cid) {
+  if(!D.pe) D.pe=[];
+  var p = D.pe.find(function(x){ return x.id == id; });
+  if(!p) return;
+  p.estado = (PEND_EST[p.estado] || PEND_EST.pendiente).next;
+  save();
+  var wrap = document.getElementById('ctpPe');
+  if(wrap) wrap.innerHTML = pendientesHTML(cid);
+  actualizarTabPend(cid);
+}
+
+function actualizarTabPend(cid) {
+  // Refresca el contador de la pestaña sin re-renderizar toda la ficha
+  var n = (D.pe||[]).filter(function(p){ return p.cid==cid && p.estado!=='ok'; }).length;
+  var tabs = document.querySelectorAll('#ctpTabs .ctp-tab2');
+  tabs.forEach(function(t){
+    if(t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'ctpPe'")>-1) {
+      var base = t.innerHTML.replace(/<span class="nc"[^>]*>\d+<\/span>\s*$/,'').replace(/\s+$/,'');
+      t.innerHTML = base + (n ? ' <span class="nc" style="background:var(--am-d);color:var(--am-t);border-color:var(--am)">'+n+'</span>' : '');
+    }
+  });
+}
+
+function openPend(cid, id) {
+  var p = id ? D.pe.find(function(x){ return x.id == id; }) : null;
+  $('mTitle').textContent = p ? 'Editar pendiente' : 'Nuevo pendiente';
+  var estActual = p ? p.estado : 'pendiente';
+  var prioActual = p ? p.prioridad : 'media';
+  $('mBody').innerHTML = '<div class="fg">'
+    + '<div class="fl2 full"><label>¿Qué hay que hacer? *</label>'
+    + '<input id="pe_tit" value="'+(p?escapeAttr(p.titulo):'')+'" placeholder="Ej: Radicar acta de inicio, renovar póliza, subir informe…"></div>'
+    + '<div class="fl2"><label>Responsable</label>'
+    + '<input id="pe_resp" value="'+(p?escapeAttr(p.responsable||''):'')+'" placeholder="Nombre de quien responde" list="pe_resp_list"></div>'
+    + '<datalist id="pe_resp_list">'+pendRespSugerencias()+'</datalist>'
+    + '<div class="fl2"><label>Fecha límite</label><input id="pe_fv" type="date" value="'+(p&&p.fvence?p.fvence:'')+'"></div>'
+    + '<div class="fl2"><label>Prioridad</label><select id="pe_prio">'
+    + ['alta','media','baja'].map(function(k){ return '<option value="'+k+'"'+(prioActual===k?' selected':'')+'>'+PEND_PRIO[k].lbl+'</option>'; }).join('')
+    + '</select></div>'
+    + '<div class="fl2"><label>Estado</label><select id="pe_est">'
+    + ['pendiente','proceso','ok'].map(function(k){ return '<option value="'+k+'"'+(estActual===k?' selected':'')+'>'+PEND_EST[k].lbl+'</option>'; }).join('')
+    + '</select></div>'
+    + '<div class="fl2 full"><label>Observación</label>'
+    + '<textarea id="pe_obs" placeholder="Detalle, acuerdo, número de radicado, contexto…">'+(p?escapeHtml(p.obs||''):'')+'</textarea></div>'
+    + '</div>';
+  $('mFoot').innerHTML = '<button class="btn bgh" onclick="closeModal()">Cancelar</button>'
+    + '<button class="btn bgr" onclick="savePend('+cid+','+(id||'null')+')">Guardar pendiente</button>';
+  openModal();
+}
+
+function pendRespSugerencias() {
+  // Sugiere supervisores y apoyos como responsables
+  var nombres = {};
+  D.sv.forEach(function(s){ if(s.nombre) nombres[s.nombre]=1; });
+  D.ap.forEach(function(a){ if(a.nombre) nombres[a.nombre]=1; });
+  D.pe.forEach(function(p){ if(p.responsable) nombres[p.responsable]=1; });
+  return Object.keys(nombres).map(function(n){ return '<option value="'+escapeAttr(n)+'">'; }).join('');
+}
+
+function savePend(cid, id) {
+  var titulo = $('pe_tit').value.trim();
+  if(!titulo) { toast('Escribe qué hay que hacer', true); return; }
+  var datos = {
+    titulo: titulo,
+    responsable: $('pe_resp').value.trim(),
+    fvence: $('pe_fv').value || '',
+    prioridad: $('pe_prio').value,
+    estado: $('pe_est').value,
+    obs: $('pe_obs').value.trim()
+  };
+  if(id && id !== 'null') {
+    Object.assign(D.pe.find(function(x){ return x.id == id; }), datos);
+  } else {
+    datos.id = Date.now();
+    datos.cid = cid;
+    datos.fcreado = Date.now();
+    D.pe.push(datos);
+  }
+  save(); closeModal();
+  var wrap = document.getElementById('ctpPe');
+  if(wrap) wrap.innerHTML = pendientesHTML(cid);
+  actualizarTabPend(cid);
+  toast('Pendiente guardado');
+}
+
+function delPend(id, cid) {
+  if(!confirm('¿Eliminar este pendiente?')) return;
+  D.pe = D.pe.filter(function(p){ return p.id != id; });
+  save();
+  var wrap = document.getElementById('ctpPe');
+  if(wrap) wrap.innerHTML = pendientesHTML(cid);
+  actualizarTabPend(cid);
+  toast('Pendiente eliminado');
+}
+
+// Helpers de escape (por si no existen ya)
+function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+// ── Panel de pendientes para el DASHBOARD ──────────────────
+function pendientesDashHTML() {
+  var abiertos = (D.pe||[]).filter(function(p){ return p.estado !== 'ok'; });
+  if(!abiertos.length) return '';
+  // Priorizar: vencidos primero, luego por prioridad, luego por fecha
+  var prioRank = { alta:0, media:1, baja:2 };
+  abiertos.sort(function(a,b){
+    var va = pendVencInfo(a), vb = pendVencInfo(b);
+    var oa = va&&va.vencido?0:1, ob = vb&&vb.vencido?0:1;
+    if(oa!==ob) return oa-ob;
+    var pr = prioRank[a.prioridad||'media'] - prioRank[b.prioridad||'media'];
+    if(pr) return pr;
+    if(a.fvence && b.fvence) return a.fvence.localeCompare(b.fvence);
+    if(a.fvence) return -1; if(b.fvence) return 1;
+    return 0;
+  });
+  var vencidos = abiertos.filter(function(p){ var v=pendVencInfo(p); return v&&v.vencido; }).length;
+  var top = abiertos.slice(0, 8);
+  var rows = top.map(function(p){
+    var c = D.ct.find(function(x){ return x.id == p.cid; });
+    if(!c) return '';
+    var est = PEND_EST[p.estado] || PEND_EST.pendiente;
+    var prio = PEND_PRIO[p.prioridad] || PEND_PRIO.media;
+    var venc = pendVencInfo(p);
+    return '<div style="background:#fff;border:1px solid var(--bd);border-left:3px solid '+prio.color+';border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer" onclick="verCt('+c.id+')">'
+      + '<div style="flex:1;min-width:180px">'
+      + '<div style="font-size:12.5px;font-weight:600;color:var(--tx)">'+escapeHtml(p.titulo)+'</div>'
+      + '<div style="font-size:11px;color:var(--mu);margin-top:1px">'+escapeHtml(c.num)+' — '+escapeHtml((c.obj||'').substring(0,42))+(p.responsable?' · '+escapeHtml(p.responsable):'')+'</div>'
+      + '</div>'
+      + '<span style="font-size:10px;font-weight:700;color:'+est.color+';background:'+est.bg+';padding:2px 9px;border-radius:20px;white-space:nowrap">'+est.lbl+'</span>'
+      + (venc ? '<span style="font-size:11.5px;font-weight:700;color:'+venc.color+';white-space:nowrap">'+venc.txt+'</span>' : '')
+      + '</div>';
+  }).join('');
+  var titColor = vencidos ? 'var(--accent)' : 'var(--am)';
+  var titTxt = vencidos
+    ? '📋 Pendientes por resolver · '+vencidos+' vencido(s)'
+    : '📋 Pendientes por resolver ('+abiertos.length+')';
+  var extra = abiertos.length > top.length
+    ? '<div style="font-size:11px;color:var(--mu);text-align:center;padding:4px">y '+(abiertos.length-top.length)+' pendiente(s) más…</div>'
+    : '';
+  return '<div class="ds-section" style="color:'+titColor+'">'+titTxt+'</div>'
+    + '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">'+rows+extra+'</div>';
+}
+
 function registrarCorte(cid) {
   const c = D.ct.find(x => x.id == cid); if(!c) return;
 
@@ -7085,7 +7387,8 @@ function exportarDatos() {
       cortes:       D.co  || [],
       polizas:      D.pl  || [],
       suspensiones: D.su  || [],
-      pagos:        D.pa  || []
+      pagos:        D.pa  || [],
+      pendientes:   D.pe  || []
     }
   };
   var json = JSON.stringify(exportData, null, 2);
@@ -7118,7 +7421,8 @@ function importarDatos(input) {
         co:  datos.cortes             || datos.cortesSeguimiento || datos.co  || [],
         pl:  datos.polizas             || datos.pl  || [],
         su:  datos.suspensiones        || datos.su  || [],
-        pa:  datos.pagos               || datos.pa  || []
+        pa:  datos.pagos               || datos.pa  || [],
+        pe:  datos.pendientes          || datos.pe  || []
       };
       var total = nuevo.sv.length + nuevo.ct.length;
       if(!confirm(
