@@ -658,7 +658,7 @@ nav.collapsed .ni:hover::after{opacity:1}
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v9M5 8l3 3 3-3M2 13h12"/></svg>
       Exportar
     </button>
-    <label style="background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;color:var(--mu2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.color='var(--tx)';this.style.borderColor='var(--bd)'" onmouseout="this.style.color='var(--mu2)';this.style.borderColor='var(--bd2)'">
+    <label class="ro-hide" style="background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;color:var(--mu2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.color='var(--tx)';this.style.borderColor='var(--bd)'" onmouseout="this.style.color='var(--mu2)';this.style.borderColor='var(--bd2)'">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 14V5M5 8l3-3 3 3M2 3h12"/></svg>
       Importar
       <input type="file" accept=".json" onchange="importarDatos(this)" style="display:none">
@@ -671,7 +671,7 @@ nav.collapsed .ni:hover::after{opacity:1}
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v9M5 8l3 3 3-3M2 13h12"/></svg>
       📋 Plantilla supervisores
     </button>
-    <label style="background:#2563eb;border:1px solid #1d4ed8;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(37,99,235,.25)" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'" title="Subir plantilla semanal de supervisores">
+    <label class="ro-hide" style="background:#2563eb;border:1px solid #1d4ed8;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(37,99,235,.25)" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'" title="Subir plantilla semanal de supervisores">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M8 5v6M5 8l3 3 3-3"/></svg>
       📥 Subir reporte semanal
       <input type="file" accept=".xlsx,.xls" onchange="importarExcel(this)" style="display:none">
@@ -790,7 +790,9 @@ if(!D.estados || !D.estados.length) {
 }
 // Migración: asegurar campo profesion en apoyos
 D.ap.forEach(a => { if(!a.profesion) a.profesion = ''; });
-const save = () => { localStorage.setItem(KEY, JSON.stringify(D)); if(typeof _pushPanel==='function') _pushPanel(); };
+// Modo solo lectura (portal de consulta). En este modo nada se guarda ni se sincroniza.
+let READONLY = false;
+const save = () => { if(READONLY) return; localStorage.setItem(KEY, JSON.stringify(D)); if(typeof _pushPanel==='function') _pushPanel(); };
 
 /* ═══════════════ SINCRONIZACIÓN EN LÍNEA (SUPABASE) ═══════════════
    1) Crea un proyecto en Supabase y pega aquí abajo su URL y su clave "anon".
@@ -810,6 +812,7 @@ function _setSync(state){
   el.title = state==='saving' ? 'Guardando…' : state==='err' ? 'Sin conexión — guardado local' : 'Datos sincronizados';
 }
 function _pushRemote(){
+  if(READONLY) return;                    // modo solo lectura: nunca sincroniza
   if(!window.__sb) return;
   _setSync('saving');
   clearTimeout(_pushT);
@@ -869,6 +872,11 @@ function _showLogin(msg){
     + '<input id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;border:1.5px solid #dde2ec;border-radius:9px;padding:11px 12px;font-size:14px;margin-bottom:14px;outline:none">'
     + '<button id="loginBtn" style="width:100%;background:#C8232A;color:#fff;border:none;border-radius:9px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Ingresar</button>'
     + '<div id="loginMsg" style="font-size:12px;color:#dc2626;margin-top:10px;min-height:16px">' + (msg||'') + '</div>'
+    + '<div style="display:flex;align-items:center;gap:10px;margin:14px 0 12px"><div style="flex:1;height:1px;background:#e6eaf2"></div><span style="font-size:10px;color:#9aa6bd;text-transform:uppercase;letter-spacing:.1em">o</span><div style="flex:1;height:1px;background:#e6eaf2"></div></div>'
+    + '<button id="viewBtn" style="width:100%;background:#fff;color:#2563eb;border:1.5px solid #cdd7ea;border-radius:9px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">'
+      + '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2.2"/></svg>'
+      + 'Ingresar en modo solo lectura</button>'
+    + '<div style="font-size:11px;color:#9aa6bd;margin-top:8px;text-align:center;line-height:1.5">Consulta el estado de los contratos sin poder editar.</div>'
     + '</div>';
   document.body.appendChild(o);
   var doLogin = async function(){
@@ -886,8 +894,40 @@ function _showLogin(msg){
   };
   document.getElementById('loginBtn').onclick = doLogin;
   document.getElementById('loginPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  var vb = document.getElementById('viewBtn');
+  if(vb) vb.onclick = function(){ vb.disabled = true; vb.textContent = 'Cargando…'; _enterReadonly(); };
 }
 function _hideLogin(){ var o=document.getElementById('loginOverlay'); if(o) o.remove(); }
+
+/* ── Portal de solo lectura ── */
+function _mountReadonlyUI(){
+  document.body.classList.add('readonly');
+  if(!document.getElementById('roStyle')){
+    var st = document.createElement('style');
+    st.id = 'roStyle';
+    st.textContent =
+      'body.readonly .bgr,body.readonly .brd,body.readonly .bbl,body.readonly .ro-hide{display:none !important;}'
+      + 'body.readonly .gantt-pinp,body.readonly [id^="fc_wrap_"] input,body.readonly [id^="fc_wrap_"] textarea{pointer-events:none;opacity:.6;}'
+      + '.ro-badge{display:inline-flex;align-items:center;gap:6px;background:#eef2f9;color:#2563eb;border:1px solid #d3dae7;border-radius:20px;padding:3px 11px;font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}';
+    document.head.appendChild(st);
+  }
+  var tr = document.querySelector('.tright');
+  if(tr && !document.getElementById('roBadge')){
+    var b = document.createElement('span');
+    b.id = 'roBadge'; b.className = 'ro-badge';
+    b.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2.2"/></svg> Solo lectura';
+    tr.insertBefore(b, tr.firstChild);
+  }
+  var sd = document.getElementById('syncDot'); if(sd) sd.style.display = 'none';
+}
+async function _enterReadonly(){
+  READONLY = true;
+  _mountReadonlyUI();
+  if(window.__sb){ try{ await _loadRemote(); }catch(e){ console.warn('ro load', e); } }
+  _hideLogin();
+  try{ if(typeof render==='function') render(); }catch(e){}
+}
+window._enterReadonly = _enterReadonly;
 
 async function _afterAuth(){
   await _loadRemote();
@@ -902,9 +942,15 @@ function _mountSyncDot(){
     tr.insertBefore(d, tr.firstChild);
   }
 }
+function _isViewerLink(){
+  var h = (location.hash||'').toLowerCase();
+  return h === '#ver' || h === '#solo-lectura' || h === '#solo-lectura' || h === '#viewer';
+}
 async function _bootSync(){
   if(!window.__sb) return;               // Supabase sin configurar → modo local
   _mountSyncDot();
+  // Enlace directo al portal de consulta (ej: panel.html#ver)
+  if(_isViewerLink()){ await _enterReadonly(); return; }
   try{
     var s = await window.__sb.auth.getSession();
     if(s && s.data && s.data.session){ await _afterAuth(); }
@@ -1428,6 +1474,8 @@ const VIEWS = {
 dashboard() {
   const s = gstats();
   const roots = D.ct.filter(c => !c.pid);
+  // Contratos que se muestran en el resumen: solo derivados / obras, sin interadministrativos
+  const dashCts = D.ct.filter(c => c.tipo !== 'interadministrativo');
   const alerts = D.ct
     .filter(c => ['bw','br'].includes(status(c).cls))
     .sort((a,b) => (daysLeft(fechaFinReal(a)||a.fend)||999) - (daysLeft(fechaFinReal(b)||b.fend)||999));
@@ -1505,21 +1553,15 @@ dashboard() {
     </div>
   </div>
 
-  ${roots.length > 0 ? `
+  ${dashCts.length > 0 ? `
   <div class="ds-section">Avance de obras · real vs programado</div>
-  <div class="panel" style="margin-bottom:22px"><div class="pb"><div style="position:relative;height:${Math.min(460, Math.max(160, roots.length*40+46))}px"><canvas id="dashAvanceChart"></canvas></div></div></div>
+  <div class="panel" style="margin-bottom:22px"><div class="pb"><div style="position:relative;height:${Math.min(340, Math.max(120, dashCts.length*22+38))}px"><canvas id="dashAvanceChart"></canvas></div></div></div>
   <div class="ds-section">Distribución de contratos por estado</div>
   <div class="panel" style="margin-bottom:22px"><div class="pb"><div style="position:relative;height:300px"><canvas id="dashEstadosChart"></canvas></div></div></div>
-  <div class="ds-section">Contratos principales</div>
+  <div class="ds-section">Contratos</div>
   <div class="ct-cards">
-    ${roots.map(c => ctCard(c)).join('')}
-  </div>
-  ${(function(){
-    var derivAlert = D.ct.filter(function(c){ return c.pid && ['bw','br'].includes(status(c).cls); });
-    if(!derivAlert.length) return '';
-    return '<div class="ds-section" style="margin-top:4px">Derivados con alertas</div>' +
-           '<div class="ct-cards">' + derivAlert.map(function(c){ return ctCard(c); }).join('') + '</div>';
-  })()}` : `
+    ${dashCts.map(c => ctCard(c)).join('')}
+  </div>` : `
   <div style="background:#fff;border-radius:14px;border:1px solid var(--bd);padding:48px;text-align:center;margin-bottom:24px">
     <div style="font-size:32px;margin-bottom:12px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="2" y="1" width="12" height="14" rx="1.5"/><path d="M5 5h6M5 8h6M5 11h4"/></svg></div>
     <div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:6px">Sin contratos aún</div>
@@ -1575,7 +1617,7 @@ dashboard() {
 
   </div>
 
-  <div style="background:#fff;border:1px solid var(--bd);border-radius:14px;padding:20px 24px;margin-top:8px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:var(--card-shadow)">
+  <div class="ro-hide" style="background:#fff;border:1px solid var(--bd);border-radius:14px;padding:20px 24px;margin-top:8px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:var(--card-shadow)">
     <div style="width:44px;height:44px;border-radius:12px;background:var(--gr-d);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📥</div>
     <div style="flex:1;min-width:220px">
       <div style="font-weight:700;font-size:13px;color:var(--tx);margin-bottom:3px">Cargar plantilla semanal de supervisores</div>
@@ -1709,6 +1751,7 @@ supervisores() {
                         + '<div style="flex:1;min-width:0">'
                           + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
                             + '<span style="font-size:13px;font-weight:700;color:var(--tx)">' + ct.num + '</span>'
+                            + (ct.alias ? '<span style="font-size:12px;font-weight:600;color:var(--accent-t)">' + escapeHtml(ct.alias) + '</span>' : '')
                             + '<span class="b '+e.cls+'" style="font-size:9px"><span class="bd_"></span>' + e.lbl + '</span>'
                             + '<span style="font-size:10px;color:var(--mu2);background:var(--sf2);padding:1px 6px;border-radius:3px">' + ct.tipo + '</span>'
                           + '</div>'
@@ -1734,6 +1777,7 @@ supervisores() {
                   + '<div style="flex:1;min-width:0">'
                     + '<div style="display:flex;gap:8px;align-items:center">'
                       + '<span style="font-size:13px;font-weight:700;color:var(--tx)">' + ct.num + '</span>'
+                      + (ct.alias ? '<span style="font-size:12px;font-weight:600;color:var(--accent-t)">' + escapeHtml(ct.alias) + '</span>' : '')
                       + '<span class="b '+e.cls+'" style="font-size:9px"><span class="bd_"></span>' + e.lbl + '</span>'
                     + '</div>'
                     + '<div style="font-size:12px;color:var(--mu);margin-top:2px">' + ct.obj.substring(0,70) + '</div>'
@@ -7562,7 +7606,7 @@ function initChartsFor(view){
 // ── Dashboard: avance real vs programado por obra (raíz) ──
 function initDashAvanceChart(){
   var ctx = document.getElementById('dashAvanceChart'); if(!ctx) return;
-  var roots = D.ct.filter(function(c){ return !c.pid; });
+  var roots = D.ct.filter(function(c){ return c.tipo !== 'interadministrativo'; });
   if(!roots.length){ _chartEmpty('dashAvanceChart', 'Sin contratos para graficar.'); return; }
   var labels = roots.map(function(c){ return _cutLabel(c.alias || c.num, 26); });
   var real = roots.map(function(c){ return pctReal(c.id); });
@@ -7571,17 +7615,17 @@ function initDashAvanceChart(){
   window._edesoCharts['dashAvanceChart'] = new Chart(ctx.getContext('2d'), {
     type:'bar',
     data:{ labels:labels, datasets:[
-      { label:'Programado', data:prog, backgroundColor:'rgba(106,118,144,.35)', borderRadius:4 },
-      { label:'Real',       data:real, backgroundColor:_CH.rd, borderRadius:4 }
+      { label:'Programado', data:prog, backgroundColor:'rgba(106,118,144,.35)', borderRadius:3, maxBarThickness:9 },
+      { label:'Real',       data:real, backgroundColor:_CH.rd, borderRadius:3, maxBarThickness:9 }
     ]},
     options:{
       indexAxis:'y', responsive:true, maintainAspectRatio:false,
       scales:{
-        x:{ min:0, max:100, ticks:{ callback:function(v){ return v+'%'; } }, grid:{ color:_CH.grid } },
-        y:{ grid:{ display:false } }
+        x:{ min:0, max:100, ticks:{ font:{ size:10 }, callback:function(v){ return v+'%'; } }, grid:{ color:_CH.grid } },
+        y:{ grid:{ display:false }, ticks:{ font:{ size:10 } } }
       },
       plugins:{
-        legend:{ position:'top', labels:{ boxWidth:12, font:{ size:11 } } },
+        legend:{ position:'top', labels:{ boxWidth:10, font:{ size:10 } } },
         tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+': '+c.parsed.x+'%'; } } }
       }
     }
@@ -7659,15 +7703,24 @@ function initPagosContratoChart(){
 // ── Dashboard: dona de estados de contratos ──
 function initDashEstadosChart(){
   var ctx = document.getElementById('dashEstadosChart'); if(!ctx) return;
-  if(!D.ct.length){ _chartEmpty('dashEstadosChart', 'Sin contratos para graficar.'); return; }
-  var estados = D.estados || [];
-  var labels = [], data = [], colors = [];
-  estados.forEach(function(e){
-    var n = D.ct.filter(function(c){ return c.estado === e.id; }).length;
-    if(n > 0){ labels.push(e.label); data.push(n); colors.push(e.color || _CH.mu); }
+  var lista = D.ct.filter(function(c){ return c.tipo !== 'interadministrativo'; });
+  if(!lista.length){ _chartEmpty('dashEstadosChart', 'Sin contratos para graficar.'); return; }
+  // Color de respaldo por clase de badge (cuando el estado usa var(--..) o no trae color hex)
+  var clsColor = { bg:'#16a34a', bw:'#d97706', br:'#dc2626', bi:'#2563eb', bp:'#7c3aed', bmu:'#6b7280' };
+  // Agrupar por ESTADO EFECTIVO: el mismo que muestran los badges (personalizado o automático)
+  var groups = {}, order = [];
+  lista.forEach(function(c){
+    var e   = status(c);
+    var lbl = e.lbl;
+    if(/^Vence\s/.test(lbl)) lbl = 'Por vencer';   // unir "Vence 12d", "Vence 3d"…
+    var color = e.color;
+    if(!color || String(color).indexOf('var(') === 0) color = clsColor[e.cls] || '#6a7690';
+    if(!groups[lbl]){ groups[lbl] = { n:0, color:color }; order.push(lbl); }
+    groups[lbl].n++;
   });
-  var sinEstado = D.ct.filter(function(c){ return !c.estado || !estados.some(function(e){ return e.id===c.estado; }); }).length;
-  if(sinEstado > 0){ labels.push('Sin estado'); data.push(sinEstado); colors.push('#c8d0e0'); }
+  var labels = order;
+  var data   = order.map(function(l){ return groups[l].n; });
+  var colors = order.map(function(l){ return groups[l].color; });
   if(!data.length){ _chartEmpty('dashEstadosChart', 'Sin datos de estado.'); return; }
   _destroyChart('dashEstadosChart');
   window._edesoCharts['dashEstadosChart'] = new Chart(ctx.getContext('2d'), {
@@ -8820,7 +8873,58 @@ function xlDate(v) {
   return '';
 }
 
+// ═══════════════ BLINDAJE MODO SOLO LECTURA ═══════════════
+// Envuelve todas las funciones que modifican datos: en modo READONLY no hacen
+// nada (solo avisan). Es un respaldo por si algún botón de edición quedara visible.
+(function(){
+  var _mut = [
+    // Contratos
+    'openCt','saveCt','delCt','gestionarEstados','guardarEstados','estadoAddRow',
+    // Supervisores
+    'openSv','saveSv','delSv','verSv',
+    // Apoyos
+    'openAp','saveAp','delAp','addCtaAp','elimCtaAp','gestionarGruposAp','guardarGruposAp',
+    // Prórrogas / Adiciones / Pólizas
+    'openPr','savePr','delPr','openAd','saveAd','delAd','openPol','savePol','delPol',
+    // Pendientes
+    'openPend','savePend','delPend','cyclePendEstado',
+    // Pagos
+    'openPago','guardarPago','delPago',
+    // Suspensiones
+    'openSusp','saveSusp','openReinicio','saveReinicio','delSusp',
+    // Actividades / Gantt / Project
+    'openActH','saveActH','openAct','saveAct','openEditAct','updateAct','delActH','delAct',
+    'updateRealH','updateReal','ganttCtxAct','openAPU','saveAPU','apuAddRow','apuDelRow',
+    'openDependencias','saveDependencias','depAddRow','openRestriccion','saveRestriccion',
+    'guardarLineaBase','limpiarLineaBase','reprogramarTodo','toggleBaselineView',
+    // Cortes de seguimiento
+    'registrarCorte','guardarCorte','openCortePct','guardarCortePct','elimCorte2',
+    // Flujo de caja
+    'fcGuardar','fcAddRow','fcDelRow','fcReset',
+    // Fotos
+    'addFotoCt','delFotoCt',
+    // Importaciones (las exportaciones sí se permiten)
+    'importarDatos','importarExcel',
+    // Visor de obras
+    'vUbicar','vQuitarUbicacion','vSF2','vSO2','vDO','vOA','vOE'
+  ];
+  // verSv es solo lectura (perfil), lo quitamos de la lista
+  _mut = _mut.filter(function(n){ return n !== 'verSv'; });
+  _mut.forEach(function(fn){
+    var orig = window[fn];
+    if(typeof orig !== 'function') return;
+    window[fn] = function(){
+      if(READONLY){
+        if(typeof toast === 'function') toast('Modo solo lectura — no puedes editar', true);
+        return;
+      }
+      return orig.apply(this, arguments);
+    };
+  });
+})();
+
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </body>
