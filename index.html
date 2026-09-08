@@ -792,7 +792,19 @@ if(!D.estados || !D.estados.length) {
 D.ap.forEach(a => { if(!a.profesion) a.profesion = ''; });
 // Modo solo lectura (portal de consulta). En este modo nada se guarda ni se sincroniza.
 let READONLY = false;
-const save = () => { if(READONLY) return; localStorage.setItem(KEY, JSON.stringify(D)); if(typeof _pushPanel==='function') _pushPanel(); };
+const save = () => {
+  if(READONLY) return;
+  try {
+    localStorage.setItem(KEY, JSON.stringify(D));
+  } catch(e) {
+    // Casi siempre: almacenamiento local lleno (fotos en base64 ocupan mucho).
+    console.warn('save/localStorage', e);
+    if(typeof toast === 'function')
+      toast('No se pudo guardar en este navegador: almacenamiento lleno. Se intentará guardar en el servidor. Reduce fotos o exporta un respaldo.', true);
+  }
+  // Aunque falle el guardado local, intentamos sincronizar con el servidor.
+  if(typeof _pushPanel==='function') _pushPanel();
+};
 
 /* ═══════════════ SINCRONIZACIÓN EN LÍNEA (SUPABASE) ═══════════════
    1) Crea un proyecto en Supabase y pega aquí abajo su URL y su clave "anon".
@@ -825,7 +837,12 @@ function _pushRemote(){
       var r = await window.__sb.from('edeso_state').upsert(rows, { onConflict:'key' });
       if(r.error) throw r.error;
       _setSync('ok');
-    }catch(e){ console.warn('sync push', e); _setSync('err'); }
+    }catch(e){
+      console.warn('sync push', e);
+      _setSync('err');
+      if(typeof toast === 'function')
+        toast('No se pudo guardar en el servidor (revisa conexión o permisos). Se conservó localmente.', true);
+    }
   }, 700);
 }
 function _pushPanel(){ _pushRemote(); }
