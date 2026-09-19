@@ -424,21 +424,53 @@ main{overflow-y:auto;padding:32px 36px;background:var(--sf2)}
 .foto-preview .av-ini{font-size:22px;font-weight:700;color:var(--accent)}
 .foto-btn{font-size:12px;padding:6px 14px}
 .av-foto{border-radius:50%;object-fit:cover;object-position:center;flex-shrink:0;border:2px solid var(--bd);display:block}
-/* galería contratos */
-.ct-fotos{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.ct-foto-item{position:relative;width:90px;height:90px;border-radius:10px;overflow:hidden;border:1px solid var(--bd);cursor:pointer;group}
-.ct-foto-item img{width:100%;height:100%;object-fit:cover;transition:transform .2s}
-.ct-foto-item:hover img{transform:scale(1.05)}
-.ct-foto-del{position:absolute;top:4px;right:4px;background:rgba(200,35,42,.85);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
-.ct-foto-item:hover .ct-foto-del{opacity:1}
-.ct-foto-add{width:90px;height:90px;border-radius:10px;border:2px dashed var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--mu);font-size:11px;gap:4px;transition:all .15s}
-.ct-foto-add:hover{border-color:var(--accent);color:var(--accent);background:rgba(200,35,42,.04)}
-/* lightbox */
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center}
+/* ── MULTIMEDIA (pestaña del contrato) ── */
+.mm-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.mm-info{font-size:12px;color:var(--mu2);margin-top:4px}
+.mm-filtros{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.mm-filtros label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);display:flex;flex-direction:column;gap:3px}
+.mm-filtros input[type=date]{border:1px solid var(--bd2);border-radius:7px;padding:5px 8px;font-size:12px;font-family:inherit;color:var(--tx);background:#fff}
+.mm-mes{margin-bottom:26px}
+.mm-mes-h{font-size:15px;font-weight:800;color:var(--tx);padding-bottom:6px;margin-bottom:12px;border-bottom:2px solid var(--bd);letter-spacing:-.01em}
+.mm-mes-h span,.mm-dia-h span{font-size:11px;font-weight:500;color:var(--mu)}
+.mm-dia{margin-bottom:14px}
+.mm-dia-h{font-size:12px;font-weight:700;color:var(--mu2);margin-bottom:8px}
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.mm-item{position:relative;aspect-ratio:1/1;border-radius:10px;overflow:hidden;border:1px solid var(--bd);cursor:pointer;background:var(--sf3)}
+.mm-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+.mm-item:hover img{transform:scale(1.05)}
+.mm-fecha{position:absolute;left:5px;bottom:5px;background:rgba(0,0,0,.6);color:#fff;font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:6px;pointer-events:none}
+.mm-del{position:absolute;top:5px;right:5px;background:rgba(200,35,42,.9);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.mm-item:hover .mm-del{opacity:1}
+@media (hover:none){.mm-del{opacity:.9}}
+.mm-vacio{border:2px dashed var(--bd);border-radius:12px;padding:40px 20px;text-align:center;color:var(--mu);font-size:13px}
+.mm-aviso{font-size:12px;color:var(--am-t);background:var(--am-d);border-radius:8px;padding:8px 12px;margin-bottom:14px}
+/* ── ADJUNTOS (archivos de respaldo) ── */
+.adj-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:6px;min-width:150px}
+.adj-item{display:inline-flex;align-items:center;background:var(--sf2);border:1px solid var(--bd);border-radius:14px;overflow:hidden;font-size:11px;max-width:230px}
+.adj-rol{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--am-t);background:var(--am-d);padding:4px 7px}
+.adj-chip{color:var(--bl-t);text-decoration:none;padding:3px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.adj-chip:hover{background:var(--bl-d)}
+.adj-x{border:none;background:transparent;color:var(--mu);cursor:pointer;padding:3px 8px;font-size:13px;line-height:1}
+.adj-x:hover{color:var(--accent);background:var(--accent-d)}
+/* visor de fotos (carrusel) */
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;flex-direction:column;align-items:center}
 #lightbox.on{display:flex}
-#lightbox img{max-width:90vw;max-height:88vh;border-radius:8px;object-fit:contain}
-#lightbox-close{position:fixed;top:20px;right:24px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.8;line-height:1}
+.lb-stage{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;padding:56px 76px 8px}
+#lightbox-img{max-width:100%;max-height:100%;border-radius:8px;object-fit:contain}
+#lightbox-close{position:fixed;top:16px;right:22px;background:none;border:none;color:#fff;font-size:30px;cursor:pointer;opacity:.8;line-height:1;z-index:2}
 #lightbox-close:hover{opacity:1}
+#lb-count{position:fixed;top:22px;left:24px;color:#fff;opacity:.8;font-size:13px;font-weight:600;z-index:2}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:72px;background:rgba(255,255,255,.1);border:none;border-radius:10px;color:#fff;font-size:38px;line-height:1;cursor:pointer;z-index:2;transition:background .15s}
+.lb-nav:hover{background:rgba(255,255,255,.25)}
+.lb-prev{left:12px}.lb-next{right:12px}
+.lb-bar{flex-shrink:0;width:100%;padding:10px 20px 20px;color:#fff;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:13px}
+.lb-nombre{max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.lb-bar label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.9}
+.lb-bar input[type=date]{border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:5px 8px;font-size:13px;font-family:inherit;background:#fff;color:#1a2035}
+.lb-bar button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+.lb-bar button:hover{background:rgba(255,255,255,.25)}
+@media (max-width:640px){.lb-stage{padding:52px 8px 4px}.lb-nav{width:40px;height:56px;font-size:30px}}
 
 
 /* ── GANTT MS PROJECT ────────────────────────────────────── */
@@ -731,7 +763,14 @@ nav.collapsed .ni:hover::after{opacity:1}
 <main id="main"></main>
 <div id="ctPage"></div>
 <div id="ganttFullView"></div>
-<div id="lightbox"><button id="lightbox-close" onclick="closeLightbox()">×</button><img id="lightbox-img" src=""></div>
+<div id="lightbox">
+  <button id="lightbox-close" onclick="closeVisor()" title="Cerrar (Esc)">×</button>
+  <div id="lb-count"></div>
+  <button class="lb-nav lb-prev" id="lb-prev" onclick="visorNav(-1)" title="Anterior (←)">‹</button>
+  <div class="lb-stage" id="lb-stage"><img id="lightbox-img" src="" alt=""></div>
+  <button class="lb-nav lb-next" id="lb-next" onclick="visorNav(1)" title="Siguiente (→)">›</button>
+  <div class="lb-bar" id="lb-bar"></div>
+</div>
 </div>
 
 <!-- MODAL -->
@@ -1982,7 +2021,7 @@ prorrogas() {
     ${D.pr.length === 0
       ? `<div class="emp" style="padding:48px">Sin prórrogas registradas.</div>`
       : `<table class="etbl">
-          <thead><tr><th>Contrato</th><th>No.</th><th>Nueva fecha fin</th><th>Días</th><th>Justificación</th><th></th></tr></thead>
+          <thead><tr><th>Contrato</th><th>No.</th><th>Nueva fecha fin</th><th>Días</th><th>Justificación</th><th>Adjuntos</th><th></th></tr></thead>
           <tbody>${D.pr.map(p => {
             const c = D.ct.find(x => x.id == p.cid);
             return `<tr>
@@ -1991,6 +2030,7 @@ prorrogas() {
               <td style="color:var(--bl-t)">${fmt(p.nfin)}</td>
               <td class="dc">${p.dias||'—'} días</td>
               <td style="font-size:11.5px;color:var(--mu);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.just||'—'}</td>
+              <td>${adjuntosHTML('pr', p)}</td>
               <td><button class="btn sm brd" onclick="delPr(${p.id})">Eliminar</button></td>
             </tr>`;
           }).join('')}</tbody>
@@ -2015,7 +2055,7 @@ adiciones() {
     ${D.ad.length === 0
       ? `<div class="emp" style="padding:48px">Sin adiciones registradas.</div>`
       : `<table class="etbl">
-          <thead><tr><th>Contrato</th><th>No.</th><th>Valor</th><th>Fecha</th><th>Justificación</th><th></th></tr></thead>
+          <thead><tr><th>Contrato</th><th>No.</th><th>Valor</th><th>Fecha</th><th>Justificación</th><th>Adjuntos</th><th></th></tr></thead>
           <tbody>${D.ad.map(a => {
             const c = D.ct.find(x => x.id == a.cid);
             return `<tr>
@@ -2024,6 +2064,7 @@ adiciones() {
               <td class="mc">${cop(a.valor)}</td>
               <td class="dc">${fmt(a.fecha)}</td>
               <td style="font-size:11.5px;color:var(--mu);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.just||'—'}</td>
+              <td>${adjuntosHTML('ad', a)}</td>
               <td><button class="btn sm brd" onclick="delAd(${a.id})">Eliminar</button></td>
             </tr>`;
           }).join('')}</tbody>
@@ -2183,7 +2224,7 @@ pagos() {
       <table class="etbl">
         <thead><tr>
           <th>Pago No.</th><th>Contrato</th><th>Fecha</th>
-          <th style="text-align:right">Valor</th><th>Observaciones</th><th></th>
+          <th style="text-align:right">Valor</th><th>Observaciones</th><th>Adjuntos</th><th></th>
         </tr></thead>
         <tbody>
           ${[...D.pa].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')).map(p => {
@@ -2197,6 +2238,7 @@ pagos() {
               <td style="color:var(--mu2);font-size:12px">${fmt(p.fecha)}</td>
               <td style="text-align:right;font-weight:700;color:var(--gr)">${cop(p.valor)}</td>
               <td style="font-size:11.5px;color:var(--mu2);max-width:200px">${p.obs||'—'}</td>
+              <td>${adjuntosHTML('pa', p)}</td>
               <td style="white-space:nowrap">
                 <button class="btn sm bgh" onclick="openPago(${p.cid},${p.id})">Editar</button>
                 <button class="btn sm brd" onclick="delPago(${p.id})">Eliminar</button>
@@ -3819,6 +3861,7 @@ function verCt(id) {
       <div class="ctp-tabs2" id="ctpTabs">
         <div class="ctp-tab2 on" onclick="ctpSwTab(this,'ctpInfo')" style="color:${sem.color}"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="2" y="1" width="12" height="14" rx="1.5"/><path d="M5 5h6M5 8h6M5 11h4"/></svg> Información</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpSeg')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M1 13l4-4 3 2 4-5 2-2"/><path d="M11 4h3v3"/></svg> Seguimiento</div>
+        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpMM');renderFotos(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="4" width="14" height="10" rx="2"/><circle cx="8" cy="9" r="2.5"/><path d="M5.5 4l1-2h3l1 2"/></svg> Multimedia <span id="mmTabN">${(c.fotos||[]).length ? '('+(c.fotos||[]).length+')' : ''}</span></div>
         ${(c.tipo !== 'interadministrativo' && c.tipo !== 'interventoria' && (c.trackingMode||'gantt') !== 'pct') ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpGantt');abrirGanttFull(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 7h14M5 3v10M11 3v10"/></svg> Gantt</div>` : ''}
         ${(c.tipo !== 'interadministrativo' && c.tipo !== 'interventoria') ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpFC');renderFlujoCaja(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="8" cy="8" r="6"/><path d="M8 4v1.5M8 10.5V12M10 6.5C10 5.7 9.1 5 8 5s-2 .7-2 1.5c0 .9.9 1.3 2 1.5 1.1.2 2 .7 2 1.5S9.1 11 8 11s-2-.7-2-1.5"/></svg> Flujo de Caja</div>` : ''}
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPr')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M2 8a6 6 0 016-6 6 6 0 014.2 1.7L14 5"/><path d="M14 2v4h-4"/><path d="M14 8a6 6 0 01-6 6 6 6 0 01-4.2-1.7L2 11"/><path d="M2 14v-4h4"/></svg> Prórrogas ${prs.length?'('+prs.length+')':''}</div>
@@ -3900,23 +3943,25 @@ function verCt(id) {
       </div>
       ${c.obj ? `<div class="ct-info-card" style="margin-top:16px"><h3>Objeto del contrato</h3><div style="font-size:13.5px;line-height:1.7;color:var(--tx)">${c.obj}</div></div>` : ''}
       ${c.obs ? `<div class="ct-info-card" style="margin-top:16px"><h3>Observaciones</h3><div style="font-size:12.5px;line-height:1.6;color:var(--mu2)">${c.obs}</div></div>` : ''}
-      <div class="ct-info-card" style="margin-top:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h3>Galería de fotos</h3>
-          <button class="btn sm bgh" onclick="addFotoCt(${id})" style="font-size:10px">+ Agregar</button>
+    </div>
+
+    <!-- MULTIMEDIA (las fotos se dibujan al abrir la pestaña: renderFotos) -->
+    <div class="ctp-pane" id="ctpMM">
+      <div class="ct-info-card">
+        <div class="mm-bar">
+          <div>
+            <h3 style="margin:0">Multimedia</h3>
+            <div class="mm-info" id="mm-info-${id}"></div>
+          </div>
+          <div class="mm-filtros">
+            <label>Desde <input type="date" id="mm-desde-${id}" value="${_mmGet(id).desde}" onchange="mmSetFiltro(${id})"></label>
+            <label>Hasta <input type="date" id="mm-hasta-${id}" value="${_mmGet(id).hasta}" onchange="mmSetFiltro(${id})"></label>
+            <button class="btn sm bgh" onclick="mmLimpiar(${id})">Limpiar</button>
+            <button class="btn sm bgh" id="mm-orden-${id}" onclick="mmToggleOrden(${id})"></button>
+            <button class="btn sm bgr ro-hide" onclick="addFotoCt(${id})">+ Agregar fotos</button>
+          </div>
         </div>
-        <div class="ct-fotos" id="ct-fotos-wrap-${id}">
-          ${(c.fotos||[]).length === 0
-            ? `<div class="ct-foto-add" onclick="addFotoCt(${id})">
-                <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
-                Agregar fotos
-               </div>`
-            : (c.fotos||[]).map(f => fotoItemHTML(id, f)).join('') +
-              `<div class="ct-foto-add" onclick="addFotoCt(${id})">
-                <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
-                Agregar
-               </div>`}
-        </div>
+        <div id="ct-fotos-wrap-${id}"></div>
       </div>
     </div>
 
@@ -3948,11 +3993,12 @@ function verCt(id) {
         <div class="ct-info-card" style="margin-bottom:10px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
             <div style="font-weight:600;font-size:13px">Prórroga No. ${p.num||'—'}</div>
-            <button class="btn sm brd" onclick="delPr(${p.id});verCt(${id})">Eliminar</button>
+            <button class="btn sm brd" onclick="delPr(${p.id})">Eliminar</button>
           </div>
           <div class="ct-field"><span class="ct-fl">Nueva fecha fin</span><span class="ct-fv accent">${fmt(p.nfin)}</span></div>
           <div class="ct-field"><span class="ct-fl">Días adicionales</span><span class="ct-fv">${p.dias||'—'} días</span></div>
           ${p.just?`<div class="ct-field"><span class="ct-fl">Justificación</span><span class="ct-fv" style="text-align:left">${p.just}</span></div>`:''}
+          <div class="ct-field"><span class="ct-fl">Adjuntos</span><span class="ct-fv" style="text-align:left">${adjuntosHTML('pr', p)}</span></div>
         </div>`).join('')}
     </div>
 
@@ -3970,11 +4016,12 @@ function verCt(id) {
         <div class="ct-info-card" style="margin-bottom:10px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
             <div style="font-weight:600;font-size:13px">Adición No. ${a.num||'—'}</div>
-            <button class="btn sm brd" onclick="delAd(${a.id});verCt(${id})">Eliminar</button>
+            <button class="btn sm brd" onclick="delAd(${a.id})">Eliminar</button>
           </div>
           <div class="ct-field"><span class="ct-fl">Valor</span><span class="ct-fv money">${cop(a.valor)}</span></div>
           <div class="ct-field"><span class="ct-fl">Fecha</span><span class="ct-fv">${fmt(a.fecha)}</span></div>
           ${a.just?`<div class="ct-field"><span class="ct-fl">Justificación</span><span class="ct-fv" style="text-align:left">${a.just}</span></div>`:''}
+          <div class="ct-field"><span class="ct-fl">Adjuntos</span><span class="ct-fv" style="text-align:left">${adjuntosHTML('ad', a)}</span></div>
         </div>`).join('')}
     </div>
 
@@ -4428,8 +4475,9 @@ function toggleSvField() {
   wrap.style.display = tipo === 'interadministrativo' ? 'none' : 'block';
 }
 
-function delCt(id) {
+async function delCt(id) {
   if(!confirm('¿Eliminar este contrato y todos sus derivados y datos asociados?')) return;
+  if(!(await _nubeBorrarContratos(id))) return;   // fotos y adjuntos de la nube primero; si falla, no se elimina nada
   if(ctPageCid == id) { cerrarCtPage(); }
   function rm(cid) {
     kids(cid).forEach(h => rm(h.id));
@@ -4681,7 +4729,11 @@ function savePr() {
   save(); closeModal(); if(ctPageCid) verCt(ctPageCid); else render(); toast('Prórroga registrada');
 }
 
-function delPr(id) { D.pr = D.pr.filter(p => p.id != id); save(); if(ctPageCid) verCt(ctPageCid); else render(); toast('Prórroga eliminada'); }
+async function delPr(id) {
+  const p = D.pr.find(x => x.id == id);
+  if(p && !(await _adjBorrarDe([p], true))) return;   // primero los archivos de la nube; si falla, no se elimina
+  D.pr = D.pr.filter(p => p.id != id); save(); if(ctPageCid) verCt(ctPageCid); else render(); toast('Prórroga eliminada');
+}
 
 // ─── FORM ADICIÓN ────────────────────────────────────────
 function openAd(cid) {
@@ -4705,7 +4757,11 @@ function saveAd() {
   save(); closeModal(); if(ctPageCid) verCt(ctPageCid); else render(); toast('Adición registrada');
 }
 
-function delAd(id) { D.ad = D.ad.filter(a => a.id != id); save(); if(ctPageCid) verCt(ctPageCid); else render(); toast('Adición eliminada'); }
+async function delAd(id) {
+  const a = D.ad.find(x => x.id == id);
+  if(a && !(await _adjBorrarDe([a], true))) return;   // primero los archivos de la nube; si falla, no se elimina
+  D.ad = D.ad.filter(a => a.id != id); save(); if(ctPageCid) verCt(ctPageCid); else render(); toast('Adición eliminada');
+}
 
 // ─── MODAL ───────────────────────────────────────────────
 function openModal()  { $('ov').classList.add('on'); }
@@ -6991,7 +7047,7 @@ function pagosContratoHTML(cid) {
     h += '<div class="ct-info-card"><div class="emp">Sin pagos registrados.<br><br><button class="btn bgr" onclick="openPago(' + cid + ')">+ Registrar primer pago</button></div></div>';
   } else {
     h += '<table class="etbl"><thead><tr>';
-    h += '<th>Pago No.</th><th>Fecha</th><th style="text-align:right">Valor</th><th style="text-align:right">Acumulado</th><th style="text-align:right">Saldo tras pago</th><th>Observaciones</th><th></th>';
+    h += '<th>Pago No.</th><th>Fecha</th><th style="text-align:right">Valor</th><th style="text-align:right">Acumulado</th><th style="text-align:right">Saldo tras pago</th><th>Observaciones</th><th>Adjuntos</th><th></th>';
     h += '</tr></thead><tbody>';
     var acum = 0;
     pagos.forEach(function(p) {
@@ -7004,6 +7060,7 @@ function pagosContratoHTML(cid) {
       h += '<td style="text-align:right;font-size:12px;color:var(--bl)">' + cop(acum) + '</td>';
       h += '<td style="text-align:right;font-size:12px;color:' + (saldoTras > 0 ? 'var(--accent)' : 'var(--gr)') + ';font-weight:600">' + cop(Math.max(0,saldoTras)) + '</td>';
       h += '<td style="font-size:11.5px;color:var(--mu2)">' + (p.obs||'—') + '</td>';
+      h += '<td>' + adjuntosHTML('pa', p) + '</td>';
       h += '<td style="white-space:nowrap"><button class="btn sm bgh" onclick="openPago(' + cid + ',' + p.id + ')">Editar</button> <button class="btn sm brd" onclick="delPago(' + p.id + ')">Eliminar</button></td>';
       h += '</tr>';
     });
@@ -7073,10 +7130,11 @@ function guardarPago(pid) {
   }
 }
 
-function delPago(pid) {
+async function delPago(pid) {
   if(!confirm('¿Eliminar este pago?')) return;
   var p = D.pa.find(function(x){ return x.id == pid; });
   var cid = p ? p.cid : null;
+  if(p && !(await _adjBorrarDe([p], false))) return;   // primero los archivos de la nube; si falla, no se elimina
   D.pa = D.pa.filter(function(x){ return x.id != pid; });
   save();
   toast('Pago eliminado');
@@ -7179,18 +7237,7 @@ function previewFoto(input, prevId, hiddenId) {
   reader.readAsDataURL(file);
 }
 
-function openLightbox(src) {
-  $('lightbox-img').src = src;
-  $('lightbox').classList.add('on');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  $('lightbox').classList.remove('on');
-  document.body.style.overflow = '';
-}
-document.getElementById('lightbox').addEventListener('click', function(e) {
-  if(e.target === this) closeLightbox();
-});
+// (El visor de fotos —carrusel— está más abajo, junto a la pestaña Multimedia.)
 
 // ── Fotos de contrato (Supabase Storage) ─────────────────────
 // Las fotos nuevas se suben al bucket público 'edeso-fotos' y en D solo se guarda
@@ -7256,12 +7303,13 @@ async function uploadFotoCt(blob, cid) {
   return { path: path, url: bucket.getPublicUrl(path).data.publicUrl };
 }
 
-async function _fotoBorrarStorage(paths) {
-  const r = await window.__sb.storage.from(FOTOS_BUCKET).remove(paths);
+async function _storageBorrar(bucket, paths) {
+  const r = await window.__sb.storage.from(bucket).remove(paths);
   if(r.error) throw r.error;
   if(!r.data || r.data.length < paths.length)
     console.warn('Storage: no se borraron todos los archivos (¿ya no existían o faltan permisos?)', paths);
 }
+function _fotoBorrarStorage(paths) { return _storageBorrar(FOTOS_BUCKET, paths); }
 
 function addFotoCt(cid) {
   const input = document.createElement('input');
@@ -7315,24 +7363,199 @@ async function delFotoCt(cid, fid) {
   toast('Foto eliminada');
 }
 
-function fotoItemHTML(cid, f) {
-  return `
-    <div class="ct-foto-item">
-      <img src="${escapeAttr(fotoSrc(f))}" alt="${escapeAttr(f.nombre||'')}" loading="lazy" onclick="openLightbox(this.src)">
-      <button class="ct-foto-del" onclick="event.stopPropagation();delFotoCt(${cid},${f.id})">×</button>
-    </div>`;
+// ── Multimedia: fecha de cada foto, filtro, agrupación y visor ───────────────
+// Fecha de una foto: f.fecha ('AAAA-MM-DD'). Si f.fecha es '' el usuario la dejó "sin fecha".
+// Si la foto no tiene f.fecha se usa su fecha de subida, que es su propio f.id
+// (addFotoCt lo crea con Date.now()+Math.random()); así las fotos ya subidas conservan su fecha real.
+const MM_MESES    = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MM_FECHA_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
+function fotoFecha(f) {
+  if(f && typeof f.fecha === 'string') return MM_FECHA_RE.test(f.fecha) ? f.fecha : '';
+  const ms = Math.floor(Number(f && f.id));
+  if(!(ms > 1577836800000 && ms < Date.now() + 86400000)) return '';   // el id no es un momento de subida (1/1/2020 … mañana)
+  return isoDateLocal(new Date(ms));
+}
+function _mmDiaLabel(fe) { const p = fe.split('-'); return Number(p[2]) + ' de ' + MM_MESES[Number(p[1]) - 1]; }
+function _mmMesLabel(fe) { const p = fe.split('-'), n = MM_MESES[Number(p[1]) - 1]; return n.charAt(0).toUpperCase() + n.slice(1) + ' ' + p[0]; }
+
+// Filtro y orden por contrato: solo en memoria (no se guarda en los datos).
+var _mmEstado = {};
+function _mmGet(cid) { return _mmEstado[cid] || (_mmEstado[cid] = { desde: '', hasta: '', orden: 'desc' }); }
+
+// Aplica el filtro (desde/hasta inclusivos), ordena y agrupa por mes → día.
+// "Sin fecha" va aparte y se oculta mientras haya un filtro (se avisa cuántas).
+function mmPreparar(fotos, filtro) {
+  const desde = filtro.desde || '', hasta = filtro.hasta || '';
+  const conFiltro = !!(desde || hasta);
+  const dir = filtro.orden === 'asc' ? 1 : -1;
+  const items = (fotos || []).map(f => ({ f: f, fecha: fotoFecha(f) }));
+  const porId = (a, b) => Number(a.f.id) - Number(b.f.id);
+  const cmp = (a, b) => (a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0) || porId(a, b);
+  const alReves = !!(desde && hasta && desde > hasta);
+  const vis = alReves ? [] : items.filter(x => x.fecha && (!desde || x.fecha >= desde) && (!hasta || x.fecha <= hasta));
+  const sin = items.filter(x => !x.fecha);
+  vis.sort((a, b) => dir * cmp(a, b));
+  sin.sort((a, b) => dir * porId(a, b));
+  const meses = [];
+  vis.forEach(x => {
+    const mk = x.fecha.slice(0, 7);
+    let m = meses[meses.length - 1];
+    if(!m || m.key !== mk) { m = { key: mk, label: _mmMesLabel(x.fecha), n: 0, dias: [] }; meses.push(m); }
+    let d = m.dias[m.dias.length - 1];
+    if(!d || d.fecha !== x.fecha) { d = { fecha: x.fecha, label: _mmDiaLabel(x.fecha), fotos: [] }; m.dias.push(d); }
+    d.fotos.push(x.f); m.n++;
+  });
+  const sinFecha = conFiltro ? [] : sin.map(x => x.f);
+  const plano = [];
+  meses.forEach(m => m.dias.forEach(d => d.fotos.forEach(f => plano.push(f))));
+  sinFecha.forEach(f => plano.push(f));
+  return { meses: meses, sinFecha: sinFecha, ocultasSinFecha: conFiltro ? sin.length : 0,
+           total: items.length, visibles: plano.length, alReves: alReves, plano: plano };
 }
 
+function mmSetFiltro(cid) {
+  const e = _mmGet(cid);
+  e.desde = ($('mm-desde-' + cid) || {}).value || '';
+  e.hasta = ($('mm-hasta-' + cid) || {}).value || '';
+  renderFotos(cid);
+}
+function mmLimpiar(cid) {
+  const e = _mmGet(cid); e.desde = ''; e.hasta = '';
+  ['mm-desde-', 'mm-hasta-'].forEach(p => { const i = $(p + cid); if(i) i.value = ''; });
+  renderFotos(cid);
+}
+function mmToggleOrden(cid) {
+  const e = _mmGet(cid); e.orden = e.orden === 'asc' ? 'desc' : 'asc';
+  renderFotos(cid);
+}
+
+function _mmTileHTML(cid, f) {
+  const fe = fotoFecha(f);
+  return '<div class="mm-item" onclick="openVisor(' + cid + ',' + f.id + ')" title="' + escapeAttr(f.nombre || '') + '">'
+    + '<img src="' + escapeAttr(fotoSrc(f)) + '" alt="' + escapeAttr(f.nombre || '') + '" loading="lazy" decoding="async">'
+    + (fe ? '<span class="mm-fecha">' + fmt(fe) + '</span>' : '')
+    + '<button class="mm-del ro-hide" title="Eliminar foto" onclick="event.stopPropagation();delFotoCt(' + cid + ',' + f.id + ')">×</button>'
+    + '</div>';
+}
+
+// Dibuja la cuadrícula de la pestaña Multimedia. addFotoCt / delFotoCt / la migración la llaman al terminar.
 function renderFotos(cid) {
-  const el = $('ct-fotos-wrap-'+cid); if(!el) return;
+  const el = $('ct-fotos-wrap-' + cid); if(!el) return;
   const c = D.ct.find(x => x.id == cid); if(!c) return;
   const fotos = c.fotos || [];
-  el.innerHTML = fotos.map(f => fotoItemHTML(cid, f)).join('') +
-    `<div class="ct-foto-add" onclick="addFotoCt(${cid})">
-      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
-      Agregar
-    </div>`;
+  const e = _mmGet(cid);
+  const p = mmPreparar(fotos, e);
+  const conFiltro = !!(e.desde || e.hasta);
+  let h = '';
+  if(p.ocultasSinFecha) h += '<div class="mm-aviso">' + p.ocultasSinFecha + ' foto(s) sin fecha no se muestran mientras haya un filtro. Pulsa «Limpiar» para verlas.</div>';
+  if(!fotos.length) h += '<div class="mm-vacio">Este contrato aún no tiene fotos.<span class="ro-hide"><br>Usa «+ Agregar fotos» para subir las primeras.</span></div>';
+  else if(p.alReves) h += '<div class="mm-vacio">La fecha «Desde» es posterior a «Hasta». Corrige el rango.</div>';
+  else if(!p.visibles) h += '<div class="mm-vacio">Ninguna foto en ese rango de fechas.</div>';
+  p.meses.forEach(m => {
+    h += '<div class="mm-mes"><div class="mm-mes-h">' + m.label + ' <span>· ' + m.n + ' foto(s)</span></div>';
+    m.dias.forEach(d => {
+      h += '<div class="mm-dia"><div class="mm-dia-h">' + d.label + ' <span>· ' + d.fotos.length + '</span></div><div class="mm-grid">'
+         + d.fotos.map(f => _mmTileHTML(cid, f)).join('') + '</div></div>';
+    });
+    h += '</div>';
+  });
+  if(p.sinFecha.length) h += '<div class="mm-mes"><div class="mm-mes-h">Sin fecha <span>· ' + p.sinFecha.length + ' foto(s)</span></div><div class="mm-grid">'
+    + p.sinFecha.map(f => _mmTileHTML(cid, f)).join('') + '</div></div>';
+  el.innerHTML = h;
+  const inf = $('mm-info-' + cid);
+  if(inf) inf.textContent = !fotos.length ? '' : conFiltro ? 'Mostrando ' + p.visibles + ' de ' + p.total + ' foto(s)' : p.total + ' foto(s)';
+  const ob = $('mm-orden-' + cid);
+  if(ob) ob.textContent = e.orden === 'asc' ? '↑ Más antiguas primero' : '↓ Más recientes primero';
+  const tn = $('mmTabN');
+  if(tn) tn.textContent = fotos.length ? '(' + fotos.length + ')' : '';
 }
+
+// ── Visor de fotos (carrusel) ────────────────────────────────────────────────
+// Recorre las fotos que se ven en la cuadrícula (mismo filtro y orden) al momento de abrirlo.
+var _vz = { cid: null, ids: [], i: 0 };
+
+function _visorFoto() {
+  const c = D.ct.find(x => x.id == _vz.cid); if(!c) return null;
+  return (c.fotos || []).find(f => f.id == _vz.ids[_vz.i]) || null;
+}
+function openVisor(cid, fid) {
+  const c = D.ct.find(x => x.id == cid); if(!c) return;
+  const plano = mmPreparar(c.fotos || [], _mmGet(cid)).plano;
+  const i = plano.findIndex(f => f.id == fid); if(i < 0) return;
+  _vz = { cid: cid, ids: plano.map(f => f.id), i: i };
+  $('lightbox').classList.add('on');
+  document.body.style.overflow = 'hidden';
+  _visorMostrar();
+}
+function closeVisor() {
+  $('lightbox').classList.remove('on');
+  $('lightbox-img').src = '';
+  document.body.style.overflow = '';
+}
+function visorNav(d) {
+  const n = _vz.ids.length; if(n < 2) return;
+  _vz.i = (_vz.i + d + n) % n;           // da la vuelta al llegar al final
+  _visorMostrar();
+}
+function _visorBarra(f) {
+  const fe = fotoFecha(f);
+  let h = '<span class="lb-nombre" title="' + escapeAttr(f.nombre || '') + '">' + escapeAttr(f.nombre || 'Foto') + '</span>';
+  if(READONLY) h += '<span>' + (fe ? 'Fecha: <b>' + fmt(fe) + '</b>' : 'Sin fecha') + '</span>';
+  else h += '<label>Fecha <input type="date" id="lb-fecha" value="' + fe + '" onchange="visorSetFecha(this.value)"></label>'
+          + '<button onclick="visorSetFecha(\'\')">Sin fecha</button>';
+  $('lb-bar').innerHTML = h;
+}
+function _visorMostrar() {
+  const f = _visorFoto();
+  if(!f) { closeVisor(); return; }
+  const n = _vz.ids.length;
+  $('lightbox-img').src = fotoSrc(f);
+  $('lightbox-img').alt = f.nombre || '';
+  $('lb-count').textContent = (_vz.i + 1) + ' / ' + n;
+  $('lb-prev').style.display = $('lb-next').style.display = n > 1 ? '' : 'none';
+  _visorBarra(f);
+  if(n > 1) {                             // precarga las vecinas para que el paso sea fluido
+    const c = D.ct.find(x => x.id == _vz.cid);
+    [1, -1].forEach(d => {
+      const nf = c && (c.fotos || []).find(x => x.id == _vz.ids[(_vz.i + d + n) % n]);
+      if(nf) new Image().src = fotoSrc(nf);
+    });
+  }
+}
+// Cambia la fecha de la foto abierta ('' = sin fecha). No reconstruye la barra: así el campo no pierde el foco mientras se escribe.
+function visorSetFecha(v) {
+  const f = _visorFoto(); if(!f) return;
+  v = v || '';
+  if(v) {
+    const y = Number(v.slice(0, 4));
+    if(!MM_FECHA_RE.test(v) || y < 1990 || y > 2100) return;   // al teclear el año aparecen fechas intermedias (0002, 0202…): se ignoran
+  }
+  f.fecha = v;
+  const inp = $('lb-fecha'); if(inp && !v) inp.value = '';
+  save();
+  renderFotos(_vz.cid);
+  toast(v ? 'Fecha actualizada' : 'Foto marcada como «Sin fecha»');
+}
+
+document.addEventListener('keydown', function(e) {
+  const lb = $('lightbox'); if(!lb || !lb.classList.contains('on')) return;
+  if(e.key === 'Escape') { closeVisor(); return; }
+  const t = e.target;
+  if(t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;   // en el campo de fecha las flechas mueven el día
+  if(e.key === 'ArrowLeft')       { e.preventDefault(); visorNav(-1); }
+  else if(e.key === 'ArrowRight') { e.preventDefault(); visorNav(1); }
+});
+(function() {
+  const lb = $('lightbox'), stage = $('lb-stage'); let x0 = null, y0 = null;
+  lb.addEventListener('click', function(e) { if(e.target === lb || e.target === stage) closeVisor(); });
+  stage.addEventListener('touchstart', function(e) { const t = e.changedTouches[0]; x0 = t.clientX; y0 = t.clientY; }, { passive: true });
+  stage.addEventListener('touchend', function(e) {                // deslizar con el dedo
+    if(x0 === null) return;
+    const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
+    if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) visorNav(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
 
 // ── Migración de fotos antiguas (base64 en D) → Supabase Storage ─────────
 function _fotosPendientesMigrar() {
@@ -7391,6 +7614,155 @@ async function migrarFotosANube() {
   document.querySelectorAll('[id^="ct-fotos-wrap-"]').forEach(el => renderFotos(el.id.replace('ct-fotos-wrap-', '')));
   if(fail) toast(ok+' migrada(s), '+fail+' fallaron. Pulsa el botón otra vez para reintentar.', true);
   else toast('✅ '+ok+' foto(s) migradas a la nube');
+}
+
+// ── Adjuntos (archivos de respaldo) en pagos, adiciones, prórrogas y suspensiones ──
+// Se suben al bucket público 'edeso-adjuntos'. Cada registro (D.pa / D.ad / D.pr / D.su)
+// puede tener  adjuntos: [{ id, nombre, path, url, tam, tipo, fecha, rol }].
+// Reutiliza _fotoNubeLista (conexión/sesión/solo lectura) y _fotoNombreAleatorio.
+const ADJ_BUCKET    = 'edeso-adjuntos';
+const ADJ_MAX_BYTES = 25*1024*1024;
+// Solo estos tipos se abren en el navegador; todo lo demás se fuerza a descarga.
+const ADJ_INLINE    = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+function _adjRec(col, rid) { return (D[col] || []).find(x => x.id == rid); }
+
+function _fmtTam(n) {
+  n = Number(n) || 0;
+  return n >= 1048576 ? (n/1048576).toFixed(1).replace('.',',')+' MB' : Math.max(1, Math.round(n/1024))+' KB';
+}
+
+function _adjUrl(a) {
+  const u = String(a.url || '');
+  if(!/^https?:\/\//i.test(u)) return '#';                     // nunca javascript: ni otros esquemas
+  return ADJ_INLINE.indexOf(a.tipo) >= 0 ? u : u + '?download=' + encodeURIComponent(a.nombre || 'archivo');
+}
+
+async function uploadAdjunto(file, cid, col) {
+  const m   = /\.([A-Za-z0-9]{1,8})$/.exec(file.name || '');
+  const ext = m ? m[1].toLowerCase() : 'bin';
+  const path = 'contratos/' + String(cid).replace(/[^\w-]/g,'') + '/' + col + '/' + _fotoNombreAleatorio() + '.' + ext;
+  const bucket = window.__sb.storage.from(ADJ_BUCKET);
+  const r = await bucket.upload(path, file, { contentType: file.type || 'application/octet-stream', cacheControl: '31536000', upsert: false });
+  if(r.error) throw r.error;
+  return { path: path, url: bucket.getPublicUrl(path).data.publicUrl };
+}
+
+function _adjInner(col, rec) {
+  const items = (rec.adjuntos || []).map(a => {
+    const rol = a.rol === 'suspension' ? 'Susp.' : a.rol === 'reinicio' ? 'Reinicio' : '';
+    return '<span class="adj-item">' + (rol ? '<span class="adj-rol">'+rol+'</span>' : '')
+      + '<a class="adj-chip" href="' + escapeAttr(_adjUrl(a)) + '" target="_blank" rel="noopener" title="'
+      + escapeAttr((a.nombre||'') + (a.tam ? ' · ' + _fmtTam(a.tam) : '')) + '">📎 ' + escapeAttr(_cutLabel(a.nombre, 26)) + '</a>'
+      + '<button class="adj-x ro-hide" title="Eliminar archivo" onclick="delAdjunto(\'' + col + '\',' + rec.id + ',' + a.id + ')">×</button></span>';
+  }).join('');
+  const btn = (rol, txt) => '<button class="btn sm bgh ro-hide" style="font-size:10px;padding:3px 9px" onclick="addAdjunto(\''
+    + col + '\',' + rec.id + ',\'' + rol + '\')">' + txt + '</button>';
+  let btns;
+  if(col === 'su') btns = btn('suspension', '📎 Acta de suspensión') + (rec.freinicio ? btn('reinicio', '📎 Acta de reinicio') : '');
+  else btns = btn('', '📎 Adjuntar');
+  return items + btns;
+}
+function adjuntosHTML(col, rec) {
+  return '<div class="adj-wrap" data-adj="' + col + ':' + rec.id + '">' + _adjInner(col, rec) + '</div>';
+}
+// Redibuja solo los adjuntos de ese registro (sin recargar la página ni cambiar de pestaña).
+function _adjRefrescar(col, rid) {
+  const rec = _adjRec(col, rid); if(!rec) return;
+  const key = col + ':' + rec.id;
+  document.querySelectorAll('.adj-wrap').forEach(el => { if(el.dataset.adj === key) el.innerHTML = _adjInner(col, rec); });
+}
+
+function addAdjunto(col, rid, rol) {
+  const input = document.createElement('input');
+  input.type = 'file'; input.multiple = true;             // cualquier tipo de archivo
+  input.onchange = async function() {
+    const files = Array.from(input.files || []);
+    if(!files.length) return;
+    const r0 = _adjRec(col, rid); if(!r0) return;
+    const cid = r0.cid;
+    if(!(await _fotoNubeLista())) return;
+    let ok = 0, fail = 0;
+    for(let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if(!file.size) { toast('Archivo vacío: '+file.name, true); fail++; continue; }
+      if(file.size > ADJ_MAX_BYTES) { toast('Archivo muy grande (máx. 25 MB): '+file.name, true); fail++; continue; }
+      const msg = 'Subiendo archivo '+(i+1)+' de '+files.length+'…';
+      toast(msg);
+      const tick = setInterval(() => toast(msg), 2000);   // mantiene el aviso visible en archivos grandes
+      try {
+        const up = await uploadAdjunto(file, cid, col);
+        const rec = _adjRec(col, rid);                     // D pudo recargarse durante la subida
+        if(!rec) { try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(e) {} break; }
+        if(!rec.adjuntos) rec.adjuntos = [];
+        rec.adjuntos.push({ id: Date.now()+Math.random(), nombre: file.name, path: up.path, url: up.url,
+                            tam: file.size, tipo: file.type || '', fecha: today(), rol: rol || '' });
+        save(); _adjRefrescar(col, rid); ok++;
+      } catch(e) {
+        console.warn('subir adjunto', e); fail++;
+        toast('No se pudo subir "'+file.name+'": '+((e && e.message) || 'error desconocido'), true);
+      } finally { clearInterval(tick); }
+    }
+    if(ok && !fail) toast(ok+' archivo(s) adjuntado(s)');
+    else if(ok) toast(ok+' adjuntado(s), '+fail+' con error', true);
+  };
+  input.click();
+}
+
+async function delAdjunto(col, rid, aid) {
+  const rec = _adjRec(col, rid); if(!rec || !rec.adjuntos) return;
+  const a = rec.adjuntos.find(x => x.id == aid); if(!a) return;
+  if(!confirm('¿Eliminar "'+a.nombre+'"? También se borrará de la nube y no se puede recuperar.')) return;
+  if(!(await _fotoNubeLista())) return;               // sin conexión no se borra nada
+  try { await _storageBorrar(ADJ_BUCKET, [a.path]); }
+  catch(e) {
+    console.warn('borrar adjunto', e);
+    toast('No se pudo borrar el archivo de la nube: '+((e && e.message) || 'error desconocido'), true);
+    return;
+  }
+  const r2 = _adjRec(col, rid); if(!r2 || !r2.adjuntos) return;
+  r2.adjuntos = r2.adjuntos.filter(x => x.id != aid);
+  save(); _adjRefrescar(col, rid);
+  toast('Archivo eliminado');
+}
+
+// Borra de la nube los archivos de estos registros ANTES de eliminarlos.
+// Devuelve false si se canceló o falló (entonces NO se debe eliminar el registro).
+// Si no tienen archivos devuelve true sin necesitar conexión.
+async function _adjBorrarDe(recs, confirmar) {
+  const paths = [];
+  recs.forEach(r => (r.adjuntos || []).forEach(a => { if(a.path) paths.push(a.path); }));
+  if(!paths.length) return true;
+  if(confirmar && !confirm('Tiene '+paths.length+' archivo(s) adjunto(s) que también se borrarán de la nube y no se pueden recuperar. ¿Continuar?')) return false;
+  if(!(await _fotoNubeLista())) return false;
+  try { await _storageBorrar(ADJ_BUCKET, paths); return true; }
+  catch(e) {
+    console.warn('borrar adjuntos', e);
+    toast('No se pudieron borrar los archivos de la nube: '+((e && e.message) || 'error desconocido'), true);
+    return false;
+  }
+}
+
+// Al eliminar un contrato (y sus derivados): borra sus adjuntos y sus fotos de la nube.
+async function _nubeBorrarContratos(rootId) {
+  const ids = [];
+  (function rec(cid) { ids.push(cid); kids(cid).forEach(h => rec(h.id)); })(rootId);
+  const en = x => ids.some(i => i == x);
+  const adj = [], fotos = [];
+  [].concat(D.pr, D.ad, D.su, D.pa).filter(r => en(r.cid))
+    .forEach(r => (r.adjuntos || []).forEach(a => { if(a.path) adj.push(a.path); }));
+  D.ct.filter(c => en(c.id)).forEach(c => (c.fotos || []).forEach(f => { if(f.path) fotos.push(f.path); }));
+  if(!adj.length && !fotos.length) return true;
+  if(!(await _fotoNubeLista())) return false;
+  try {
+    if(adj.length)   await _storageBorrar(ADJ_BUCKET, adj);
+    if(fotos.length) await _storageBorrar(FOTOS_BUCKET, fotos);
+    return true;
+  } catch(e) {
+    console.warn('borrar archivos del contrato', e);
+    toast('No se pudieron borrar los archivos del contrato de la nube: '+((e && e.message) || 'error desconocido'), true);
+    return false;
+  }
 }
 
 
@@ -7673,6 +8045,7 @@ function suspensionesHTML(cid) {
             <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:${cerrada?'var(--gr-d)':'var(--am-d)'};color:${cerrada?'var(--gr-t)':'var(--am-t)'}">${cerrada?'Cerrada':'Activa'}</span>
           </div>
           ${s.obs ? `<div style="font-size:11.5px;color:var(--mu2);font-style:italic">"${s.obs}"</div>` : ''}
+          ${adjuntosHTML('su', s)}
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
           ${!cerrada ? `<button class="btn sm bgh" onclick="openReinicio(${s.id},${cid})" title="Registrar reinicio">▶ Reinicio</button>` : ''}
@@ -7747,8 +8120,10 @@ function saveReinicio(suId, cid) {
   toast(`Reinicio registrado — ${dias} días suspendidos`);
 }
 
-function delSusp(id, cid) {
+async function delSusp(id, cid) {
   if(!confirm('¿Eliminar esta suspensión?')) return;
+  const su = D.su.find(s => s.id == id);
+  if(su && !(await _adjBorrarDe([su], false))) return;   // primero los archivos de la nube; si falla, no se elimina
   D.su = D.su.filter(s => s.id != id);
   save();
   if(ctPageCid) verCt(ctPageCid);
@@ -9095,7 +9470,9 @@ function xlDate(v) {
     // Flujo de caja
     'fcGuardar','fcAddRow','fcDelRow','fcReset',
     // Fotos
-    'addFotoCt','delFotoCt','migrarFotosANube',
+    'addFotoCt','delFotoCt','migrarFotosANube','visorSetFecha',
+    // Adjuntos (archivos de respaldo)
+    'addAdjunto','delAdjunto',
     // Importaciones (las exportaciones sí se permiten)
     'importarDatos','importarExcel',
     // Visor de obras
