@@ -676,6 +676,9 @@ nav.collapsed .ni:hover::after{opacity:1}
       📥 Subir reporte semanal
       <input type="file" accept=".xlsx,.xls" onchange="importarExcel(this)" style="display:none">
     </label>
+    <button id="btnMigrarFotos" class="ro-hide" onclick="migrarFotosANube()" style="display:none;background:#d97706;border:1px solid #b45309;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(217,119,6,.25);white-space:nowrap" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'" title="Sube a la nube las fotos antiguas guardadas dentro de los datos. Exporta el respaldo antes.">
+      ☁ Migrar <span id="btnMigrarFotosN">0</span> foto(s) a la nube
+    </button>
     <span class="dot"></span><span id="topInfo">—</span>
   </div>
 </header>
@@ -1465,6 +1468,7 @@ function updateCounts() {
 
   if($('nc_pa')) $('nc_pa').textContent = D.pa.length;
   $('topInfo').textContent = new Date().toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}) + ` · ${s.a} activos`;
+  try { _actualizarBtnMigrarFotos(); } catch(e) {}
 }
 
 function render() {
@@ -3818,9 +3822,9 @@ function verCt(id) {
         ${(c.tipo !== 'interadministrativo' && c.tipo !== 'interventoria' && (c.trackingMode||'gantt') !== 'pct') ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpGantt');abrirGanttFull(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 7h14M5 3v10M11 3v10"/></svg> Gantt</div>` : ''}
         ${(c.tipo !== 'interadministrativo' && c.tipo !== 'interventoria') ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpFC');renderFlujoCaja(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="8" cy="8" r="6"/><path d="M8 4v1.5M8 10.5V12M10 6.5C10 5.7 9.1 5 8 5s-2 .7-2 1.5c0 .9.9 1.3 2 1.5 1.1.2 2 .7 2 1.5S9.1 11 8 11s-2-.7-2-1.5"/></svg> Flujo de Caja</div>` : ''}
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPr')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M2 8a6 6 0 016-6 6 6 0 014.2 1.7L14 5"/><path d="M14 2v4h-4"/><path d="M14 8a6 6 0 01-6 6 6 6 0 01-4.2-1.7L2 11"/><path d="M2 14v-4h4"/></svg> Prórrogas ${prs.length?'('+prs.length+')':''}</div>
-        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpSu')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="3" y="2" width="3" height="12" rx="1"/><rect x="10" y="2" width="3" height="12" rx="1"/></svg> Suspensiones<span class="nc" id="nc_su">0</span></div>
+        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpSu')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="3" y="2" width="3" height="12" rx="1"/><rect x="10" y="2" width="3" height="12" rx="1"/></svg> Suspensiones${D.su.filter(s=>s.cid==id).length ? ' <span class="nc">'+D.su.filter(s=>s.cid==id).length+'</span>' : ''}</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpAd')"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="display:inline-block;vertical-align:-1px"><path d="M8 2v12M2 8h12"/></svg> Adiciones ${ads.length?'('+ads.length+')':''}</div>
-        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPol')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/></svg> Pólizas<span class="nc" id="nc_pol">0</span></div>
+        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPol')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/></svg> Pólizas${D.pl.filter(p=>p.cid==id).length ? ' <span class="nc">'+D.pl.filter(p=>p.cid==id).length+'</span>' : ''}</div>
         ${ch.length ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpDer')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M6 10l4-4"/><path d="M4.5 11.5a3 3 0 000-4.2l-.8-.8a3 3 0 00-4.2 4.2l.8.8a3 3 0 002.1.8"/><path d="M11.5 4.5a3 3 0 000 4.2l.8.8a3 3 0 004.2-4.2l-.8-.8a3 3 0 00-2.1-.8"/></svg> Derivados (${ch.length})</div>` : ''}
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpAp')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 14c0-2.8 1.8-5 4-5M15 14c0-2.8-1.8-5-4-5"/></svg> Apoyos (${apoyos.length})</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPe')" style="color:var(--am-t)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M5.5 8l2 2 3.5-4"/><rect x="2" y="2" width="12" height="12" rx="2"/></svg> Pendientes ${(function(){var n=(D.pe||[]).filter(p=>p.cid==id&&p.estado!=='ok').length;return n?'<span class="nc" style="background:var(--am-d);color:var(--am-t);border-color:var(--am)">'+n+'</span>':'';})()}</div>
@@ -3907,11 +3911,7 @@ function verCt(id) {
                 <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
                 Agregar fotos
                </div>`
-            : (c.fotos||[]).map(f => `
-              <div class="ct-foto-item">
-                <img src="${f.data}" alt="${f.nombre||''}" onclick="openLightbox('${f.data}')">
-                <button class="ct-foto-del" onclick="event.stopPropagation();delFotoCt(${id},${f.id})">×</button>
-              </div>`).join('') +
+            : (c.fotos||[]).map(f => fotoItemHTML(id, f)).join('') +
               `<div class="ct-foto-add" onclick="addFotoCt(${id})">
                 <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
                 Agregar
@@ -4031,7 +4031,7 @@ function verCt(id) {
     <div class="ctp-pane" id="ctpPe">${pendientesHTML(id)}</div>
 
     <!-- PAGOS ──────────────────────────────────────── -->
-    <div class="ctp-pane" id="ctpPagos">
+        <div class="ctp-pane" id="ctpPagos">
       <div id="pagos_ct_${id}"><div style="text-align:center;padding:32px;color:var(--mu);font-size:12px">Cargando pagos…</div></div>
     </div>
 
@@ -4651,18 +4651,29 @@ function elimCtaAp(id) {
 // ─── FORM PRÓRROGA ───────────────────────────────────────
 function openPr(cid) {
   const opts = D.ct.map(c => `<option value="${c.id}" ${c.id==cid?'selected':''}>${c.num} — ${c.obj.substring(0,40)}</option>`).join('');
+  const numAuto = cid ? (D.pr.filter(p => p.cid == cid).length + 1) : '';
   $('mTitle').textContent = 'Nueva prórroga';
   $('mBody').innerHTML = `<div class="fg">
     <div class="fl2 full"><label>Contrato *</label><select id="prc"><option value="">—</option>${opts}</select></div>
-    <div class="fl2"><label>No. prórroga</label><input id="prn" type="number" placeholder="1"></div>
-    <div class="fl2"><label>Nueva fecha fin *</label><input id="prf" type="date"></div>
-    <div class="fl2"><label>Días adicionales</label><input id="prd" type="number" placeholder="30"></div>
+    <div class="fl2"><label>No. prórroga</label><input id="prn" type="number" value="${numAuto}" placeholder="1"></div>
+    <div class="fl2"><label>Nueva fecha fin *</label><input id="prf" type="date" onchange="calcDiasPr(${cid||'null'})"></div>
+    <div class="fl2"><label>Días adicionales (automático)</label><input id="prd" type="number" placeholder="Se calcula solo" readonly style="background:var(--sf3)"></div>
     <div class="fl2 full"><label>Justificación</label><textarea id="prj"></textarea></div>
   </div>`;
   $('mFoot').innerHTML = `<button class="btn bgh" onclick="closeModal()">Cancelar</button><button class="btn bgr" onclick="savePr()">Guardar</button>`;
   openModal();
 }
-
+function calcDiasPr(cid) {
+  const c = cid ? D.ct.find(x => x.id == cid) : null;
+  const nuevaFin = $('prf').value;
+  if(!c || !nuevaFin) return;
+  // Fecha fin vigente: la última prórroga o la fecha fin del contrato
+  const prevs = D.pr.filter(p => p.cid == cid).sort((a,b) => (b.nfin||'').localeCompare(a.nfin||''));
+  const finAnterior = prevs.length ? prevs[0].nfin : c.fend;
+  if(!finAnterior) return;
+  const dias = Math.round((new Date(nuevaFin+'T00:00:00') - new Date(finAnterior+'T00:00:00')) / 86400000);
+  $('prd').value = dias > 0 ? dias : 0;
+}
 function savePr() {
   const cid = $('prc').value; const nfin = $('prf').value;
   if(!cid || !nfin) { toast('Campos obligatorios', true); return; }
@@ -6933,7 +6944,7 @@ function pagosContratoHTML(cid) {
   var pct2 = valTotal ? Math.round(totalPagado/valTotal*100) : 0;
   var pctColor = pct2 >= 90 ? 'var(--gr)' : pct2 >= 50 ? 'var(--am)' : 'var(--accent)';
 
-  var h = '<div style="max-width:900px">';
+  var h = '<div style="max-width:1200px;width:100%;margin:0 auto">';
 
   // KPI cards
   h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">';
@@ -7181,47 +7192,205 @@ document.getElementById('lightbox').addEventListener('click', function(e) {
   if(e.target === this) closeLightbox();
 });
 
-// Fotos de contrato
+// ── Fotos de contrato (Supabase Storage) ─────────────────────
+// Las fotos nuevas se suben al bucket público 'edeso-fotos' y en D solo se guarda
+// { id, url, path, nombre }. Las fotos antiguas en base64 ({ id, data, nombre })
+// se siguen mostrando hasta que se pasan a la nube con migrarFotosANube().
+const FOTOS_BUCKET    = 'edeso-fotos';
+const FOTO_MAX_PX     = 1600;            // lado mayor tras redimensionar
+const FOTO_MAX_ORIG   = 15*1024*1024;    // tope del archivo que elige el usuario
+const FOTO_MAX_BUCKET = 4.5*1024*1024;   // el bucket admite 5 MB; dejamos margen
+const FOTO_MIME_EXT   = { 'image/jpeg':'jpg', 'image/png':'png', 'image/webp':'webp' };
+
+function fotoSrc(f) { return (f && (f.url || f.data)) || ''; }
+
+// Verifica que se pueda hablar con la nube; si no, avisa y devuelve false (no se guarda nada).
+async function _fotoNubeLista() {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return false; }
+  if(!window.__sb) { toast('Sin conexión con Supabase: no se pueden subir ni borrar fotos.', true); return false; }
+  if(navigator.onLine === false) { toast('Sin conexión a internet: no se pueden subir ni borrar fotos.', true); return false; }
+  try {
+    const s = await window.__sb.auth.getSession();
+    if(!s || !s.data || !s.data.session) { toast('Tu sesión expiró. Recarga la página e ingresa de nuevo.', true); return false; }
+  } catch(e) { toast('No se pudo verificar la sesión. Revisa tu conexión.', true); return false; }
+  return true;
+}
+
+function _fotoNombreAleatorio() {
+  const a = new Uint8Array(16); crypto.getRandomValues(a);
+  return Array.from(a, b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// Redimensiona (lado mayor FOTO_MAX_PX) y convierte a JPEG. Devuelve un Blob.
+function _fotoRedimensionar(file) {
+  return new Promise(function(resolve, reject) {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = function() {
+      try {
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const k = Math.min(1, FOTO_MAX_PX / Math.max(w, h));
+        w = Math.round(w*k); h = Math.round(h*k);
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        const cx = cv.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);   // PNG con transparencia → fondo blanco
+        cx.drawImage(img, 0, 0, w, h);
+        cv.toBlob(function(b) {
+          URL.revokeObjectURL(url);
+          b ? resolve(b) : reject(new Error('No se pudo procesar la imagen'));
+        }, 'image/jpeg', 0.85);
+      } catch(e) { URL.revokeObjectURL(url); reject(e); }
+    };
+    img.onerror = function() { URL.revokeObjectURL(url); reject(new Error('Formato de imagen no compatible')); };
+    img.src = url;
+  });
+}
+
+// Sube un Blob a contratos/<cid>/<nombre-aleatorio>.<ext> y devuelve { path, url }.
+async function uploadFotoCt(blob, cid) {
+  const ext  = FOTO_MIME_EXT[blob.type] || 'jpg';
+  const path = 'contratos/' + String(cid).replace(/[^\w-]/g,'') + '/' + _fotoNombreAleatorio() + '.' + ext;
+  const bucket = window.__sb.storage.from(FOTOS_BUCKET);
+  const r = await bucket.upload(path, blob, { contentType: blob.type || 'image/jpeg', cacheControl: '31536000', upsert: false });
+  if(r.error) throw r.error;
+  return { path: path, url: bucket.getPublicUrl(path).data.publicUrl };
+}
+
+async function _fotoBorrarStorage(paths) {
+  const r = await window.__sb.storage.from(FOTOS_BUCKET).remove(paths);
+  if(r.error) throw r.error;
+  if(!r.data || r.data.length < paths.length)
+    console.warn('Storage: no se borraron todos los archivos (¿ya no existían o faltan permisos?)', paths);
+}
+
 function addFotoCt(cid) {
   const input = document.createElement('input');
   input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
-  input.onchange = function() {
-    const c = D.ct.find(x => x.id == cid); if(!c) return;
-    if(!c.fotos) c.fotos = [];
-    let pending = input.files.length;
-    Array.from(input.files).forEach(file => {
-      if(file.size > 3*1024*1024) { toast('Imagen muy grande: '+file.name, true); pending--; return; }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        c.fotos.push({ id: Date.now()+Math.random(), data: e.target.result, nombre: file.name });
-        pending--;
-        if(pending <= 0) { save(); renderFotos(cid); toast('Foto(s) agregada(s)'); }
-      };
-      reader.readAsDataURL(file);
-    });
+  input.onchange = async function() {
+    const files = Array.from(input.files || []);
+    if(!files.length) return;
+    if(!D.ct.find(x => x.id == cid)) return;
+    if(!(await _fotoNubeLista())) return;
+    let ok = 0, fail = 0;
+    for(let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if(!/^image\//.test(file.type)) { toast('No es una imagen: '+file.name, true); fail++; continue; }
+      if(file.size > FOTO_MAX_ORIG) { toast('Imagen muy grande (máx. 15 MB): '+file.name, true); fail++; continue; }
+      toast('Subiendo foto '+(i+1)+' de '+files.length+'…');
+      try {
+        const up = await uploadFotoCt(await _fotoRedimensionar(file), cid);
+        const c = D.ct.find(x => x.id == cid);   // D pudo recargarse durante la subida
+        if(!c) { try { await _fotoBorrarStorage([up.path]); } catch(e) {} break; }
+        if(!c.fotos) c.fotos = [];
+        c.fotos.push({ id: Date.now()+Math.random(), url: up.url, path: up.path, nombre: file.name });
+        save(); renderFotos(cid); ok++;
+      } catch(e) {
+        console.warn('subir foto', e); fail++;
+        toast('No se pudo subir "'+file.name+'": '+((e && e.message) || 'error desconocido'), true);
+      }
+    }
+    if(ok && !fail) toast(ok+' foto(s) agregada(s)');
+    else if(ok) toast(ok+' agregada(s), '+fail+' con error', true);
   };
   input.click();
 }
 
-function delFotoCt(cid, fid) {
-  const c = D.ct.find(x => x.id == cid); if(!c||!c.fotos) return;
-  c.fotos = c.fotos.filter(f => f.id != fid);
+async function delFotoCt(cid, fid) {
+  const c0 = D.ct.find(x => x.id == cid); if(!c0 || !c0.fotos) return;
+  const f = c0.fotos.find(x => x.id == fid); if(!f) return;
+  if(!confirm(f.path ? '¿Eliminar esta foto? También se borrará de la nube y no se puede recuperar.' : '¿Eliminar esta foto?')) return;
+  if(f.path) {
+    // Foto en la nube: sin conexión no se borra nada, así no quedan archivos huérfanos.
+    if(!(await _fotoNubeLista())) return;
+    try { await _fotoBorrarStorage([f.path]); }
+    catch(e) {
+      console.warn('borrar foto', e);
+      toast('No se pudo borrar la foto de la nube: '+((e && e.message) || 'error desconocido'), true);
+      return;
+    }
+  }
+  const c = D.ct.find(x => x.id == cid); if(!c || !c.fotos) return;
+  c.fotos = c.fotos.filter(x => x.id != fid);
   save(); renderFotos(cid);
+  toast('Foto eliminada');
+}
+
+function fotoItemHTML(cid, f) {
+  return `
+    <div class="ct-foto-item">
+      <img src="${escapeAttr(fotoSrc(f))}" alt="${escapeAttr(f.nombre||'')}" loading="lazy" onclick="openLightbox(this.src)">
+      <button class="ct-foto-del" onclick="event.stopPropagation();delFotoCt(${cid},${f.id})">×</button>
+    </div>`;
 }
 
 function renderFotos(cid) {
   const el = $('ct-fotos-wrap-'+cid); if(!el) return;
   const c = D.ct.find(x => x.id == cid); if(!c) return;
   const fotos = c.fotos || [];
-  el.innerHTML = fotos.map(f => `
-    <div class="ct-foto-item">
-      <img src="${f.data}" alt="${f.nombre||''}" onclick="openLightbox('${f.data}')">
-      <button class="ct-foto-del" onclick="event.stopPropagation();delFotoCt(${cid},${f.id})">×</button>
-    </div>`).join('') +
+  el.innerHTML = fotos.map(f => fotoItemHTML(cid, f)).join('') +
     `<div class="ct-foto-add" onclick="addFotoCt(${cid})">
       <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
       Agregar
     </div>`;
+}
+
+// ── Migración de fotos antiguas (base64 en D) → Supabase Storage ─────────
+function _fotosPendientesMigrar() {
+  const out = [];
+  D.ct.forEach(c => (c.fotos || []).forEach(f => {
+    if(!f.url && typeof f.data === 'string' && f.data.indexOf('data:image') === 0) out.push({ c: c, f: f });
+  }));
+  return out;
+}
+
+// Muestra el botón de la barra superior solo si quedan fotos antiguas por migrar.
+function _actualizarBtnMigrarFotos() {
+  const b = $('btnMigrarFotos'); if(!b) return;
+  const n = READONLY ? 0 : _fotosPendientesMigrar().length;
+  b.style.display = n ? 'flex' : 'none';
+  const s = $('btnMigrarFotosN'); if(s) s.textContent = n;
+}
+
+function _dataUrlToBlob(u) {
+  const i = u.indexOf(',');
+  const head = u.slice(5, i);                 // p. ej. "image/jpeg;base64"
+  const bin = atob(u.slice(i+1));
+  const arr = new Uint8Array(bin.length);
+  for(let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+  return new Blob([arr], { type: head.split(';')[0] });
+}
+
+let _migrandoFotos = false;
+async function migrarFotosANube() {
+  if(_migrandoFotos) return;
+  const pend = _fotosPendientesMigrar();
+  if(!pend.length) { toast('No hay fotos pendientes de migrar'); _actualizarBtnMigrarFotos(); return; }
+  if(!confirm('Se subirán '+pend.length+' foto(s) a la nube y se quitarán del almacenamiento del navegador.\n\n'
+            + '¿Ya exportaste el respaldo con el botón "Exportar"?\n\nAceptar = migrar ahora.')) return;
+  if(!(await _fotoNubeLista())) return;
+  _migrandoFotos = true;
+  let ok = 0, fail = 0;
+  try {
+    for(let i = 0; i < pend.length; i++) {
+      const it = pend[i];
+      toast('Migrando foto '+(i+1)+' de '+pend.length+'…');
+      try {
+        let blob = _dataUrlToBlob(it.f.data);
+        // Se conserva el original si el bucket lo acepta; solo se redimensiona si es muy pesado o de otro formato.
+        if(!FOTO_MIME_EXT[blob.type] || blob.size > FOTO_MAX_BUCKET) blob = await _fotoRedimensionar(blob);
+        const up = await uploadFotoCt(blob, it.c.id);
+        // Solo si la subida terminó bien se reemplaza el base64 por la URL.
+        it.f.url = up.url; it.f.path = up.path; delete it.f.data;
+        save(); ok++;
+      } catch(e) {
+        console.warn('migrar foto (contrato '+it.c.id+')', e); fail++;
+      }
+    }
+  } finally { _migrandoFotos = false; }
+  _actualizarBtnMigrarFotos();
+  document.querySelectorAll('[id^="ct-fotos-wrap-"]').forEach(el => renderFotos(el.id.replace('ct-fotos-wrap-', '')));
+  if(fail) toast(ok+' migrada(s), '+fail+' fallaron. Pulsa el botón otra vez para reintentar.', true);
+  else toast('✅ '+ok+' foto(s) migradas a la nube');
 }
 
 
@@ -7546,10 +7715,11 @@ function openReinicio(suId, cid) {
   $('mTitle').textContent = 'Registrar reinicio';
   $('mBody').innerHTML = `<div class="fg">
     <div class="fl2 full" style="background:var(--gr-d);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--gr-t);margin-bottom:4px">
-      La fecha fin del contrato se extenderá automáticamente por los días suspendidos.
+      Registra la fecha de reinicio. Si el reinicio corre la fecha de terminación, ponela abajo y se guardará como prórroga.
     </div>
     <div class="fl2"><label>Suspendido desde</label><input type="date" value="${s?.finicio||''}" disabled style="opacity:.6"></div>
     <div class="fl2"><label>Fecha de reinicio *</label><input id="su_fr" type="date" value="${today()}"></div>
+    <div class="fl2 full"><label>Nueva fecha de terminación (corriendo los días de suspensión)</label><input id="su_nuevafin" type="date"><div style="font-size:11px;color:var(--mu);margin-top:4px">Al reiniciar, pon la nueva fecha de terminación corriendo los días que estuvo parada. Si quieres darle MÁS tiempo, eso se hace aparte en Prórrogas.</div></div>
     <div class="fl2 full"><label>Observaciones del reinicio</label><textarea id="su_robs" placeholder="Ej: Se retoman obras, condición superada…"></textarea></div>
   </div>`;
   $('mFoot').innerHTML = `<button class="btn bgh" onclick="closeModal()">Cancelar</button>
@@ -7563,8 +7733,14 @@ function saveReinicio(suId, cid) {
   const s = D.su.find(x => x.id == suId);
   if(!s) return;
   if(fr <= s.finicio) { toast('El reinicio debe ser posterior a la suspensión', true); return; }
-  s.freinicio = fr;
+    s.freinicio = fr;
   if($('su_robs').value.trim()) s.obs = (s.obs ? s.obs+' | ' : '') + 'Reinicio: '+$('su_robs').value.trim();
+    // Si se indicó nueva fecha de terminación, actualizarla en el contrato (NO es prórroga)
+  const nuevaFin = $('su_nuevafin') ? $('su_nuevafin').value : '';
+  if(nuevaFin) {
+    const c = D.ct.find(x => x.id == cid);
+    if(c) c.fend = nuevaFin;
+  }
   save(); closeModal();
   if(ctPageCid) verCt(ctPageCid);
   const dias = Math.ceil((new Date(fr+'T00:00:00') - new Date(s.finicio+'T00:00:00')) / 86400000);
@@ -8919,7 +9095,7 @@ function xlDate(v) {
     // Flujo de caja
     'fcGuardar','fcAddRow','fcDelRow','fcReset',
     // Fotos
-    'addFotoCt','delFotoCt',
+    'addFotoCt','delFotoCt','migrarFotosANube',
     // Importaciones (las exportaciones sí se permiten)
     'importarDatos','importarExcel',
     // Visor de obras
