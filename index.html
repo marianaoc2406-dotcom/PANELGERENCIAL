@@ -833,6 +833,9 @@ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
   .mo, .mo.mo-wide{ width:100%; max-width:100%; max-height:92vh; max-height:92dvh; border-radius:16px 16px 0 0; }
   .mh{ padding:14px 16px; }
   .mb{ padding:16px; }
+  /* Perfil del supervisor: foto más chica y centrada (ocupaba 180 px de alto) */
+  .mb img[style*="width:180px"], .mb .av[style*="width:180px"]{ width:110px !important; height:110px !important; font-size:38px !important; }
+  .mb div[style*="flex-shrink:0;text-align:center"]{ flex:1 1 100%; }
   .mf{ padding:12px 16px calc(12px + env(safe-area-inset-bottom)); flex-wrap:wrap; }
   .mf .btn{ flex:1 1 auto; }
   .fg{ grid-template-columns:1fr; }
@@ -876,14 +879,91 @@ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
   .adj-x{ padding:6px 10px; }
 }
 
-/* ── Puente Fase B (mínimo): que el Resumen y las listas no se desborden al llegar a una ficha ── */
+/* ═════════ FASE B: Resumen, Contratos, Jerarquía, Supervisores, Apoyos, Control de Pagos ═════════ */
 @media (max-width:720px){
-  .krow, .krow2{ grid-template-columns:repeat(2,1fr); gap:10px; }
+  /* Encabezado de cada vista (título + botones) y paneles */
+  .row-hd{ flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  .ptg{ font-size:20px; margin-bottom:0; }
+  .ph{ padding:12px 14px; }
+  .pb{ padding:14px; }
+  .ct-search{ width:100% !important; }
+
+  /* Indicadores (KPI): siempre 2 × 2, compactos (los de Supervisores y Pagos llevan columnas en línea → !important) */
+  .krow, .krow2{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:10px; margin-bottom:18px; }
+  .kcard, .kcard2{ padding:14px 14px; border-radius:12px; }
+  .kval, .kcard2 .kval2{ font-size:24px; }
+  .kval.sm, .kcard2 .kval2.sm{ font-size:15px; overflow-wrap:anywhere; }
+  .klbl, .kcard2 .klbl{ font-size:9.5px; margin-bottom:6px; }
+  .ksub, .kcard2 .ksub2{ font-size:10.5px; margin-top:5px; }
   .ct-cards, .pgrid.c2, .pgrid.c32{ grid-template-columns:1fr; }
   .dash-bg{ margin:-14px -12px; padding:14px 12px; }
+
+  /* Lista de Contratos: cada fila = tarjeta */
+  .ct-tbl, .ct-tbl tbody, .ct-tbl tr, .ct-tbl td{ display:block; width:100%; }
+  .ct-tbl thead{ display:none; }
+  .ct-tbl tr{
+    display:grid; width:auto; margin:10px 12px; padding:12px 14px; gap:8px 10px; align-items:center;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    grid-template-areas:"num num num est est est" "tipo tipo tipo tipo tipo tipo" "obj obj obj obj obj obj" "sv sv sv sv sv sv" "val val fin fin ava ava" "acc acc acc acc acc acc";
+    background:#fff; border:1px solid var(--bd); border-radius:12px; box-shadow:var(--card-shadow);
+  }
+  .ct-tbl tr:hover td{ background:none; }
+  .ct-tbl tr[data-lvl="1"]{ margin-left:26px; border-left:4px solid var(--bl); }
+  .ct-tbl tr[data-lvl="2"]{ margin-left:40px; border-left:4px solid var(--pu); }
+  .ct-tbl tr:has(> td[colspan]){ display:block; }
+  .ct-tbl td{ border:none; padding:0; text-align:left; min-width:0; }
+  .ct-tbl td:nth-child(1){ grid-area:num; padding-left:0 !important; white-space:nowrap; }
+  .ct-tbl td:nth-child(8) .b{ white-space:nowrap; }
+  .ct-tbl td:nth-child(2){ grid-area:tipo; justify-self:start; width:auto; font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--mu) !important; margin-top:-4px; }
+  .ct-tbl td:nth-child(3){ grid-area:obj; white-space:normal; max-width:none; font-size:13.5px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .ct-tbl td:nth-child(4){ grid-area:sv; }
+  .ct-tbl td:nth-child(5){ grid-area:val; }
+  .ct-tbl td:nth-child(6){ grid-area:fin; }
+  .ct-tbl td:nth-child(7){ grid-area:ava; }
+  .ct-tbl td:nth-child(8){ grid-area:est; justify-self:end; width:auto; }
+  .ct-tbl td:nth-child(9){ grid-area:acc; justify-self:end; width:auto; padding-top:6px; border-top:1px dashed var(--bd); }
+  .ct-tbl td[data-label]::before{ content:attr(data-label); display:block; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--mu); margin-bottom:2px; }
+  .ct-tbl td[colspan]{ display:block; }
+
+  /* Tablas compactas de 2 columnas (Apoyos, Seguimiento financiero e Historial de pagos) */
+  .etbl-grid, .etbl-grid tbody, .etbl-grid tfoot, .etbl-grid tr, .etbl-grid td{ display:block; width:100%; }
+  .etbl-grid thead{ display:none; }
+  .etbl-grid tr{
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:2px 14px; width:auto; margin:10px 12px; padding:10px 14px;
+    background:#fff; border:1px solid var(--bd); border-radius:12px; box-shadow:var(--card-shadow);
+  }
+  .etbl-grid tfoot tr{ background:var(--sf2); }
+  .etbl-grid tr:hover td{ background:none; }
+  .etbl-grid td{ border:none !important; padding:4px 0 !important; text-align:left !important; font-size:13px; min-width:0; max-width:none !important; overflow-wrap:anywhere; }
+  .etbl-grid td[data-label]::before{ content:attr(data-label); display:block; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--mu); margin-bottom:2px; }
+  .etbl-grid td[data-label=""]::before, .etbl-grid td.cell-head::before{ display:none; }
+  .etbl-grid td.cell-head{ grid-column:1 / -1; order:-1; border-bottom:1px solid var(--bd) !important; padding-bottom:10px !important; margin-bottom:4px; }
+  .etbl-grid td.cell-full{ grid-column:1 / -1; }
+  .etbl-grid td.cell-acc, .etbl-grid td.cell-edit{ grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; align-items:center; padding-top:10px !important; border-top:1px dashed var(--bd) !important; margin-top:4px; white-space:normal !important; }
+  body.readonly .etbl-grid td.cell-edit{ display:none; }   /* en modo consulta no hay acciones de edición */
+  .etbl-grid .adj-wrap{ margin-top:0; }
+
+  /* Jerarquía: la fila del árbol se parte en líneas (nombre arriba, etiquetas y botones debajo) */
+  .th2{ flex-wrap:wrap; gap:4px 8px; padding:10px 10px; }
+  .tnum{ min-width:0; }
+  .tobj{ flex:1 1 55%; white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tmeta{ flex:1 1 100%; padding-left:22px; }
+  .tch{ margin-left:12px; padding-left:6px; }
+
+  /* Supervisores: la cabecera de cada tarjeta se acomoda en dos filas */
+  .sv-head{ flex-wrap:wrap; padding:14px !important; gap:12px !important; }
+  .sv-id{ flex:1 1 180px !important; min-width:0; }
+  .sv-id > div:last-child{ flex-wrap:wrap; gap:4px 12px !important; overflow-wrap:anywhere; }
+  .sv-kpis{ flex:1 1 100%; justify-content:space-between; gap:10px !important; }
+  .sv-kpis > div{ min-width:0 !important; }
 }
-@media (max-width:420px){
-  .krow, .krow2{ grid-template-columns:1fr; }
+@media (max-width:340px){
+  .krow, .krow2{ grid-template-columns:minmax(0,1fr) !important; }
+}
+/* Tabletas y ventanas angostas (hasta 1100 px): si una tabla no cabe, el panel se desliza en horizontal en vez de recortarla */
+@media (max-width:1100px){
+  .panel{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .grupo-body{ overflow-x:auto !important; }
 }
 
 </style>
@@ -2230,9 +2310,9 @@ supervisores() {
       return '<div style="background:#fff;border:1px solid var(--bd);border-radius:14px;overflow:hidden;box-shadow:var(--card-shadow)">'
 
         // ── Header supervisor ────────────────────────────────
-        + '<div style="padding:18px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:16px;background:var(--sf2)">'
+        + '<div class="sv-head" style="padding:18px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:16px;background:var(--sf2)">'
           + avatarHTML(sv.foto, sv.nombre, 52)
-          + '<div style="flex:1">'
+          + '<div class="sv-id" style="flex:1">'
             + '<div style="font-size:15px;font-weight:700;color:var(--tx)">' + sv.nombre + '</div>'
             + '<div style="font-size:12px;color:var(--accent);font-weight:500;margin-top:1px">' + (sv.cargo||'') + '</div>'
             + '<div style="display:flex;gap:14px;margin-top:5px;font-size:11.5px;color:var(--mu)">'
@@ -2240,7 +2320,7 @@ supervisores() {
               + (sv.email ? '<span>✉ '+sv.email+'</span>' : '')
             + '</div>'
           + '</div>'
-          + '<div style="display:flex;gap:16px;align-items:center">'
+          + '<div class="sv-kpis" style="display:flex;gap:16px;align-items:center">'
             + '<div style="text-align:center;min-width:70px">'
               + '<div style="font-size:28px;font-weight:900;color:'+semColor+';line-height:1">' + avance + '%</div>'
               + '<div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;margin-top:2px">Avance prom.</div>'
@@ -2365,17 +2445,17 @@ apoyos() {
   function apRow(ap) {
     const asignaciones = D.cta.filter(a => a.apid == ap.id);
     return `<tr>
-      <td><div style="display:flex;align-items:center;gap:10px">
+      <td class="cell-head"><div style="display:flex;align-items:center;gap:10px">
         ${avatarHTML(ap.foto, ap.nombre, 44)}
         <div>
           <div style="font-weight:600;font-size:13px">${ap.nombre}</div>
           ${ap.email ? `<div style="font-size:11px;color:var(--mu)">${ap.email}</div>` : ''}
         </div>
       </div></td>
-      <td style="font-size:12px;color:var(--mu2)">${ap.cargo||'—'}</td>
-      <td style="font-size:12px;color:var(--mu2)">${ap.cedula||'—'}</td>
-      <td style="font-size:12px;color:var(--mu2)">${ap.tel||'—'}</td>
-      <td style="max-width:220px">
+      <td data-label="Cargo" style="font-size:12px;color:var(--mu2)">${ap.cargo||'—'}</td>
+      <td data-label="Cédula" style="font-size:12px;color:var(--mu2)">${ap.cedula||'—'}</td>
+      <td data-label="Teléfono" class="cell-full" style="font-size:12px;color:var(--mu2)">${ap.tel||'—'}</td>
+      <td data-label="Contratos" class="cell-full" style="max-width:220px">
         ${asignaciones.length === 0
           ? '<span style="color:var(--mu);font-size:11px">Sin contratos</span>'
           : asignaciones.map(a => {
@@ -2383,7 +2463,7 @@ apoyos() {
               return ct ? `<span class="b bi" style="margin:1px 2px 1px 0;font-size:9px">${ct.num}</span>` : '';
             }).join('')}
       </td>
-      <td style="white-space:nowrap">
+      <td class="cell-edit" data-label="" style="white-space:nowrap">
         <button class="btn sm bgh" onclick="openAp(${ap.id})">Editar</button>
         <button class="btn sm brd" onclick="delAp(${ap.id})">Eliminar</button>
       </td>
@@ -2411,7 +2491,7 @@ apoyos() {
         </button>
       </div>
       <div class="grupo-body" style="border:1px solid var(--bd);border-top:none;border-radius:0 0 8px 8px;overflow:hidden">
-        <table class="etbl" style="margin:0">
+        <table class="etbl etbl-grid" style="margin:0">
           <thead><tr>
             <th>Persona de apoyo</th><th>Cargo</th><th>Cédula</th>
             <th>Contacto</th><th>Contratos</th><th></th>
@@ -2458,7 +2538,7 @@ contratos() {
   </div>
   <div class="panel">
     <div class="ph">
-      <input placeholder="Buscar alias, número, objeto, contratista…" style="background:var(--sf);border:1px solid var(--bd2);border-radius:4px;padding:6px 10px;color:var(--tx);font-size:12.5px;font-family:'Instrument Sans',sans-serif;outline:none;width:240px" oninput="filterCt(this.value)">
+      <input class="ct-search" placeholder="Buscar alias, número, objeto, contratista…" style="background:var(--sf);border:1px solid var(--bd2);border-radius:4px;padding:6px 10px;color:var(--tx);font-size:12.5px;font-family:'Instrument Sans',sans-serif;outline:none;width:240px" oninput="filterCt(this.value)">
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn sm bgh fc on" onclick="setFc(this,'all')">Todos</button>
         <button class="btn sm bgh fc" onclick="setFc(this,'act')">Activos</button>
@@ -2470,7 +2550,7 @@ contratos() {
     </div>
     ${total === 0
       ? `<div class="emp" style="padding:48px">Sin contratos registrados.</div>`
-      : `<table class="etbl">
+      : `<table class="etbl ct-tbl">
           <thead><tr><th>No. / Contrato</th><th>Tipo</th><th>Objeto</th><th>Supervisor</th><th>Valor</th><th>Fin</th><th>Avance</th><th>Estado</th><th></th></tr></thead>
           <tbody id="ctBody">${roots.map(c => rowCtTree(c, 0)).join('')}</tbody>
         </table>`}
@@ -2630,7 +2710,7 @@ pagos() {
     </div>
     <div class="pb" style="padding:0">
       ${D.ct.length === 0 ? `<div class="emp" style="padding:48px">Sin contratos registrados.</div>` :
-      `<table class="etbl">
+      `<table class="etbl etbl-grid">
         <thead><tr>
           <th>Contrato</th>
           <th>Contratista</th>
@@ -2652,17 +2732,17 @@ pagos() {
             const pctColor = pct2 >= 90 ? 'var(--gr)' : pct2 >= 50 ? 'var(--am)' : 'var(--accent)';
             const numPagos = D.pa.filter(p=>p.cid==c.id).length;
             return `<tr>
-              <td>
+              <td class="cell-head">
                 <div style="font-weight:600;font-size:12.5px">${c.num}</div>
                 <div style="font-size:11px;color:var(--mu);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.obj}</div>
               </td>
-              <td style="font-size:12px;color:var(--mu2)">${c.contratista||'—'}</td>
-              <td style="text-align:right;color:var(--bl);font-weight:500">${cop(c.valor)}</td>
-              <td style="text-align:right;color:var(--am);font-size:12px">${tad ? cop(tad) : '—'}</td>
-              <td style="text-align:right;font-weight:700">${cop(valTotal)}</td>
-              <td style="text-align:right;color:var(--gr);font-weight:600">${pagado ? cop(pagado) : '<span style="color:var(--mu)">$0</span>'}</td>
-              <td style="text-align:right;color:${saldo>0?'var(--accent)':'var(--gr)'};font-weight:600">${cop(Math.max(0,saldo))}</td>
-              <td style="text-align:center">
+              <td class="cell-full" data-label="Contratista" style="font-size:12px;color:var(--mu2)">${c.contratista||'—'}</td>
+              <td data-label="Valor contrato" style="text-align:right;color:var(--bl);font-weight:500">${cop(c.valor)}</td>
+              <td data-label="Adiciones" style="text-align:right;color:var(--am);font-size:12px">${tad ? cop(tad) : '—'}</td>
+              <td data-label="Valor total" style="text-align:right;font-weight:700">${cop(valTotal)}</td>
+              <td data-label="Total pagado" style="text-align:right;color:var(--gr);font-weight:600">${pagado ? cop(pagado) : '<span style="color:var(--mu)">$0</span>'}</td>
+              <td data-label="Saldo" style="text-align:right;color:${saldo>0?'var(--accent)':'var(--gr)'};font-weight:600">${cop(Math.max(0,saldo))}</td>
+              <td data-label="% Pagado" style="text-align:center">
                 <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
                   <div style="width:60px;height:6px;background:var(--bd);border-radius:3px;overflow:hidden">
                     <div style="height:100%;width:${Math.min(100,pct2)}%;background:${pctColor};border-radius:3px"></div>
@@ -2670,7 +2750,7 @@ pagos() {
                   <span style="font-size:12px;font-weight:700;color:${pctColor};min-width:32px">${pct2}%</span>
                 </div>
               </td>
-              <td style="white-space:nowrap">
+              <td class="cell-acc" data-label="" style="white-space:nowrap">
                 <button class="btn sm bgh" onclick="verCt(${c.id})" title="Ver ficha">Ver</button>
                 <button class="btn sm bgr" onclick="openPago(${c.id})" title="Registrar pago">+ Pago</button>
                 ${numPagos ? `<span style="font-size:10px;color:var(--mu);margin-left:4px">${numPagos}P</span>` : ''}
@@ -2680,13 +2760,13 @@ pagos() {
         </tbody>
         <tfoot>
           <tr style="background:var(--sf2);font-weight:700">
-            <td colspan="2" style="padding:10px 12px;border-top:2px solid var(--bd2);font-size:12px">TOTALES</td>
-            <td style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--bl)">${cop(D.ct.reduce((s,c)=>s+Number(c.valor||0),0))}</td>
-            <td style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--am)">${cop(D.ad.reduce((s,a)=>s+Number(a.valor||0),0))}</td>
-            <td style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2)">${cop(totalContratos)}</td>
-            <td style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--gr)">${cop(totalPagos)}</td>
-            <td style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--accent)">${cop(Math.max(0,saldoPendiente))}</td>
-            <td colspan="2" style="padding:10px 12px;border-top:2px solid var(--bd2);text-align:center;color:var(--bl)">${totalContratos?Math.round(totalPagos/totalContratos*100):0}% global</td>
+            <td colspan="2" class="cell-head" style="padding:10px 12px;border-top:2px solid var(--bd2);font-size:12px">TOTALES</td>
+            <td data-label="Valor contrato" style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--bl)">${cop(D.ct.reduce((s,c)=>s+Number(c.valor||0),0))}</td>
+            <td data-label="Adiciones" style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--am)">${cop(D.ad.reduce((s,a)=>s+Number(a.valor||0),0))}</td>
+            <td data-label="Valor total" style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2)">${cop(totalContratos)}</td>
+            <td data-label="Total pagado" style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--gr)">${cop(totalPagos)}</td>
+            <td data-label="Saldo" style="text-align:right;padding:10px 6px;border-top:2px solid var(--bd2);color:var(--accent)">${cop(Math.max(0,saldoPendiente))}</td>
+            <td colspan="2" class="cell-full" data-label="" style="padding:10px 12px;border-top:2px solid var(--bd2);text-align:center;color:var(--bl)">${totalContratos?Math.round(totalPagos/totalContratos*100):0}% global</td>
           </tr>
         </tfoot>
       </table>`}
@@ -2698,7 +2778,7 @@ pagos() {
   <div class="panel" style="margin-top:16px">
     <div class="ph"><span class="ptitle">Historial de pagos</span></div>
     <div class="pb" style="padding:0">
-      <table class="etbl">
+      <table class="etbl etbl-grid">
         <thead><tr>
           <th>Pago No.</th><th>Contrato</th><th>Fecha</th>
           <th style="text-align:right">Valor</th><th>Observaciones</th><th>Adjuntos</th><th></th>
@@ -2707,16 +2787,16 @@ pagos() {
           ${[...D.pa].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')).map(p => {
             const c = D.ct.find(x=>x.id==p.cid);
             return `<tr>
-              <td style="font-weight:600;color:var(--bl)">${p.num||'—'}</td>
-              <td>
+              <td data-label="Pago No." style="font-weight:600;color:var(--bl)">${p.num||'—'}</td>
+              <td class="cell-head">
                 <div style="font-weight:500;font-size:12.5px">${c?c.num:'—'}</div>
                 <div style="font-size:11px;color:var(--mu)">${c?c.obj.substring(0,50):''}</div>
               </td>
-              <td style="color:var(--mu2);font-size:12px">${fmt(p.fecha)}</td>
-              <td style="text-align:right;font-weight:700;color:var(--gr)">${cop(p.valor)}</td>
-              <td style="font-size:11.5px;color:var(--mu2);max-width:200px">${p.obs||'—'}</td>
-              <td>${adjuntosHTML('pa', p)}</td>
-              <td style="white-space:nowrap">
+              <td data-label="Fecha" style="color:var(--mu2);font-size:12px">${fmt(p.fecha)}</td>
+              <td data-label="Valor" style="text-align:right;font-weight:700;color:var(--gr)">${cop(p.valor)}</td>
+              <td class="cell-full" data-label="Observaciones" style="font-size:11.5px;color:var(--mu2);max-width:200px">${p.obs||'—'}</td>
+              <td class="cell-full" data-label="Adjuntos">${adjuntosHTML('pa', p)}</td>
+              <td class="cell-edit" data-label="" style="white-space:nowrap">
                 <button class="btn sm bgh" onclick="openPago(${p.cid},${p.id})">Editar</button>
                 <button class="btn sm brd" onclick="delPago(${p.id})">Eliminar</button>
               </td>
@@ -2797,7 +2877,7 @@ function rowCt(c, lvl) {
   const sem   = semaforo(real, est);
   const indent = lvl * 22;
   const isChild = lvl > 0;
-  return `<tr style="${isChild ? 'background:var(--sf2)' : ''}">
+  return `<tr data-lvl="${lvl}" style="${isChild ? 'background:var(--sf2)' : ''}">
     <td style="padding-left:${12+indent}px">
       ${isChild ? `<span style="display:inline-block;width:10px;height:10px;border-left:2px solid var(--bd);border-bottom:2px solid var(--bd);margin-right:6px;vertical-align:middle;margin-bottom:2px;border-radius:0 0 0 3px"></span>` : ''}
       <span style="font-weight:${isChild?'400':'600'};font-size:${isChild?'12':'12.5'}px">${c.num}</span>
@@ -2812,11 +2892,11 @@ function rowCt(c, lvl) {
       ${sv ? avatarHTML(sv.foto, sv.nombre, 32) : ''}
       <span style="font-size:11px;color:var(--mu2)">${sv ? sv.nombre : '—'}</span>
     </div></td>
-    <td class="mc">${cop(c.valor)}</td>
-    <td class="dc">${(() => { const fr = fechaFinReal(c) || c.fend; return fr && fr !== c.fend
+    <td class="mc" data-label="Valor">${cop(c.valor)}</td>
+    <td class="dc" data-label="Fin">${(() => { const fr = fechaFinReal(c) || c.fend; return fr && fr !== c.fend
       ? `<span title="Prorrogado — fin contractual: ${fmt(c.fend)}">${fmt(fr)} <span style="font-size:9px;color:var(--bl)">▲P</span></span>`
       : fmt(c.fend); })()}</td>
-    <td style="text-align:center">
+    <td style="text-align:center" data-label="Avance">
       <span style="font-size:12px;font-weight:700;color:${sem.color}">${real}%</span>
     </td>
     <td>${badge(e.cls, e.lbl)}</td>
@@ -8989,7 +9069,7 @@ function initPagosAcumChart(){
       interaction:{ mode:'index', intersect:false },
       scales:{
         y:{ beginAtZero:true, ticks:{ callback:function(v){ return _moneyShort(v); } }, grid:{ color:_CH.grid } },
-        x:{ grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:true, maxTicksLimit:8 } }
+        x:{ grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:true, maxTicksLimit:(window.innerWidth < 720 ? 3 : 8) } }
       },
       plugins:{
         legend:{ position:'top', labels:{ boxWidth:12, font:{ size:11 } } },
