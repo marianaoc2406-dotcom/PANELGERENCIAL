@@ -453,6 +453,31 @@ main{overflow-y:auto;padding:32px 36px;background:var(--sf2)}
 .adj-chip:hover{background:var(--bl-d)}
 .adj-x{border:none;background:transparent;color:var(--mu);cursor:pointer;padding:3px 8px;font-size:13px;line-height:1}
 .adj-x:hover{color:var(--accent);background:var(--accent-d)}
+/* ── Controles ocultos a pedido (siguen en el código; para volver a verlos, quita la clase tb-oculto) ──
+   Excel, Plantilla supervisores, Subir reporte semanal (barra superior) y "Cargar plantilla semanal" (dashboard). */
+.tb-oculto{display:none !important}
+/* ── SESIÓN: chip de usuario + aviso de inactividad ── */
+.sess-wrap{position:relative;margin-left:4px}
+.sess-btn{display:flex;align-items:center;gap:7px;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:4px 12px 4px 5px;color:var(--tx);font-size:12px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .15s}
+.sess-btn:hover,.sess-btn[aria-expanded="true"]{border-color:var(--accent);background:var(--accent-d)}
+.sess-av{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.sess-nm{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sess-menu{display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:250px;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:6px;z-index:3000}
+.sess-menu.on{display:block}
+.sess-info{padding:10px 12px 10px;border-bottom:1px solid var(--bd);margin-bottom:4px}
+.sess-info b{display:block;font-size:13px;color:var(--tx);word-break:break-all}
+.sess-info span{font-size:11px;color:var(--mu)}
+.sess-out{display:block;width:100%;text-align:left;background:none;border:none;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--accent-t);cursor:pointer;font-family:'Instrument Sans',sans-serif}
+.sess-out:hover{background:var(--accent-d)}
+.sess-out small{display:block;font-weight:400;font-size:10.5px;color:var(--mu);margin-top:1px}
+#idleWarn{position:fixed;inset:0;z-index:99998;background:rgba(15,20,36,.6);display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Instrument Sans',sans-serif}
+#idleWarn .iw-card{background:#fff;border-radius:16px;padding:28px 28px 22px;width:400px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:4px solid var(--am)}
+#idleWarn .iw-t{font-size:17px;font-weight:800;color:var(--tx);margin-bottom:8px}
+#idleWarn .iw-d{font-size:13.5px;line-height:1.55;color:var(--mu2)}
+#idleWarn .iw-c{font-size:34px;font-weight:800;color:var(--accent);letter-spacing:.02em;margin:14px 0 4px;font-variant-numeric:tabular-nums}
+#idleWarn .iw-b{margin-top:16px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+#idleWarn .iw-b:hover{background:var(--accent-t)}
+@media(max-width:760px){.sess-nm{display:none}.sess-btn{padding:4px}}
 /* ── PÓLIZAS por etapa (Minuta / Acta de inicio / Otrosí) ── */
 .mo.mo-wide{width:860px}
 .pol-etapa{background:#fff;border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden;box-shadow:var(--card-shadow)}
@@ -726,15 +751,15 @@ nav.collapsed .ni:hover::after{opacity:1}
       Importar
       <input type="file" accept=".json" onchange="importarDatos(this)" style="display:none">
     </label>
-    <button onclick="exportarExcel()" style="background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.3);border-radius:7px;padding:5px 11px;color:#16a34a;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.background='#e6f5ed'" onmouseout="this.style.background='none'" title="Exportar resumen a Excel">
+    <button class="tb-oculto" onclick="exportarExcel()" style="background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.3);border-radius:7px;padding:5px 11px;color:#16a34a;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.background='#e6f5ed'" onmouseout="this.style.background='none'" title="Exportar resumen a Excel">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M5 5l6 6M11 5l-6 6"/></svg>
       Excel
     </button>
-    <button onclick="generarPlantilla()" style="background:#7c3aed;border:1px solid #6d28d9;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(124,58,237,.25)" onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'" title="Descargar plantilla Excel con los contratos precargados para enviar a supervisores">
+    <button class="tb-oculto" onclick="generarPlantilla()" style="background:#7c3aed;border:1px solid #6d28d9;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(124,58,237,.25)" onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'" title="Descargar plantilla Excel con los contratos precargados para enviar a supervisores">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v9M5 8l3 3 3-3M2 13h12"/></svg>
       📋 Plantilla supervisores
     </button>
-    <label class="ro-hide" style="background:#2563eb;border:1px solid #1d4ed8;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(37,99,235,.25)" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'" title="Subir plantilla semanal de supervisores">
+    <label class="ro-hide tb-oculto" style="background:#2563eb;border:1px solid #1d4ed8;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(37,99,235,.25)" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'" title="Subir plantilla semanal de supervisores">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M8 5v6M5 8l3 3 3-3"/></svg>
       📥 Subir reporte semanal
       <input type="file" accept=".xlsx,.xls" onchange="importarExcel(this)" style="display:none">
@@ -896,12 +921,12 @@ function _setSync(state){
   el.style.background = state==='saving' ? '#d97706' : state==='err' ? '#dc2626' : '#16a34a';
   el.title = state==='saving' ? 'Guardando…' : state==='err' ? 'Sin conexión — guardado local' : 'Datos sincronizados';
 }
-function _pushRemote(){
-  if(READONLY) return;                    // modo solo lectura: nunca sincroniza
-  if(!window.__sb) return;
+let _pushP = null;                        // guardado en curso (para poder esperarlo al cerrar sesión)
+// Guarda YA en el servidor. Devuelve una promesa con true (guardado) o false (falló).
+function _pushNow(){
+  if(READONLY || !window.__sb) return Promise.resolve(true);
   _setSync('saving');
-  clearTimeout(_pushT);
-  _pushT = setTimeout(async function(){
+  var p = (async function(){
     try{
       var rows = [
         { key:'panel', data: D,                    updated_at: new Date().toISOString() },
@@ -910,13 +935,31 @@ function _pushRemote(){
       var r = await window.__sb.from('edeso_state').upsert(rows, { onConflict:'key' });
       if(r.error) throw r.error;
       _setSync('ok');
+      return true;
     }catch(e){
       console.warn('sync push', e);
       _setSync('err');
       if(typeof toast === 'function')
         toast('No se pudo guardar en el servidor (revisa conexión o permisos). Se conservó localmente.', true);
+      return false;
     }
-  }, 700);
+  })();
+  _pushP = p;
+  p.then(function(){ if(_pushP === p) _pushP = null; });
+  return p;
+}
+function _pushRemote(){
+  if(READONLY) return;                    // modo solo lectura: nunca sincroniza
+  if(!window.__sb) return;
+  _setSync('saving');
+  clearTimeout(_pushT);
+  _pushT = setTimeout(function(){ _pushT = null; _pushNow(); }, 700);
+}
+// Fuerza el guardado de lo pendiente (o espera el que está en curso). true = todo guardado.
+async function _flushPush(){
+  if(_pushT){ clearTimeout(_pushT); _pushT = null; return await _pushNow(); }
+  if(_pushP) return await _pushP;
+  return true;
 }
 function _pushPanel(){ _pushRemote(); }
 function _pushObras(){ _pushRemote(); }
@@ -935,17 +978,22 @@ function __edesoLoadObras(remote){
   remote.forEach(function(o){ window.OBRAS2.push(o); });
   try{ localStorage.setItem('edeso_obras2', JSON.stringify(window.OBRAS2)); }catch(e){}
 }
+// Devuelve { ok, filas, hayPanel, error }.
+// OJO: con RLS, un invitado (anon) sin permiso de lectura NO recibe error: la consulta responde
+// 200 con []. Por eso no basta con mirar `error`: hay que comprobar que llegó la fila 'panel'.
 async function _loadRemote(){
-  if(!window.__sb) return;
+  if(!window.__sb) return { ok:false, filas:0, hayPanel:false, error:null };
   try{
     var r = await window.__sb.from('edeso_state').select('key,data');
     if(r.error) throw r.error;
+    var hayPanel = false;
     (r.data||[]).forEach(function(row){
-      if(row.key==='panel') __edesoLoadPanel(row.data);
+      if(row.key==='panel' && row.data && typeof row.data==='object'){ __edesoLoadPanel(row.data); hayPanel = true; }
       if(row.key==='obras') __edesoLoadObras(row.data);
     });
     _setSync('ok');
-  }catch(e){ console.warn('sync load', e); _setSync('err'); }
+    return { ok:true, filas:(r.data||[]).length, hayPanel:hayPanel, error:null };
+  }catch(e){ console.warn('sync load', e); _setSync('err'); return { ok:false, filas:0, hayPanel:false, error:e }; }
 }
 
 /* ── Pantalla de ingreso ── */
@@ -1010,19 +1058,242 @@ function _mountReadonlyUI(){
   }
   var sd = document.getElementById('syncDot'); if(sd) sd.style.display = 'none';
 }
+// Aviso claro cuando el invitado no recibe datos (sin permiso de lectura, o sin conexión),
+// en vez de dejar un panel vacío que parece "no hay contratos".
+function _avisoSinDatos(res){
+  if(document.getElementById('roLoadMsg')) return;
+  var err = res.error || {};
+  var msg = String(err.message || '');
+  // Sin error pero sin fila 'panel' = RLS filtrando todo (200 con []), o error explícito de permisos.
+  var permiso = res.ok || /^(42501|PGRST30[12])$/.test(String(err.code||'')) || /permission denied|jwt|not authorized|\b40[13]\b/i.test(msg);
+  var conLocal = !!(D && D.ct && D.ct.length);
+  var titulo = conLocal ? 'No se pudo actualizar desde el servidor' : 'No se pudieron cargar los contratos';
+  var detalle = permiso
+    ? 'El servidor no entregó datos al modo solo lectura: lo más probable es que el acceso de lectura público no esté habilitado. Avisa al administrador.'
+    : 'Parece un problema de conexión. Revisa tu internet e intenta de nuevo.';
+  if(conLocal) detalle += ' Se muestran los datos guardados en este navegador, que pueden estar desactualizados.';
+
+  var o = document.createElement('div');
+  o.id = 'roLoadMsg';
+  var t = document.createElement('div'); t.style.cssText = 'font-size:15px;font-weight:800;margin-bottom:6px'; t.textContent = titulo;
+  var d = document.createElement('div'); d.style.cssText = 'font-size:13px;line-height:1.5;opacity:.9'; d.textContent = detalle;
+  if(conLocal){
+    o.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9500;background:#fef3c7;color:#b45309;border-bottom:2px solid #d97706;padding:12px 48px 12px 20px;font-family:Instrument Sans,sans-serif';
+    var x = document.createElement('button'); x.textContent = '✕'; x.title = 'Cerrar';
+    x.style.cssText = 'position:absolute;top:8px;right:14px;background:none;border:none;color:inherit;font-size:16px;cursor:pointer';
+    x.onclick = function(){ o.remove(); };
+    o.appendChild(t); o.appendChild(d); o.appendChild(x);
+  } else {
+    o.style.cssText = 'position:fixed;inset:0;z-index:9500;background:rgba(15,20,36,.55);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Instrument Sans,sans-serif';
+    var c = document.createElement('div');
+    c.style.cssText = 'background:#fff;color:#1a2035;border-radius:16px;padding:28px 28px 22px;width:420px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:4px solid #C8232A';
+    var b = document.createElement('div'); b.style.cssText = 'display:flex;gap:10px;margin-top:18px;flex-wrap:wrap';
+    var bs = 'border-radius:9px;padding:10px 16px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;';
+    var r1 = document.createElement('button'); r1.textContent = 'Reintentar';
+    r1.style.cssText = bs + 'background:#C8232A;color:#fff;border:none';
+    r1.onclick = function(){ location.hash = '#ver'; location.reload(); };   // vuelve a entrar en modo lectura
+    var r2 = document.createElement('button'); r2.textContent = 'Iniciar sesión';
+    r2.style.cssText = bs + 'background:#fff;color:#2563eb;border:1.5px solid #cdd7ea';
+    r2.onclick = function(){ location.hash = ''; location.reload(); };
+    b.appendChild(r1); b.appendChild(r2);
+    c.appendChild(t); c.appendChild(d); c.appendChild(b); o.appendChild(c);
+  }
+  document.body.appendChild(o);
+}
 async function _enterReadonly(){
   READONLY = true;
   _mountReadonlyUI();
-  if(window.__sb){ try{ await _loadRemote(); }catch(e){ console.warn('ro load', e); } }
+  var res = null;
+  if(window.__sb){ try{ res = await _loadRemote(); }catch(e){ console.warn('ro load', e); } }
   _hideLogin();
   try{ if(typeof render==='function') render(); }catch(e){}
+  if(res && (!res.ok || !res.hayPanel)) _avisoSinDatos(res);
 }
 window._enterReadonly = _enterReadonly;
+
+/* ── Sesión: usuario, cerrar sesión e inactividad ──────────────────────────
+   Solo aplica a usuarios con sesión iniciada (se activa desde _afterAuth).
+   El modo invitado (#ver / "solo lectura") nunca llega aquí.                  */
+const IDLE_LIMIT_MIN = 360;                    // 6 h sin actividad → se cierra la sesión
+const IDLE_WARN_MIN  = 2;                      // aviso 2 min antes de cerrar
+const IDLE_KEY       = 'edeso_last_activity';  // última actividad, compartida entre pestañas
+const LOGOUT_MSG_KEY = 'edeso_logout_msg';     // mensaje que se muestra en el login tras cerrar sesión
+const _IDLE_EVENTS   = ['mousemove','mousedown','click','keydown','wheel','scroll','touchstart'];
+let _idleTimer = null, _idleTick = null, _idleWarnEl = null, _idleWarnOn = false;
+let _idleLast = 0, _idleStoreAt = 0;
+let _sesionActiva = false, _cerrando = false, _authSub = null;
+
+function _irAlLogin(){ location.hash = ''; location.reload(); }   // recarga limpia: sin temporizadores ni estado; el arranque muestra el login
+
+function _userNombre(user){
+  var m = (user && user.user_metadata) || {};
+  return String(m.full_name || m.name || (user && user.email) || 'Usuario');
+}
+function _mountSessionUI(user){
+  var tr = document.querySelector('.tright'); if(!tr) return;
+  var old = document.getElementById('sessWrap'); if(old) old.remove();
+  var nombre = _userNombre(user), correo = String((user && user.email) || '');
+  var wrap = document.createElement('div'); wrap.id = 'sessWrap'; wrap.className = 'sess-wrap';
+  var btn = document.createElement('button');
+  btn.type = 'button'; btn.id = 'sessBtn'; btn.className = 'sess-btn'; btn.title = correo || nombre;
+  btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
+  var av = document.createElement('span'); av.className = 'sess-av'; av.textContent = (nombre.trim()[0] || '?').toUpperCase();
+  var nm = document.createElement('span'); nm.className = 'sess-nm'; nm.textContent = nombre;
+  btn.appendChild(av); btn.appendChild(nm);
+  var menu = document.createElement('div'); menu.id = 'sessMenu'; menu.className = 'sess-menu';
+  var info = document.createElement('div'); info.className = 'sess-info';
+  var b1 = document.createElement('b'); b1.textContent = nombre; info.appendChild(b1);
+  if(correo && correo !== nombre){ var s1 = document.createElement('span'); s1.textContent = correo; info.appendChild(s1); }
+  var out = document.createElement('button');
+  out.type = 'button'; out.id = 'sessOut'; out.className = 'sess-out';
+  out.innerHTML = 'Cerrar sesión<small>Cierra la sesión en todos tus dispositivos</small>';
+  out.onclick = function(){ _cerrarSesion('manual'); };
+  menu.appendChild(info); menu.appendChild(out);
+  btn.onclick = function(e){ e.stopPropagation(); btn.setAttribute('aria-expanded', menu.classList.toggle('on') ? 'true' : 'false'); };
+  menu.onclick = function(e){ e.stopPropagation(); };
+  wrap.appendChild(btn); wrap.appendChild(menu); tr.appendChild(wrap);
+}
+function _sessMenuCerrar(){
+  var m = document.getElementById('sessMenu'), b = document.getElementById('sessBtn');
+  if(m) m.classList.remove('on'); if(b) b.setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('click', _sessMenuCerrar);
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') _sessMenuCerrar(); });
+
+// Respaldo: si signOut no pudo hablar con el servidor, supabase-js NO borra la sesión local.
+// Se borra a mano para que igualmente se vuelva al login.
+function _limpiarSesionLocal(){
+  try{
+    for(var i = localStorage.length - 1; i >= 0; i--){
+      var k = localStorage.key(i);
+      if(k && /^sb-.+-auth-token(-code-verifier)?$/.test(k)) localStorage.removeItem(k);
+    }
+  }catch(e){}
+}
+// motivo: 'manual' (botón → cierra en TODOS los dispositivos) | 'inactividad' (solo este navegador)
+async function _cerrarSesion(motivo){
+  if(_cerrando) return;
+  _cerrando = true;
+  _idleStop();
+  var guardado = await _flushPush();          // guardar lo pendiente ANTES, con la sesión todavía vigente
+  if(!guardado && motivo === 'manual'){
+    if(!confirm('Hay cambios que no se pudieron guardar en el servidor. Si cierras sesión ahora podrías perderlos.\n\n¿Cerrar sesión de todas formas?')){
+      _cerrando = false; _idleStart(); return;
+    }
+  }
+  var scope = motivo === 'manual' ? 'global' : 'local';
+  var fallo = null;
+  try{
+    var r = await window.__sb.auth.signOut({ scope: scope });
+    if(r && r.error) fallo = r.error;
+  }catch(e){ fallo = e; }
+  if(fallo){ console.warn('signOut', fallo); _limpiarSesionLocal(); }
+  var msg = '';
+  if(motivo === 'inactividad'){
+    msg = 'Tu sesión se cerró por inactividad.' + (guardado ? '' : ' Hay cambios que no se pudieron guardar en el servidor: quedaron en este navegador.');
+  } else if(fallo){
+    msg = 'Sesión cerrada en este equipo. No se pudo cerrar en tus otros dispositivos (sin conexión): vuelve a intentarlo con internet.';
+  }
+  try{ if(msg) sessionStorage.setItem(LOGOUT_MSG_KEY, msg); else sessionStorage.removeItem(LOGOUT_MSG_KEY); }catch(e){}
+  try{ localStorage.removeItem(IDLE_KEY); }catch(e){}
+  _sesionActiva = false;
+  _irAlLogin();
+}
+function _avisoLogout(){
+  var m = '';
+  try{ m = sessionStorage.getItem(LOGOUT_MSG_KEY) || ''; sessionStorage.removeItem(LOGOUT_MSG_KEY); }catch(e){}
+  return m;
+}
+
+// Última actividad = la más reciente entre esta pestaña y las demás (localStorage).
+function _idleLeer(){
+  var t = _idleLast;
+  try{ var s = Number(localStorage.getItem(IDLE_KEY)); if(s > t) t = s; }catch(e){}
+  return t;
+}
+function _idleRegistrar(){
+  var now = Date.now(); _idleLast = now;
+  if(now - _idleStoreAt > 15000){ _idleStoreAt = now; try{ localStorage.setItem(IDLE_KEY, String(now)); }catch(e){} }
+}
+function _idleMarcar(){
+  if(_idleWarnOn) return;                     // con el aviso visible, solo "Seguir conectado" reinicia el contador
+  _idleRegistrar();
+}
+function _idleStart(){
+  _idleStop();
+  _idleLast = 0; _idleStoreAt = 0; _idleRegistrar();
+  _IDLE_EVENTS.forEach(function(ev){ document.addEventListener(ev, _idleMarcar, { passive:true, capture:true }); });
+  document.addEventListener('visibilitychange', _idleCheck);
+  // Se compara con Date.now() en vez de un setTimeout de 6 h: funciona aunque el equipo se suspenda
+  _idleTimer = setInterval(_idleCheck, 15000);
+}
+function _idleStop(){
+  clearInterval(_idleTimer); _idleTimer = null;
+  _IDLE_EVENTS.forEach(function(ev){ document.removeEventListener(ev, _idleMarcar, { capture:true }); });
+  document.removeEventListener('visibilitychange', _idleCheck);
+  _idleAvisoOcultar();
+}
+function _idleCheck(){
+  if(!_idleTimer) return;
+  var limite = IDLE_LIMIT_MIN * 60000, aviso = IDLE_WARN_MIN * 60000;
+  var inactivo = Date.now() - _idleLeer();
+  if(inactivo >= limite){ _cerrarSesion('inactividad'); return; }
+  if(inactivo >= limite - aviso) _idleAvisoMostrar(limite - inactivo);
+  else if(_idleWarnOn) _idleAvisoOcultar();   // otra pestaña tuvo actividad
+}
+function _idleFmt(ms){ var s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+function _idleAvisoMostrar(restoMs){
+  if(!_idleWarnEl){
+    var o = document.createElement('div');
+    o.id = 'idleWarn'; o.setAttribute('role', 'alertdialog'); o.setAttribute('aria-modal', 'true');
+    o.innerHTML = '<div class="iw-card"><div class="iw-t">¿Sigues ahí?</div>'
+      + '<div class="iw-d">Por seguridad, tu sesión se cerrará por inactividad en:</div>'
+      + '<div class="iw-c" id="idleCount"></div>'
+      + '<div class="iw-d">Pulsa el botón para seguir trabajando.</div>'
+      + '<button type="button" class="iw-b" id="idleKeep">Seguir conectado</button></div>';
+    _sessMenuCerrar();
+    document.body.appendChild(o); _idleWarnEl = o; _idleWarnOn = true;
+    var k = document.getElementById('idleKeep'); k.onclick = _idleSeguir; k.focus();
+    _idleTick = setInterval(_idleCheck, 1000);   // cuenta regresiva y cierre exacto
+  }
+  var c = document.getElementById('idleCount'); if(c) c.textContent = _idleFmt(restoMs);
+}
+function _idleAvisoOcultar(){
+  clearInterval(_idleTick); _idleTick = null;
+  if(_idleWarnEl){ _idleWarnEl.remove(); _idleWarnEl = null; }
+  _idleWarnOn = false;
+}
+function _idleSeguir(){                        // "Seguir conectado": reinicia el contador (también para las otras pestañas)
+  _idleAvisoOcultar();
+  _idleStoreAt = 0; _idleRegistrar();
+}
+
+// Si otra pestaña/dispositivo cierra la sesión, esta vuelve al login en vez de mostrar datos con una sesión muerta.
+function _authWatch(){
+  if(_authSub || !window.__sb || !window.__sb.auth || !window.__sb.auth.onAuthStateChange) return;
+  try{
+    var r = window.__sb.auth.onAuthStateChange(function(ev){
+      if(ev === 'SIGNED_OUT' && _sesionActiva && !_cerrando){ _sesionActiva = false; _idleStop(); _irAlLogin(); }
+    });
+    _authSub = (r && r.data && r.data.subscription) || true;
+  }catch(e){ console.warn('authWatch', e); }
+}
+async function _iniciarSesionUI(){
+  if(READONLY || !window.__sb) return;
+  var user = null;
+  try{ var s = await window.__sb.auth.getSession(); user = s && s.data && s.data.session && s.data.session.user; }catch(e){}
+  if(!user) return;
+  _sesionActiva = true; _cerrando = false;
+  _mountSessionUI(user);
+  _idleStart();
+  _authWatch();
+}
 
 async function _afterAuth(){
   await _loadRemote();
   _hideLogin();
   try{ if(typeof render==='function') render(); }catch(e){}
+  try{ await _iniciarSesionUI(); }catch(e){ console.warn('sesión UI', e); }
 }
 function _mountSyncDot(){
   var tr = document.querySelector('.tright');
@@ -1044,7 +1315,7 @@ async function _bootSync(){
   try{
     var s = await window.__sb.auth.getSession();
     if(s && s.data && s.data.session){ await _afterAuth(); }
-    else { _showLogin(); }
+    else { _showLogin(_avisoLogout()); }
   }catch(e){ console.warn('boot', e); _showLogin('Error de conexión'); }
 }
 if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', _bootSync); }
@@ -1709,7 +1980,7 @@ dashboard() {
 
   </div>
 
-  <div class="ro-hide" style="background:#fff;border:1px solid var(--bd);border-radius:14px;padding:20px 24px;margin-top:8px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:var(--card-shadow)">
+  <div class="ro-hide tb-oculto" style="background:#fff;border:1px solid var(--bd);border-radius:14px;padding:20px 24px;margin-top:8px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:var(--card-shadow)">
     <div style="width:44px;height:44px;border-radius:12px;background:var(--gr-d);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">📥</div>
     <div style="flex:1;min-width:220px">
       <div style="font-weight:700;font-size:13px;color:var(--tx);margin-bottom:3px">Cargar plantilla semanal de supervisores</div>
