@@ -453,6 +453,37 @@ main{overflow-y:auto;padding:32px 36px;background:var(--sf2)}
 .adj-chip:hover{background:var(--bl-d)}
 .adj-x{border:none;background:transparent;color:var(--mu);cursor:pointer;padding:3px 8px;font-size:13px;line-height:1}
 .adj-x:hover{color:var(--accent);background:var(--accent-d)}
+/* ── PÓLIZAS por etapa (Minuta / Acta de inicio / Otrosí) ── */
+.mo.mo-wide{width:860px}
+.pol-etapa{background:#fff;border:1px solid var(--bd);border-radius:12px;margin-bottom:14px;overflow:hidden;box-shadow:var(--card-shadow)}
+.pol-etapa.vig{border-left:4px solid var(--gr)}
+.pol-etapa.hist{border-left:4px solid var(--bd2)}
+.pol-et-hd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 18px;background:var(--sf2);border-bottom:1px solid var(--bd)}
+.pol-et-tt{font-size:14px;font-weight:700;color:var(--tx)}
+.pol-et-fe{font-size:12px;color:var(--mu2)}
+.pol-et-acc{margin-left:auto;display:flex;align-items:center;gap:6px}
+.pol-et-adj{padding:10px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mu2)}
+.pol-et-adj .adj-wrap{margin-top:0}
+.pol-po{padding:14px 18px;border-bottom:1px solid var(--bd)}
+.pol-po:last-child{border-bottom:none}
+.pol-po-tt{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:8px}
+.pol-po-tt span{font-weight:400;color:var(--mu2)}
+.pol-tbl{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+.pol-tbl th:nth-child(1){width:30%}.pol-tbl th:nth-child(2){width:18%}.pol-tbl th:nth-child(3),.pol-tbl th:nth-child(4){width:17%}
+.pol-tbl th{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:700;text-align:left;padding:6px 10px;border-bottom:1px solid var(--bd2);white-space:nowrap}
+.pol-tbl td{padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.pol-tbl tr:last-child td{border-bottom:none}
+.pol-hist>summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--mu2);padding:8px 2px;margin-bottom:10px;letter-spacing:.02em}
+.pol-src{display:flex;flex-direction:column;gap:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12.5px}
+.pol-src label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.pol-ed .pol-po-ed{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.pol-ed .pol-po-top{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:10px;align-items:end}
+.pol-ed .pol-am{display:grid;grid-template-columns:1.7fr 1.1fr 1fr 1fr 28px;gap:6px;margin-bottom:6px;align-items:center}
+.pol-ed .pol-am-h{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:700;margin-bottom:4px}
+.pol-ed input,.pol-ed select{background:#fff;border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;color:var(--tx);font-family:'Instrument Sans',sans-serif;font-size:12.5px;outline:none;width:100%;min-width:0}
+.pol-ed input:focus,.pol-ed select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-d)}
+.pol-ed label.pl-l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);display:block;margin-bottom:4px}
+@media(max-width:720px){.pol-ed .pol-am{grid-template-columns:1fr 1fr}.pol-ed .pol-po-top{grid-template-columns:1fr}.pol-ed .pol-am-h{display:none}}
 /* visor de fotos (carrusel) */
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;flex-direction:column;align-items:center}
 #lightbox.on{display:flex}
@@ -1630,22 +1661,23 @@ dashboard() {
   </div>`}
 
   ${(function(){
-    var pas = todasPolizasAlerta();
+    var pas = alertasPolizas().filter(function(a){ return D.ct.some(function(x){return x.id==a.cid;}); });
     if(!pas.length) return '';
-    var rows = pas.map(function(p){
-      var c = D.ct.find(function(x){return x.id==p.cid;});
-      if(!c) return '';
-      var diff = Math.ceil((new Date(p.ffin+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000);
-      return '<div style="background:var(--am-d);border-left:3px solid var(--am);border-radius:7px;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer" onclick="verCt('+c.id+')">'
+    var hayVenc = pas.some(function(a){ return a.vencido; });
+    var rows = pas.map(function(a){
+      var c = D.ct.find(function(x){return x.id==a.cid;});
+      var col = a.vencido ? {bg:'var(--rd-d)',bd:'var(--rd)',tx:'var(--rd-t)'} : {bg:'var(--am-d)',bd:'var(--am)',tx:'var(--am-t)'};
+      var det = polAlertaDetalle(a);
+      return '<div style="background:'+col.bg+';border-left:3px solid '+col.bd+';border-radius:7px;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer" onclick="verCt('+c.id+')">'
         +'<div style="flex:1;min-width:180px">'
-        +'<div style="font-size:12px;font-weight:700;color:var(--am-t)">'+p.nombre+'</div>'
-        +'<div style="font-size:11px;color:var(--am-t);opacity:.8">'+c.num+' — '+c.obj.substring(0,45)+'</div>'
+        +'<div style="font-size:12px;font-weight:700;color:'+col.tx+'">Amparo: '+escapeAttr(a.amparo.clase||'—')+(det?' <span style="font-weight:500">· '+escapeAttr(det)+'</span>':'')+'</div>'
+        +'<div style="font-size:11px;color:'+col.tx+';opacity:.8">'+escapeAttr(c.num)+' — '+escapeAttr(String(c.obj||'').substring(0,45))+'</div>'
         +'</div>'
-        +'<div style="font-size:13px;font-weight:700;color:var(--am-t);white-space:nowrap">'
-        +(diff===0?'Vence hoy':'Vence en '+diff+' día(s)')+' · '+fmt(p.ffin)
+        +'<div style="font-size:13px;font-weight:700;color:'+col.tx+';white-space:nowrap">'
+        +polAlertaPlazo(a)+' · '+fmt(a.amparo.hasta)
         +'</div></div>';
     }).join('');
-    return '<div class="ds-section" style="color:var(--am)">⚠ Pólizas por vencer (próximos 30 días)</div>'
+    return '<div class="ds-section" style="color:'+(hayVenc?'var(--accent)':'var(--am)')+'">⚠ Pólizas: amparos vencidos o por vencer (próximos 30 días)</div>'
       +'<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">'+rows+'</div>';
   })()}
 
@@ -2434,32 +2466,77 @@ function svEfectivo(c) {
 
 
 // ── ALERTAS DE PÓLIZAS ───────────────────────────────────────
-function polizasAlerta(cid) {
-  // Retorna array de pólizas que vencen en <= 30 días
-  const td = today();
-  return D.pl.filter(p => {
-    if(p.cid != cid || !p.ffin) return false;
-    const diff = Math.ceil((new Date(p.ffin+'T00:00:00') - new Date(td+'T00:00:00')) / 86400000);
-    return diff >= 0 && diff <= 30;
-  });
+// Las pólizas de un contrato se registran por ETAPA (Minuta → Acta de inicio → Otrosí/Modificación).
+// Cada etapa es un corte del mismo grupo de pólizas:
+//   D.pl[] = { id, cid, etapa:'minuta'|'acta_inicio'|'otrosi', numero (solo otrosí), fecha,
+//              polizas:[{ id, numero, aseguradora, amparos:[{ id, clase, valor, desde, hasta }] }],
+//              adjuntos:[] }   ← un solo archivo: el acta de aprobación
+// Los registros SIN el campo `polizas` son del formato simple anterior {nombre, finicio, ffin, obs}:
+// no se migran ni se borran; se muestran aparte.
+const POL_ETAPAS = {
+  minuta:      { lbl:'Minuta',                rango:1 },
+  acta_inicio: { lbl:'Acta de inicio',        rango:2 },
+  otrosi:      { lbl:'Otrosí / Modificación', rango:3 }
+};
+const polEsEtapa = p => Array.isArray(p.polizas);
+
+// Etapas de un contrato, de la más reciente a la más antigua.
+// Criterio ÚNICO de "vigente": fecha más reciente; si empatan, mayor rango (Otrosí > Acta > Minuta),
+// luego mayor número de otrosí y por último el registro más nuevo.
+function polEtapas(cid) {
+  const rango = e => (POL_ETAPAS[e.etapa] || {}).rango || 0;
+  return D.pl.filter(p => p.cid == cid && polEsEtapa(p)).sort((a, b) =>
+    String(b.fecha || '').localeCompare(String(a.fecha || ''))
+    || rango(b) - rango(a)
+    || (parseInt(b.numero, 10) || 0) - (parseInt(a.numero, 10) || 0)
+    || Number(b.id) - Number(a.id));
+}
+function etapaVigente(cid) { return polEtapas(cid)[0] || null; }
+function polViejas(cid) { return D.pl.filter(p => p.cid == cid && !polEsEtapa(p)); }
+function polEtapaLabel(e) {
+  const b = (POL_ETAPAS[e.etapa] || {}).lbl || 'Etapa';
+  return b + (e.etapa === 'otrosi' && e.numero ? ' No. ' + e.numero : '');
 }
 
-function polizasVencidas(cid) {
-  const td = today();
-  return D.pl.filter(p => {
-    if(p.cid != cid || !p.ffin) return false;
-    return Math.ceil((new Date(p.ffin+'T00:00:00') - new Date(td+'T00:00:00')) / 86400000) < 0;
+// Amparos por vencer (≤ 30 días) o vencidos. Solo mira la etapa VIGENTE de cada contrato
+// (las anteriores son historial). cid omitido = todos los contratos.
+// Un contrato sin ninguna etapa sigue alertando con sus pólizas del formato simple.
+// Devuelve [{ cid, etapa, poliza, amparo, dias, vencido, vieja }] ordenado por urgencia.
+function alertasPolizas(cid) {
+  const out = [];
+  const cids = cid != null ? [cid] : Array.from(new Set(D.pl.map(p => p.cid)));
+  cids.forEach(k => {
+    const vig = etapaVigente(k);
+    if(vig) {
+      vig.polizas.forEach(po => (po.amparos || []).forEach(am => {
+        const d = daysLeft(am.hasta);
+        if(d === null || d > 30) return;
+        out.push({ cid:k, etapa:vig, poliza:po, amparo:am, dias:d, vencido:d < 0, vieja:false });
+      }));
+    } else {
+      polViejas(k).forEach(p => {
+        const d = daysLeft(p.ffin);
+        if(d === null || d > 30) return;
+        out.push({ cid:k, etapa:null, poliza:{ numero:'', aseguradora:'' },
+                   amparo:{ clase:p.nombre || 'Póliza', hasta:p.ffin }, dias:d, vencido:d < 0, vieja:true });
+      });
+    }
   });
+  return out.sort((a, b) => a.dias - b.dias);
 }
-
-function todasPolizasAlerta() {
-  // Para dashboard: todos los contratos con pólizas por vencer
-  const td = today();
-  return D.pl.filter(p => {
-    if(!p.ffin) return false;
-    const diff = Math.ceil((new Date(p.ffin+'T00:00:00') - new Date(td+'T00:00:00')) / 86400000);
-    return diff >= 0 && diff <= 30;
-  });
+// Texto de una alerta: "Póliza N° 123 · Aseguradora X · Otrosí No. 2"
+function polAlertaDetalle(a) {
+  const po = a.poliza || {};
+  const partes = [];
+  if(po.numero)       partes.push('Póliza N° ' + po.numero);
+  if(po.aseguradora)  partes.push(po.aseguradora);
+  if(a.etapa)         partes.push(polEtapaLabel(a.etapa));
+  return partes.join(' · ');
+}
+function polAlertaPlazo(a) {
+  return a.dias === 0 ? 'Vence hoy'
+       : a.vencido ? 'Vencido hace ' + Math.abs(a.dias) + ' día(s)'
+       : 'Vence en ' + a.dias + ' día(s)';
 }
 
 // ── SUSPENSIONES ─────────────────────────────────────────────
@@ -3867,7 +3944,7 @@ function verCt(id) {
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPr')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M2 8a6 6 0 016-6 6 6 0 014.2 1.7L14 5"/><path d="M14 2v4h-4"/><path d="M14 8a6 6 0 01-6 6 6 6 0 01-4.2-1.7L2 11"/><path d="M2 14v-4h4"/></svg> Prórrogas ${prs.length?'('+prs.length+')':''}</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpSu')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="3" y="2" width="3" height="12" rx="1"/><rect x="10" y="2" width="3" height="12" rx="1"/></svg> Suspensiones${D.su.filter(s=>s.cid==id).length ? ' <span class="nc">'+D.su.filter(s=>s.cid==id).length+'</span>' : ''}</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpAd')"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="display:inline-block;vertical-align:-1px"><path d="M8 2v12M2 8h12"/></svg> Adiciones ${ads.length?'('+ads.length+')':''}</div>
-        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPol')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/></svg> Pólizas${D.pl.filter(p=>p.cid==id).length ? ' <span class="nc">'+D.pl.filter(p=>p.cid==id).length+'</span>' : ''}</div>
+        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPol')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/></svg> Pólizas<span id="polTabN">${polTabN(id)}</span></div>
         ${ch.length ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpDer')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M6 10l4-4"/><path d="M4.5 11.5a3 3 0 000-4.2l-.8-.8a3 3 0 00-4.2 4.2l.8.8a3 3 0 002.1.8"/><path d="M11.5 4.5a3 3 0 000 4.2l.8.8a3 3 0 004.2-4.2l-.8-.8a3 3 0 00-2.1-.8"/></svg> Derivados (${ch.length})</div>` : ''}
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpAp')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 14c0-2.8 1.8-5 4-5M15 14c0-2.8-1.8-5-4-5"/></svg> Apoyos (${apoyos.length})</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPe')" style="color:var(--am-t)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M5.5 8l2 2 3.5-4"/><rect x="2" y="2" width="12" height="12" rx="2"/></svg> Pendientes ${(function(){var n=(D.pe||[]).filter(p=>p.cid==id&&p.estado!=='ok').length;return n?'<span class="nc" style="background:var(--am-d);color:var(--am-t);border-color:var(--am)">'+n+'</span>':'';})()}</div>
@@ -4765,7 +4842,7 @@ async function delAd(id) {
 
 // ─── MODAL ───────────────────────────────────────────────
 function openModal()  { $('ov').classList.add('on'); }
-function closeModal() { $('ov').classList.remove('on'); }
+function closeModal() { $('ov').classList.remove('on'); const mo = $('ov').querySelector('.mo'); if(mo) mo.classList.remove('mo-wide'); }
 $('ov').addEventListener('click', e => { if(e.target === $('ov')) closeModal(); });
 
 // ─── TOAST ───────────────────────────────────────────────
@@ -6134,99 +6211,323 @@ function toggleUbicacion() {
 
 // ── CORTES DE SEGUIMIENTO (basados en Gantt) ─────────────
 // ── PÓLIZAS ──────────────────────────────────────────────────
+// Modelo de datos, etapa vigente y alertas: ver "ALERTAS DE PÓLIZAS" más arriba.
+function polTabN(cid) {
+  const n = D.pl.filter(p => p.cid == cid).length;
+  return n ? ' <span class="nc">' + n + '</span>' : '';
+}
+// Redibuja solo la pestaña Pólizas (sin recargar la página ni cambiar de pestaña).
+function polRefrescar(cid) {
+  const pane = $('ctpPol');
+  if(!pane || ctPageCid != cid) { if(ctPageCid) verCt(ctPageCid); return; }
+  pane.innerHTML = polizasHTML(cid);
+  const n = $('polTabN'); if(n) n.innerHTML = polTabN(cid);
+}
+
+function _polEstado(hasta) {
+  const d = daysLeft(hasta);
+  if(d === null) return { cls:'bi', lbl:'Sin fecha',  color:'var(--mu2)',    dias:null };
+  if(d < 0)      return { cls:'br', lbl:'Vencido',    color:'var(--accent)', dias:d };
+  if(d <= 30)    return { cls:'bw', lbl:'Por vencer', color:'var(--am)',     dias:d };
+  return                { cls:'bg', lbl:'Vigente',    color:'var(--gr)',     dias:d };
+}
+
+// Tabla de amparos de una póliza. Solo la etapa vigente muestra estado (color y días).
+function _polAmparosTabla(po, vigente) {
+  const ams = po.amparos || [];
+  if(!ams.length) return '<div style="font-size:12px;color:var(--mu)">Sin amparos</div>';
+  let h = '<div style="overflow-x:auto"><table class="pol-tbl"><thead><tr><th>Clase de amparo</th>'
+        + '<th style="text-align:right">Valor asegurado</th><th>Vigencia desde</th><th>Vigencia hasta</th>'
+        + (vigente ? '<th>Estado</th>' : '') + '</tr></thead><tbody>';
+  ams.forEach(a => {
+    let est = '';
+    if(vigente) {
+      const s = _polEstado(a.hasta);
+      est = '<td style="white-space:nowrap"><span class="b ' + s.cls + '"><span class="bd_"></span>' + s.lbl + '</span>'
+          + (s.dias !== null ? ' <span style="font-size:11px;font-weight:600;color:' + s.color + '">'
+              + (s.dias >= 0 ? s.dias + ' día(s)' : 'hace ' + Math.abs(s.dias) + ' día(s)') + '</span>' : '')
+          + '</td>';
+    }
+    h += '<tr><td>' + escapeAttr(a.clase || '—') + '</td><td style="text-align:right">' + cop(a.valor) + '</td>'
+       + '<td>' + fmt(a.desde) + '</td><td>' + fmt(a.hasta) + '</td>' + est + '</tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+
+function _polEtapaCard(e, vig) {
+  let h = '<div class="pol-etapa ' + (vig ? 'vig' : 'hist') + '">'
+    + '<div class="pol-et-hd"><span class="pol-et-tt">' + escapeAttr(polEtapaLabel(e)) + '</span>'
+    + '<span class="pol-et-fe">' + fmt(e.fecha) + '</span>'
+    + (vig ? '<span class="b bg"><span class="bd_"></span>Vigente</span>' : '<span class="b bmu">Historial</span>')
+    + '<span class="pol-et-acc ro-hide">'
+    +   '<button class="btn sm bgh" title="Editar etapa" onclick="openEtapa(' + e.cid + ',' + e.id + ')" style="padding:3px 7px">'
+    +   '<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2l3 3L5 14H2v-3L11 2z"/></svg></button>'
+    +   '<button class="btn sm brd" title="Eliminar etapa" onclick="delEtapa(' + e.id + ')" style="padding:3px 7px">×</button>'
+    + '</span></div>'
+    + '<div class="pol-et-adj"><span>Acta de aprobación:</span>' + adjuntosHTML('pl', e) + '</div>';
+  if(!e.polizas.length) h += '<div class="pol-po" style="font-size:12px;color:var(--mu)">Esta etapa no tiene pólizas.</div>';
+  e.polizas.forEach(po => {
+    h += '<div class="pol-po"><div class="pol-po-tt">Póliza N° ' + escapeAttr(po.numero || '—')
+       + (po.aseguradora ? ' <span>· ' + escapeAttr(po.aseguradora) + '</span>' : '') + '</div>'
+       + _polAmparosTabla(po, vig) + '</div>';
+  });
+  return h + '</div>';
+}
+
 function polizasHTML(cid) {
-  const pols = D.pl.filter(p => p.cid == cid).sort((a,b) => a.ffin.localeCompare(b.ffin));
-  const td = today();
-
-  function polStatus(p) {
-    if(!p.ffin) return { cls:'bi', lbl:'Sin fecha', color:'var(--mu2)' };
-    const diff = Math.ceil((new Date(p.ffin+'T00:00:00') - new Date(td+'T00:00:00')) / 86400000);
-    if(diff < 0)  return { cls:'br', lbl:'Vencida',    color:'var(--accent)', days: diff };
-    if(diff <= 30) return { cls:'bw', lbl:'Por vencer', color:'var(--am)',     days: diff };
-    return { cls:'bg', lbl:'Vigente', color:'var(--gr)', days: diff };
-  }
-
-  const polAlerta = polizasAlerta(cid);
+  const etapas  = polEtapas(cid);
+  const viejas  = polViejas(cid);
+  const alertas = alertasPolizas(cid);
   let html = '';
-  if(polAlerta.length) {
-    html += `<div style="background:var(--am-d);border:1px solid var(--am);border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--am-t)" stroke-width="1.5"><path d="M8 1l7 14H1L8 1z"/><path d="M8 6v4M8 12v.5"/></svg>
+
+  if(alertas.length) {
+    const hayVenc = alertas.some(a => a.vencido);
+    const col = hayVenc ? { bg:'var(--rd-d)', bd:'var(--rd)', tx:'var(--rd-t)' } : { bg:'var(--am-d)', bd:'var(--am)', tx:'var(--am-t)' };
+    const lineas = alertas.map(a => {
+      const det = polAlertaDetalle(a);
+      return '<div><b>Amparo ' + escapeAttr(a.amparo.clase || '—') + '</b>' + (det ? ' · ' + escapeAttr(det) : '')
+           + ' — ' + polAlertaPlazo(a) + ' (' + fmt(a.amparo.hasta) + ')</div>';
+    }).join('');
+    html += `<div style="background:${col.bg};border:1px solid ${col.bd};border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="${col.tx}" stroke-width="1.5" style="flex-shrink:0;margin-top:1px"><path d="M8 1l7 14H1L8 1z"/><path d="M8 6v4M8 12v.5"/></svg>
       <div>
-        <div style="font-size:12.5px;font-weight:700;color:var(--am-t)">${polAlerta.length} póliza(s) vencen en los próximos 30 días</div>
-        <div style="font-size:11px;color:var(--am-t);opacity:.85">${polAlerta.map(p=>{
-          const d=Math.ceil((new Date(p.ffin+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000);
-          return p.nombre+' ('+d+' días)';
-        }).join(' · ')}</div>
+        <div style="font-size:12.5px;font-weight:700;color:${col.tx}">${alertas.length} amparo(s) ${hayVenc ? 'vencido(s) o ' : ''}por vencer en los próximos 30 días</div>
+        <div style="font-size:11.5px;color:${col.tx};margin-top:4px;display:flex;flex-direction:column;gap:2px">${lineas}</div>
       </div>
     </div>`;
   }
-  html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap">
     <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:600">
-      Pólizas del contrato (${pols.length})
+      Pólizas del contrato · ${etapas.length} etapa(s)
     </div>
-    <button class="btn bgr" onclick="openPol(${cid})">
+    <button class="btn bgr" onclick="openEtapa(${cid})">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-1px;margin-right:5px"><path d="M8 3v10M3 8h10"/></svg>
-      Nueva póliza
+      Nueva etapa
     </button>
   </div>`;
 
-  if(!pols.length) {
+  if(!etapas.length && !viejas.length) {
     html += `<div style="background:var(--sf2);border-radius:8px;padding:28px;text-align:center;color:var(--mu);font-size:13px">
       <div style="margin-bottom:6px">Sin pólizas registradas</div>
-      <div style="font-size:11px">Agrega las pólizas de seguro del contrato con sus fechas de vigencia.</div>
+      <div style="font-size:11px">Registra la Minuta con sus pólizas y amparos. En el Acta de inicio y en cada Otrosí crea una etapa nueva con las vigencias de ese momento: la más reciente es la vigente y genera las alertas.</div>
     </div>`;
-    return html;
   }
 
-  html += '<div style="display:flex;flex-direction:column;gap:8px">';
-  pols.forEach(p => {
-    const st = polStatus(p);
-    const pct = p.finicio && p.ffin
-      ? clamp(Math.round((new Date(td+'T00:00:00') - new Date(p.finicio+'T00:00:00')) /
-          (new Date(p.ffin+'T00:00:00') - new Date(p.finicio+'T00:00:00')) * 100), 0, 100)
-      : 0;
-    html += `<div style="background:#fff;border:1px solid var(--bd);border-radius:8px;padding:14px 16px;border-left:3px solid ${st.color}">
-      <div style="display:flex;align-items:flex-start;gap:16px">
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px">${p.nombre}</div>
-          <div style="display:flex;gap:20px;font-size:11.5px;color:var(--mu2);flex-wrap:wrap">
-            <span>Inicio: <b>${fmt(p.finicio)||'—'}</b></span>
-            <span>Vence: <b style="color:${st.color}">${fmt(p.ffin)||'—'}</b></span>
-            ${st.days !== undefined
-              ? `<span style="color:${st.color};font-weight:600">${st.days >= 0 ? st.days+' días restantes' : Math.abs(st.days)+' días vencida'}</span>`
-              : ''}
+  if(etapas.length) {
+    html += _polEtapaCard(etapas[0], true);
+    if(etapas.length > 1) {
+      html += '<details class="pol-hist"><summary>Historial · ' + (etapas.length - 1) + ' etapa(s) anterior(es)</summary>'
+            + etapas.slice(1).map(e => _polEtapaCard(e, false)).join('') + '</details>';
+    }
+  }
+
+  // Formato simple anterior: se conservan tal cual (sin migrar). Alertan solo si el contrato no tiene etapas.
+  if(viejas.length) {
+    const activa = !etapas.length;
+    html += `<div style="margin-top:22px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:600">Pólizas anteriores (formato simple) · ${viejas.length}</div>
+      <div style="font-size:11px;color:var(--mu);margin:4px 0 10px">${activa
+        ? 'Siguen generando alertas hasta que registres la primera etapa; desde entonces quedan como historial.'
+        : 'Historial: ya no generan alertas porque el contrato tiene etapas registradas.'}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">`;
+    viejas.slice().sort((a, b) => String(a.ffin || '').localeCompare(String(b.ffin || ''))).forEach(p => {
+      const st = activa ? _polEstado(p.ffin) : { cls:'bmu', lbl:'Historial', color:'var(--mu2)', dias:_polEstado(p.ffin).dias };
+      const pct = p.finicio && p.ffin
+        ? clamp(Math.round((new Date(today()+'T00:00:00') - new Date(p.finicio+'T00:00:00')) /
+            (new Date(p.ffin+'T00:00:00') - new Date(p.finicio+'T00:00:00')) * 100), 0, 100)
+        : 0;
+      html += `<div style="background:#fff;border:1px solid var(--bd);border-radius:8px;padding:14px 16px;border-left:3px solid ${st.color}">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px">${escapeAttr(p.nombre)}</div>
+            <div style="display:flex;gap:20px;font-size:11.5px;color:var(--mu2);flex-wrap:wrap">
+              <span>Inicio: <b>${fmt(p.finicio)}</b></span>
+              <span>Vence: <b style="color:${st.color}">${fmt(p.ffin)}</b></span>
+              ${activa && st.dias !== null
+                ? `<span style="color:${st.color};font-weight:600">${st.dias >= 0 ? st.dias+' días restantes' : Math.abs(st.dias)+' días vencida'}</span>`
+                : ''}
+            </div>
+            ${p.finicio && p.ffin ? `
+            <div style="height:5px;background:var(--bd2);border-radius:3px;margin-top:10px;overflow:hidden;position:relative">
+              <div style="position:absolute;top:0;left:0;height:100%;width:${pct}%;background:${st.color};border-radius:3px"></div>
+            </div>` : ''}
+            ${p.obs ? `<div style="font-size:11px;color:var(--mu2);margin-top:6px;font-style:italic">"${escapeAttr(p.obs)}"</div>` : ''}
           </div>
-          ${p.finicio && p.ffin ? `
-          <div style="height:5px;background:var(--bd2);border-radius:3px;margin-top:10px;overflow:hidden;position:relative">
-            <div style="position:absolute;top:0;left:0;height:100%;width:${pct}%;background:${st.color};border-radius:3px;transition:width .5s"></div>
-          </div>` : ''}
-          ${p.obs ? `<div style="font-size:11px;color:var(--mu2);margin-top:6px;font-style:italic">"${p.obs}"</div>` : ''}
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <span style="font-size:10px;font-weight:700;color:${st.color};background:${st.color}18;padding:3px 9px;border-radius:12px">${st.lbl}</span>
+            <button class="btn sm bgh ro-hide" onclick="openPol(${cid},${p.id})" style="padding:3px 7px"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2l3 3L5 14H2v-3L11 2z"/></svg></button>
+            <button class="btn sm brd" onclick="delPol(${p.id},${cid})" style="padding:3px 7px">×</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span style="font-size:10px;font-weight:700;color:${st.color};background:${st.color}18;padding:3px 9px;border-radius:12px">${st.lbl}</span>
-          <button class="btn sm bgh" onclick="openPol(${cid},${p.id})" style="padding:3px 7px"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2l3 3L5 14H2v-3L11 2z"/></svg></button>
-          <button class="btn sm brd" onclick="delPol(${p.id},${cid})" style="padding:3px 7px">×</button>
-        </div>
-      </div>
-    </div>`;
-  });
-  html += '</div>';
+      </div>`;
+    });
+    html += '</div>';
+  }
   return html;
 }
 
-function openPol(cid, id) {
-  const p = id ? D.pl.find(x => x.id == id) : null;
+// ── Editor de etapa (Minuta / Acta de inicio / Otrosí) ───────
+function _polAmparoRow(a) {
+  a = a || {};
+  return '<div class="pol-am" data-am="1" data-aid="' + escapeAttr(a.id || '') + '">'
+    + '<input class="pa-clase" placeholder="Ej: Cumplimiento" value="' + escapeAttr(a.clase || '') + '">'
+    + '<input class="pa-valor" type="number" min="0" step="any" placeholder="0" value="' + (a.valor ? escapeAttr(a.valor) : '') + '">'
+    + '<input class="pa-desde" type="date" value="' + escapeAttr(a.desde || '') + '">'
+    + '<input class="pa-hasta" type="date" value="' + escapeAttr(a.hasta || '') + '">'
+    + '<button type="button" class="adj-x" title="Quitar amparo" onclick="polDelAmparo(this)">×</button></div>';
+}
+function _polPolizaBlock(po) {
+  po = po || {};
+  const ams = (po.amparos && po.amparos.length) ? po.amparos : [{}];
+  return '<div class="pol-po-ed" data-po="1" data-pid="' + escapeAttr(po.id || '') + '">'
+    + '<div class="pol-po-top">'
+    +   '<div><label class="pl-l">N° de póliza *</label><input class="pp-num" value="' + escapeAttr(po.numero || '') + '" placeholder="Ej: 45-44-101234"></div>'
+    +   '<div><label class="pl-l">Aseguradora</label><input class="pp-aseg" value="' + escapeAttr(po.aseguradora || '') + '" placeholder="Ej: Seguros del Estado"></div>'
+    +   '<button type="button" class="btn sm brd" onclick="polDelPoliza(this)">Quitar póliza</button>'
+    + '</div>'
+    + '<div class="pol-am pol-am-h"><div>Clase de amparo *</div><div>Valor asegurado</div><div>Vigencia desde</div><div>Vigencia hasta *</div><div></div></div>'
+    + '<div class="pol-ams">' + ams.map(a => _polAmparoRow(a)).join('') + '</div>'
+    + '<button type="button" class="btn sm bgh" onclick="polAddAmparo(this)">+ Agregar amparo</button>'
+    + '</div>';
+}
+function polAddPoliza() { $('polEditor').insertAdjacentHTML('beforeend', _polPolizaBlock()); }
+function polDelPoliza(btn) { const b = btn.closest('[data-po]'); if(b) b.remove(); }
+function polAddAmparo(btn) {
+  const b = btn.closest('[data-po]'); if(!b) return;
+  b.querySelector('.pol-ams').insertAdjacentHTML('beforeend', _polAmparoRow());
+}
+function polDelAmparo(btn) { const r = btn.closest('[data-am]'); if(r) r.remove(); }
+
+// Copia profunda SIN ids: lo copiado es una etapa nueva, no comparte nada con la anterior.
+function _polCopiaDe(e) {
+  return e.polizas.map(po => ({
+    numero: po.numero, aseguradora: po.aseguradora,
+    amparos: (po.amparos || []).map(a => ({ clase:a.clase, valor:a.valor, desde:a.desde, hasta:a.hasta }))
+  }));
+}
+// Radio "copiar de la etapa vigente" / "desde cero": reemplaza el contenido del editor.
+function polCambiarOrigen(cid) {
+  const src = (document.querySelector('input[name="et_src"]:checked') || {}).value;
+  const vig = etapaVigente(cid);
+  const pols = (src === 'copy' && vig && vig.polizas.length) ? _polCopiaDe(vig) : [{}];
+  $('polEditor').innerHTML = pols.map(p => _polPolizaBlock(p)).join('');
+}
+function polTipoChange(cid) {
+  const t = $('et_tipo').value;
+  $('et_num_wrap').style.display = t === 'otrosi' ? '' : 'none';
+  const f = $('et_fecha'), c = D.ct.find(x => x.id == cid);
+  if(f && !f.value && c) f.value = t === 'minuta' ? (c.fstart || '') : t === 'acta_inicio' ? (c.fai || '') : '';
+}
+
+function openEtapa(cid, id) {
+  const e = id ? D.pl.find(x => x.id == id && polEsEtapa(x)) : null;
   const c = D.ct.find(x => x.id == cid);
-  $('mTitle').textContent = p ? 'Editar póliza' : 'Nueva póliza';
+  const etapas = polEtapas(cid);
+  const vig = etapas[0] || null;
+  const hay = t => etapas.some(x => x.etapa === t && (!e || x.id != e.id));
+  // Tipo sugerido: Minuta → Acta de inicio → Otrosí
+  const tipo = e ? e.etapa : (!hay('minuta') ? 'minuta' : !hay('acta_inicio') ? 'acta_inicio' : 'otrosi');
+  const fecha = e ? (e.fecha || '') : (c ? (tipo === 'minuta' ? (c.fstart || '') : tipo === 'acta_inicio' ? (c.fai || '') : '') : '');
+  // Al crear: por defecto se copian los amparos de la etapa vigente (se pueden borrar / partir de cero)
+  const pols = e ? e.polizas : ((vig && vig.polizas.length) ? _polCopiaDe(vig) : [{}]);
+
+  $('mTitle').textContent = e ? 'Editar etapa de pólizas' : 'Nueva etapa de pólizas';
+  $('mBody').innerHTML = `<div class="pol-ed">
+    <div class="fg" style="margin-bottom:14px">
+      <div><label class="pl-l">Etapa *</label>
+        <select id="et_tipo" onchange="polTipoChange(${cid})">
+          ${Object.keys(POL_ETAPAS).map(k => `<option value="${k}" ${k === tipo ? 'selected' : ''} ${(k !== 'otrosi' && hay(k)) ? 'disabled' : ''}>${POL_ETAPAS[k].lbl}${(k !== 'otrosi' && hay(k)) ? ' (ya registrada)' : ''}</option>`).join('')}
+        </select></div>
+      <div><label class="pl-l">Fecha del acta / otrosí *</label><input id="et_fecha" type="date" value="${escapeAttr(fecha)}"></div>
+      <div id="et_num_wrap" class="full" style="${tipo === 'otrosi' ? '' : 'display:none'}"><label class="pl-l">Número de otrosí (opcional)</label>
+        <input id="et_num" value="${escapeAttr(e ? e.numero || '' : '')}" placeholder="Ej: 1"></div>
+    </div>
+    ${(!e && vig) ? `<div class="pol-src">
+      <label><input type="radio" name="et_src" value="copy" checked onchange="polCambiarOrigen(${cid})" style="width:auto"> Copiar los amparos de la etapa vigente (${escapeAttr(polEtapaLabel(vig))} · ${fmt(vig.fecha)}) y solo editar las fechas</label>
+      <label><input type="radio" name="et_src" value="blank" onchange="polCambiarOrigen(${cid})" style="width:auto"> Empezar desde cero</label>
+      <div style="font-size:11px;color:var(--mu)">Al cambiar de opción se reemplaza lo que haya en el editor.</div>
+    </div>` : ''}
+    <div id="polEditor">${pols.map(p => _polPolizaBlock(p)).join('')}</div>
+    <button type="button" class="btn sm bgh" onclick="polAddPoliza()">+ Agregar póliza</button>
+    ${e ? '' : '<div style="font-size:11px;color:var(--mu);margin-top:12px">El acta de aprobación (archivo adjunto) se sube desde la tarjeta de la etapa, una vez guardada.</div>'}
+  </div>`;
+  $('mFoot').innerHTML = `<button class="btn bgh" onclick="closeModal()">Cancelar</button>
+    <button class="btn bgr" onclick="saveEtapa(${cid},${id || 'null'})">Guardar etapa</button>`;
+  $('ov').querySelector('.mo').classList.add('mo-wide');
+  openModal();
+}
+
+function saveEtapa(cid, id) {
+  const editId = (id && id !== 'null') ? id : null;
+  const e = editId ? D.pl.find(x => x.id == editId && polEsEtapa(x)) : null;
+  if(editId && !e) { toast('Esa etapa ya no existe', true); return; }
+  const tipo = $('et_tipo').value, fecha = $('et_fecha').value;
+  if(!POL_ETAPAS[tipo]) { toast('Elige la etapa', true); return; }
+  if(!fecha) { toast('La fecha del acta es obligatoria: define cuál etapa es la más reciente (vigente)', true); return; }
+  if(tipo !== 'otrosi' && D.pl.some(x => polEsEtapa(x) && x.cid == cid && x.etapa === tipo && (!e || x.id != e.id))) {
+    toast('Este contrato ya tiene una etapa "' + POL_ETAPAS[tipo].lbl + '"', true); return;
+  }
+
+  const polizas = [];
+  const bloques = document.querySelectorAll('#polEditor [data-po]');
+  for(let i = 0; i < bloques.length; i++) {
+    const b = bloques[i];
+    const numero = b.querySelector('.pp-num').value.trim();
+    const aseguradora = b.querySelector('.pp-aseg').value.trim();
+    const amparos = [];
+    const filas = b.querySelectorAll('[data-am]');
+    for(let j = 0; j < filas.length; j++) {
+      const r = filas[j];
+      const clase = r.querySelector('.pa-clase').value.trim();
+      const valorRaw = r.querySelector('.pa-valor').value;
+      const desde = r.querySelector('.pa-desde').value;
+      const hasta = r.querySelector('.pa-hasta').value;
+      if(!clase && !valorRaw && !desde && !hasta) continue;               // fila vacía: se ignora
+      if(!clase || !hasta) { toast('Cada amparo necesita clase y vigencia hasta' + (numero ? ' (póliza ' + numero + ')' : ''), true); return; }
+      if(desde && desde > hasta) { toast('En el amparo "' + clase + '" la vigencia desde es posterior a la vigencia hasta', true); return; }
+      const v = Number(valorRaw);
+      if(valorRaw !== '' && (!isFinite(v) || v < 0)) { toast('Valor asegurado inválido en el amparo "' + clase + '"', true); return; }
+      amparos.push({ id: r.dataset.aid ? Number(r.dataset.aid) : Date.now() + Math.random(), clase, valor: v || 0, desde, hasta });
+    }
+    if(!numero && !aseguradora && !amparos.length) continue;              // bloque vacío: se ignora
+    if(!numero) { toast('Cada póliza necesita su número', true); return; }
+    if(!amparos.length) { toast('La póliza ' + numero + ' no tiene amparos', true); return; }
+    polizas.push({ id: b.dataset.pid ? Number(b.dataset.pid) : Date.now() + Math.random(), numero, aseguradora, amparos });
+  }
+  if(!polizas.length) { toast('Agrega al menos una póliza con un amparo', true); return; }
+
+  const numOtrosi = tipo === 'otrosi' ? $('et_num').value.trim() : '';
+  if(e) Object.assign(e, { etapa:tipo, numero:numOtrosi, fecha, polizas });   // conserva su archivo adjunto
+  else D.pl.push({ id: Date.now(), cid, etapa:tipo, numero:numOtrosi, fecha, polizas, adjuntos: [] });
+  save(); closeModal(); polRefrescar(cid);
+  toast('Etapa guardada');
+}
+
+async function delEtapa(id) {
+  const e = D.pl.find(x => x.id == id && polEsEtapa(x)); if(!e) return;
+  const conArchivo = (e.adjuntos || []).length;
+  if(!confirm('¿Eliminar la etapa "' + polEtapaLabel(e) + '" con sus pólizas y amparos?'
+      + (conArchivo ? '\n\nTambién se borrará su acta adjunta de la nube y no se puede recuperar.' : ''))) return;
+  if(!(await _adjBorrarDe([e], false))) return;       // primero el archivo de la nube; si falla, no se elimina nada
+  D.pl = D.pl.filter(x => x.id != id);
+  save(); polRefrescar(e.cid);
+  toast('Etapa eliminada');
+}
+
+// ── Pólizas del formato simple anterior: solo editar / eliminar (no se migran) ──
+function openPol(cid, id) {
+  const p = id ? D.pl.find(x => x.id == id && !polEsEtapa(x)) : null;
+  const c = D.ct.find(x => x.id == cid);
+  $('mTitle').textContent = p ? 'Editar póliza (formato simple)' : 'Nueva póliza';
   $('mBody').innerHTML = `<div class="fg">
     <div class="fl2 full"><label>Nombre / Tipo de póliza *</label>
-      <input id="pol_nom" value="${p?.nombre||''}" placeholder="Ej: Póliza de cumplimiento, Responsabilidad civil…"></div>
+      <input id="pol_nom" value="${escapeAttr(p?.nombre||'')}" placeholder="Ej: Póliza de cumplimiento, Responsabilidad civil…"></div>
     <div class="fl2"><label>Fecha inicio *</label>
       <input id="pol_fi" type="date" value="${p?.finicio||c?.fstart||''}"></div>
     <div class="fl2"><label>Fecha fin (vencimiento) *</label>
       <input id="pol_ff" type="date" value="${p?.ffin||c?.fend||''}"></div>
     <div class="fl2 full"><label>Observaciones</label>
-      <textarea id="pol_obs" placeholder="Número de póliza, aseguradora, cobertura…">${p?.obs||''}</textarea></div>
+      <textarea id="pol_obs" placeholder="Número de póliza, aseguradora, cobertura…">${escapeAttr(p?.obs||'')}</textarea></div>
   </div>`;
   $('mFoot').innerHTML = `<button class="btn bgh" onclick="closeModal()">Cancelar</button>
     <button class="btn bgr" onclick="savePol(${cid},${id||'null'})">Guardar póliza</button>`;
@@ -6244,7 +6545,7 @@ function savePol(cid, id) {
     D.pl.push({ id: Date.now(), cid, nombre, finicio, ffin, obs: $('pol_obs').value.trim() });
   }
   save(); closeModal();
-  if(ctPageCid) verCt(ctPageCid);
+  polRefrescar(cid);
   toast('Póliza guardada');
 }
 
@@ -6252,10 +6553,9 @@ function delPol(id, cid) {
   if(!confirm('¿Eliminar esta póliza?')) return;
   D.pl = D.pl.filter(p => p.id != id);
   save();
-  if(ctPageCid) verCt(ctPageCid);
+  polRefrescar(cid);
   toast('Póliza eliminada');
 }
-
 
 // ═══════════════ PENDIENTES / CHECKLIST POR CONTRATO ═══════════════
 var PEND_EST = {
@@ -7660,6 +7960,7 @@ function _adjInner(col, rec) {
     + col + '\',' + rec.id + ',\'' + rol + '\')">' + txt + '</button>';
   let btns;
   if(col === 'su') btns = btn('suspension', '📎 Acta de suspensión') + (rec.freinicio ? btn('reinicio', '📎 Acta de reinicio') : '');
+  else if(col === 'pl') btns = (rec.adjuntos || []).length ? '' : btn('', '📎 Adjuntar acta de aprobación');   // una sola acta por etapa
   else btns = btn('', '📎 Adjuntar');
   return items + btns;
 }
@@ -7675,11 +7976,12 @@ function _adjRefrescar(col, rid) {
 
 function addAdjunto(col, rid, rol) {
   const input = document.createElement('input');
-  input.type = 'file'; input.multiple = true;             // cualquier tipo de archivo
+  input.type = 'file'; input.multiple = (col !== 'pl');   // cualquier tipo de archivo; una etapa de pólizas admite una sola acta
   input.onchange = async function() {
     const files = Array.from(input.files || []);
     if(!files.length) return;
     const r0 = _adjRec(col, rid); if(!r0) return;
+    if(col === 'pl' && (r0.adjuntos || []).length) { toast('Esta etapa ya tiene su acta adjunta. Elimínala para subir otra.', true); return; }
     const cid = r0.cid;
     if(!(await _fotoNubeLista())) return;
     let ok = 0, fail = 0;
@@ -7694,6 +7996,10 @@ function addAdjunto(col, rid, rol) {
         const up = await uploadAdjunto(file, cid, col);
         const rec = _adjRec(col, rid);                     // D pudo recargarse durante la subida
         if(!rec) { try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(e) {} break; }
+        if(col === 'pl' && (rec.adjuntos || []).length) {   // otra subida ganó mientras tanto: no dejar archivo huérfano
+          try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(e) {}
+          toast('Esta etapa ya tiene su acta adjunta.', true); break;
+        }
         if(!rec.adjuntos) rec.adjuntos = [];
         rec.adjuntos.push({ id: Date.now()+Math.random(), nombre: file.name, path: up.path, url: up.url,
                             tam: file.size, tipo: file.type || '', fecha: today(), rol: rol || '' });
@@ -7749,7 +8055,7 @@ async function _nubeBorrarContratos(rootId) {
   (function rec(cid) { ids.push(cid); kids(cid).forEach(h => rec(h.id)); })(rootId);
   const en = x => ids.some(i => i == x);
   const adj = [], fotos = [];
-  [].concat(D.pr, D.ad, D.su, D.pa).filter(r => en(r.cid))
+  [].concat(D.pr, D.ad, D.su, D.pa, D.pl).filter(r => en(r.cid))
     .forEach(r => (r.adjuntos || []).forEach(a => { if(a.path) adj.push(a.path); }));
   D.ct.filter(c => en(c.id)).forEach(c => (c.fotos || []).forEach(f => { if(f.path) fotos.push(f.path); }));
   if(!adj.length && !fotos.length) return true;
@@ -8939,7 +9245,7 @@ function exportarExcel() {
     ['ID Póliza','ID Contrato','No. Contrato','Objeto Contrato','Supervisor',
      'Nombre / Tipo Póliza','Fecha Inicio','Fecha Fin (Vencimiento)','Estado','Días Restantes','Observaciones']
   ];
-  D.pl.forEach(p => {
+  D.pl.filter(p => !polEsEtapa(p)).forEach(p => {   // solo formato simple; las etapas van en la hoja "Amparos"
     const c  = D.ct.find(x => x.id == p.cid);
     const sv = c ? svEfectivo(c) : null;
     const d  = daysLeft(p.ffin);
@@ -8953,6 +9259,31 @@ function exportarExcel() {
   const wsPl = XLSX.utils.aoa_to_sheet(plRows);
   wsPl['!cols'] = [{wch:12},{wch:12},{wch:14},{wch:40},{wch:24},{wch:24},{wch:13},{wch:14},{wch:10},{wch:12},{wch:40}];
   XLSX.utils.book_append_sheet(wb, wsPl, 'Pólizas');
+
+  // ── Hoja 5b: AMPAROS (pólizas por etapa: una fila por amparo) ─────────
+  // Solo informativa: la importación no la lee (las etapas se gestionan en la app).
+  const amRows = [
+    ['ID Etapa','ID Contrato','No. Contrato','Objeto Contrato','Etapa','Fecha etapa','Vigente',
+     'No. Póliza','Aseguradora','Clase de amparo','Valor asegurado','Vigencia desde','Vigencia hasta',
+     'Estado','Días restantes','Acta adjunta']
+  ];
+  D.ct.forEach(c => {
+    const etapas = polEtapas(c.id);
+    etapas.forEach((e, idx) => {
+      e.polizas.forEach(po => (po.amparos || []).forEach(a => {
+        const d = daysLeft(a.hasta);
+        const est = idx > 0 ? 'Historial' : d === null ? 'Sin fecha' : d < 0 ? 'Vencido' : d <= 30 ? 'Por vencer' : 'Vigente';
+        amRows.push([
+          e.id, c.id, c.num, c.obj, polEtapaLabel(e), e.fecha || '', idx === 0 ? 'Sí' : 'No',
+          po.numero || '', po.aseguradora || '', a.clase || '', Number(a.valor) || 0, a.desde || '', a.hasta || '',
+          est, d !== null ? d : '', (e.adjuntos && e.adjuntos[0]) ? (e.adjuntos[0].nombre || 'Sí') : ''
+        ]);
+      }));
+    });
+  });
+  const wsAm = XLSX.utils.aoa_to_sheet(amRows);
+  wsAm['!cols'] = [{wch:12},{wch:12},{wch:14},{wch:40},{wch:24},{wch:13},{wch:8},{wch:16},{wch:22},{wch:26},{wch:16},{wch:13},{wch:13},{wch:11},{wch:12},{wch:30}];
+  XLSX.utils.book_append_sheet(wb, wsAm, 'Amparos');
 
   // ── Hoja 6: APOYOS ────────────────────────────────────
   const apRows = [
@@ -9367,7 +9698,7 @@ function importarExcel(input) {
             for(let i = 1; i < rows.length; i++) {
               const r = rows[i]; const pid = Number(r[0]); const cid = Number(r[1]); if(!cid) continue;
               if(pid) {
-                const p = D.pl.find(x => x.id==pid);
+                const p = D.pl.find(x => x.id==pid && !polEsEtapa(x));   // nunca tocar etapas nuevas
                 if(p) { if(r[5]!=='') p.nombre=String(r[5]); if(r[6]) p.finicio=xlDate(r[6]); if(r[7]) p.ffin=xlDate(r[7]); if(r[10]!=='') p.obs=String(r[10]); cambios++; resumen.polizas++; }
               } else {
                 const nombre = String(r[5]||'').trim(); const ffin = r[7]?xlDate(r[7]):'';
@@ -9454,6 +9785,7 @@ function xlDate(v) {
     'openAp','saveAp','delAp','addCtaAp','elimCtaAp','gestionarGruposAp','guardarGruposAp',
     // Prórrogas / Adiciones / Pólizas
     'openPr','savePr','delPr','openAd','saveAd','delAd','openPol','savePol','delPol',
+    'openEtapa','saveEtapa','delEtapa',
     // Pendientes
     'openPend','savePend','delPend','cyclePendEstado',
     // Pagos
