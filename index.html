@@ -966,6 +966,125 @@ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
   .grupo-body{ overflow-x:auto !important; }
 }
 
+
+/* ═════════ INFORMES SEMANALES (pestaña de la ficha, solo obras) ═════════ */
+.ir-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ir-sub{font-size:12px;color:var(--mu);margin-top:3px}
+.ir-card{display:flex;align-items:center;justify-content:space-between;gap:14px 20px;flex-wrap:wrap;background:#fff;border:1px solid var(--bd);border-left:4px solid var(--bl);border-radius:12px;padding:14px 18px;margin-bottom:10px;box-shadow:var(--card-shadow)}
+.ir-main{flex:1 1 260px;min-width:0}
+.ir-num{font-size:14px;font-weight:800;color:var(--tx)}
+.ir-corte{font-size:12.5px;color:var(--mu2);margin-top:3px}
+.ir-file{font-size:12px;color:var(--mu2);margin-top:5px;overflow-wrap:anywhere}
+.ir-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ir-acc a.btn{text-decoration:none;display:inline-flex;align-items:center}
+@media (max-width:720px){
+  .ir-card{padding:14px}
+  .ir-acc{width:100%}
+  .ir-acc .btn{flex:1 1 auto;justify-content:center}
+}
+
+/* ═════════ MAPAS: pestaña "Mapa" de la ficha + Visor de Obras (formas dibujadas) ═════════ */
+.mp-hint{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--mu2);background:#fff;border:1px solid var(--bd);border-radius:10px;padding:10px 14px;margin-bottom:12px;line-height:1.5}
+.mp-hint .mp-dot{margin-top:4px}
+.mp-dot{display:inline-block;width:12px;height:12px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.18)}
+.mp-wrap{position:relative;border:1px solid var(--bd);border-radius:12px;overflow:hidden;background:#e8eaf0;box-shadow:var(--card-shadow)}
+.mp-map{width:100%;height:min(68vh,640px);min-height:380px}
+.mp-loading{position:absolute;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:rgba(255,255,255,.88);font-size:13px;color:var(--mu2)}
+.mp-shape{filter:drop-shadow(0 0 2px rgba(255,255,255,.9))}
+.leaflet-container{font-family:'Instrument Sans',sans-serif}
+
+/* Botón Mapa / Satélite */
+.mp-base{display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.28);border:none !important}
+.mp-base button{border:none;background:#fff;padding:9px 15px;font-size:12.5px;font-weight:700;color:var(--mu2);cursor:pointer;font-family:inherit;min-height:38px}
+.mp-base button + button{border-left:1px solid var(--bd)}
+.mp-base button.on{background:var(--accent);color:#fff}
+
+/* Buscador de lugares */
+.mp-search{position:relative;display:flex;flex-direction:column;align-items:flex-end}
+.mp-search-b{width:38px;height:38px;border:none;border-radius:10px;background:#fff;color:var(--mu2);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center}
+.mp-search-f{display:none;margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.28);padding:6px;gap:6px}
+.mp-search.abierto .mp-search-f{display:flex}
+.mp-search-f input{width:min(230px,58vw);border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
+.mp-search-f button{border:none;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;font-weight:700;font-family:inherit;cursor:pointer}
+.mp-search-r{margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:min(300px,72vw);overflow:hidden}
+.mp-search-r:empty{display:none}
+.mp-search-i{display:block;width:100%;text-align:left;border:none;background:#fff;padding:10px 12px;font-size:12px;color:var(--tx);font-family:inherit;line-height:1.35;border-bottom:1px solid var(--bd)}
+button.mp-search-i{cursor:pointer}button.mp-search-i:hover{background:var(--sf2)}
+
+/* Tarjeta de una forma */
+.mp-card{position:absolute;left:12px;bottom:12px;width:min(350px,calc(100% - 24px));max-height:62%;overflow:auto;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.3);z-index:1100;padding:14px 16px;font-family:'Instrument Sans',sans-serif}
+.mp-card-h{display:flex;align-items:flex-start;gap:10px}
+.mp-card-h .mp-dot{margin-top:3px}
+.mp-card-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.mp-card-t b{font-size:14px;color:var(--tx)}
+.mp-card-t span{font-size:12px;color:var(--mu2);line-height:1.35;overflow-wrap:anywhere}
+.mp-x{border:none;background:var(--sf3);color:var(--mu2);width:28px;height:28px;border-radius:50%;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0}
+.mp-card-m{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:10px 0 6px}
+.mp-nota-t{font-size:13px;line-height:1.5;color:var(--tx);overflow-wrap:anywhere}
+.mp-nota-t.vacia{color:var(--mu);font-style:italic}
+.mp-nota{width:100%;border:1px solid var(--bd2);border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical;outline:none;min-height:70px}
+.mp-nota:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-d)}
+.mp-card-a{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+
+/* Lista de formas bajo el mapa (ficha) */
+.mp-lista{margin-top:14px}
+.mp-lista-t{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--mu);font-weight:700;margin-bottom:8px}
+.mp-vacio-l{background:var(--sf2);border-radius:10px;padding:18px;text-align:center;font-size:12.5px;color:var(--mu)}
+.mp-fila{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:7px;cursor:pointer;font-family:inherit}
+.mp-fila:hover{border-color:var(--accent);background:var(--accent-d)}
+.mp-fila-t{font-size:12.5px;color:var(--tx);flex-shrink:0}
+.mp-fila-n{font-size:12px;color:var(--mu2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Visor de Obras */
+.mpv .vsb{position:relative}
+.mpv-tt{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mpv-tt .vsb-tt{margin-bottom:0}
+.mpv-acc{display:flex;gap:6px}
+.mpv-cerrar{display:none}
+.mpv-fila2{display:flex;gap:6px;margin-top:10px;align-items:center}
+.mpv-fila2 select{flex:1;min-width:0;background:#fff;border:1.5px solid var(--bd);border-radius:8px;padding:6px 8px;font-size:12px;font-family:inherit;color:var(--tx);outline:none}
+.mpv-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--bd)}
+.mpv-item.off{opacity:.5}
+.mpv-chk{display:flex;align-items:center;gap:7px;cursor:pointer;flex-shrink:0}
+.mpv-chk input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+.mpv-item-b{flex:1;min-width:0;text-align:left;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;display:flex;flex-direction:column}
+.mpv-item-b b{font-size:12.5px;color:var(--tx)}
+.mpv-item-b span{font-size:11.5px;color:var(--mu2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mpv-n{font-size:10.5px;font-weight:700;color:var(--mu2);background:var(--sf3);border-radius:10px;padding:2px 8px;flex-shrink:0}
+.mpv-nota{padding:12px;font-size:11.5px;color:var(--mu);text-align:center}
+.mpv-stats{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:900;background:rgba(255,255,255,.96);border:1px solid var(--bd);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--mu2);box-shadow:0 4px 18px rgba(0,0,0,.14);white-space:nowrap}
+.mpv-stats b{color:var(--tx)}
+.mpv-btn,.mpv-back{display:none}
+
+/* Herramienta de dibujo: botones grandes y sin zoom con botones en pantallas táctiles */
+@media (pointer:coarse){
+  .leaflet-control-zoom{display:none}
+  /* !important: la hoja de estilos de Geoman se carga después y, si no, gana con sus 30 px */
+  .leaflet-pm-toolbar .leaflet-buttons-control-button{width:44px !important;height:44px !important}
+  .leaflet-pm-toolbar .leaflet-buttons-control-button .control-icon{width:26px !important;height:26px !important;margin:9px !important}
+  /* Acciones de dibujo ("Terminar", "Quitar último vértice", "Cancelar"): imprescindibles para cerrar un polígono con el dedo */
+  .leaflet-pm-actions-container .leaflet-pm-action{height:44px !important;line-height:44px !important;padding:0 14px !important;font-size:13px !important}
+}
+
+/* Celular / tableta vertical: el Visor a pantalla completa y la lista de contratos como hoja inferior */
+@media (max-width:900px){
+  .visor-shell.mpv{grid-template-columns:1fr;position:relative}
+  .mpv .vsb{position:absolute;left:0;right:0;bottom:0;top:auto;height:auto;max-height:74%;z-index:1300;border-right:none;border-top:1px solid var(--bd);border-radius:16px 16px 0 0;box-shadow:0 -14px 40px rgba(0,0,0,.25);transform:translateY(105%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
+  .visor-shell.mpv-open .vsb{transform:none;visibility:visible;transition:transform .25s ease,visibility 0s}
+  .mpv-cerrar{display:inline-flex}
+  .mpv-back{display:block;position:absolute;inset:0;z-index:1200;background:rgba(15,20,36,.42);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s .25s}
+  .visor-shell.mpv-open .mpv-back{opacity:1;visibility:visible;transition:opacity .25s ease,visibility 0s}
+  .mpv-btn{display:flex;align-items:center;gap:6px;position:absolute;left:12px;bottom:12px;z-index:900;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:13.5px;font-family:inherit;padding:0 18px;min-height:46px;border-radius:23px;box-shadow:0 6px 20px rgba(200,35,42,.4);cursor:pointer}
+  .mpv-stats{top:10px;left:10px;transform:none;max-width:calc(100% - 190px);white-space:normal;line-height:1.25;border-radius:14px}
+}
+@media (max-width:720px){
+  .visor-shell{margin:-14px -12px}
+  .mp-map{height:calc(100dvh - 300px);min-height:340px}
+  .mp-card{left:8px;right:8px;bottom:8px;width:auto;max-height:58%}
+  .mp-hint{font-size:11.5px}
+  .mpv-stats{font-size:11px;padding:5px 12px}
+  .mp-base button{padding:9px 12px}
+}
 </style>
 </head>
 <body>
@@ -1099,7 +1218,7 @@ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
 
 // ─── STORE ───────────────────────────────────────────────
 const KEY = 'edeso_v4';
-let D = JSON.parse(localStorage.getItem(KEY) || 'null') || { sv:[], ct:[], pr:[], ad:[], ac:[], ap:[], cta:[], co:[], pl:[], su:[], pa:[] };
+let D = JSON.parse(localStorage.getItem(KEY) || 'null') || { sv:[], ct:[], pr:[], ad:[], ac:[], ap:[], cta:[], co:[], pl:[], su:[], pa:[], ir:[] };
 if(!D.pl) D.pl = [];
 // Pendientes / checklist por contrato
 if(!D.pe) D.pe = [];
@@ -1111,7 +1230,7 @@ if(!D.pa) D.pa = []; // migración pagos
 // ap[]  = personas de apoyo: {id, nombre, cargo, cedula, tel, email}
 // cta[] = asignaciones apoyo-contrato: {id, cid, apid}
 // co[]  = cortes de seguimiento: {id, cid, fecha, pct, obs}
-['sv','ct','pr','ad','ac','ap','cta','co'].forEach(k => { if(!D[k]) D[k] = []; });
+['sv','ct','pr','ad','ac','ap','cta','co','ir'].forEach(k => { if(!D[k]) D[k] = []; });
 // Migración: asegurar campo pred en actividades
 D.ac.forEach(a => {
   if(!a.pred) a.pred = [];
@@ -1222,7 +1341,7 @@ function __edesoLoadPanel(remote){
   if(!remote || typeof remote!=='object') return;
   for(var k in D){ if(Object.prototype.hasOwnProperty.call(D,k)) delete D[k]; }
   Object.assign(D, remote);
-  ['sv','ct','pr','ad','ac','ap','cta','co','pl','su','pa','pe'].forEach(function(k){ if(!D[k]) D[k]=[]; });
+  ['sv','ct','pr','ad','ac','ap','cta','co','pl','su','pa','pe','ir'].forEach(function(k){ if(!D[k]) D[k]=[]; });
   try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
 }
 function __edesoLoadObras(remote){
@@ -4400,6 +4519,7 @@ function delAct(id, cid) { delActH(id, cid, 'gp'); }
 // ─── VER CONTRATO ────────────────────────────────────────
 function verCt(id) {
   const c = D.ct.find(x => x.id == id); if(!c) return;
+  mpCerrarFicha();      // si había un mapa abierto de otra ficha, se destruye
   const sv   = svEfectivo(c);
   const padre = D.ct.find(x => x.id == c.pid);
   const ch   = kids(c.id);
@@ -4463,7 +4583,9 @@ function verCt(id) {
       <div class="ctp-tabs2" id="ctpTabs">
         <div class="ctp-tab2 on" onclick="ctpSwTab(this,'ctpInfo')" style="color:${sem.color}"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="2" y="1" width="12" height="14" rx="1.5"/><path d="M5 5h6M5 8h6M5 11h4"/></svg> Información</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpSeg')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M1 13l4-4 3 2 4-5 2-2"/><path d="M11 4h3v3"/></svg> Seguimiento</div>
-        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpMM');renderFotos(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="4" width="14" height="10" rx="2"/><circle cx="8" cy="9" r="2.5"/><path d="M5.5 4l1-2h3l1 2"/></svg> Multimedia <span id="mmTabN">${(c.fotos||[]).length ? '('+(c.fotos||[]).length+')' : ''}</span></div>
+        ${c.tipo === 'obra' ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpIr')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M2 6h12M6 2v12"/></svg> Informes semanales<span id="irTabN">${irTabN(id)}</span></div>` : ''}
+        <div class="ctp-tab2 tb-oculto" onclick="ctpSwTab(this,'ctpMM');renderFotos(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="4" width="14" height="10" rx="2"/><circle cx="8" cy="9" r="2.5"/><path d="M5.5 4l1-2h3l1 2"/></svg> Multimedia <span id="mmTabN">${(c.fotos||[]).length ? '('+(c.fotos||[]).length+')' : ''}</span></div>
+        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpMapa');mpAbrirFicha(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M8 14s5-4.2 5-8A5 5 0 003 6c0 3.8 5 8 5 8z"/><circle cx="8" cy="6" r="1.8"/></svg> Mapa<span id="mpTabN">${mpTabN(id)}</span></div>
         ${(c.tipo !== 'interadministrativo' && c.tipo !== 'interventoria' && (c.trackingMode||'gantt') !== 'pct') ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpGantt');abrirGanttFull(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 7h14M5 3v10M11 3v10"/></svg> Gantt</div>` : ''}
         ${(c.tipo !== 'interadministrativo' && c.tipo !== 'interventoria') ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpFC');renderFlujoCaja(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="8" cy="8" r="6"/><path d="M8 4v1.5M8 10.5V12M10 6.5C10 5.7 9.1 5 8 5s-2 .7-2 1.5c0 .9.9 1.3 2 1.5 1.1.2 2 .7 2 1.5S9.1 11 8 11s-2-.7-2-1.5"/></svg> Flujo de Caja</div>` : ''}
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpPr')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M2 8a6 6 0 016-6 6 6 0 014.2 1.7L14 5"/><path d="M14 2v4h-4"/><path d="M14 8a6 6 0 01-6 6 6 6 0 01-4.2-1.7L2 11"/><path d="M2 14v-4h4"/></svg> Prórrogas ${prs.length?'('+prs.length+')':''}</div>
@@ -4547,7 +4669,10 @@ function verCt(id) {
       ${c.obs ? `<div class="ct-info-card" style="margin-top:16px"><h3>Observaciones</h3><div style="font-size:12.5px;line-height:1.6;color:var(--mu2)">${c.obs}</div></div>` : ''}
     </div>
 
-    <!-- MULTIMEDIA (las fotos se dibujan al abrir la pestaña: renderFotos) -->
+    ${c.tipo === 'obra' ? `<!-- INFORMES SEMANALES (solo contratos de obra) -->
+    <div class="ctp-pane" id="ctpIr">${irHTML(id)}</div>` : ''}
+
+    <!-- MULTIMEDIA: la pestaña está oculta (clase tb-oculto en su botón); el panel y sus funciones siguen aquí por si se necesitan después -->
     <div class="ctp-pane" id="ctpMM">
       <div class="ct-info-card">
         <div class="mm-bar">
@@ -4573,6 +4698,8 @@ function verCt(id) {
     </div>
 
     <!-- GANTT ──────────────────────────────────────── -->
+    <div class="ctp-pane" id="ctpMapa"></div>
+
     <div class="ctp-pane" id="ctpGantt">
       <div id="ctpGanttWrap">
         <div style="text-align:center;padding:32px;color:var(--mu);font-size:12px">Haz clic en la pestaña Gantt para cargar</div>
@@ -4686,12 +4813,15 @@ function verCt(id) {
 
   </div>`;
   try{ if(typeof initCtMiniChart==='function') setTimeout(function(){ initCtMiniChart(id); }, 30); }catch(e){}
+  // Cantidad de formas en la etiqueta de la pestaña Mapa (sin abrir el mapa)
+  mpCargar().then(function(){ var n = document.getElementById('mpTabN'); if(n) n.innerHTML = mpTabN(id); }).catch(function(){});
 }
 
 var ctPagePrevView = 'contratos';
 var ctPageCid = null; // ID del contrato actualmente abierto
 
 function cerrarCtPage() {
+  mpCerrarFicha();
   const pg = $('ctPage');
   const gfv = document.getElementById('ganttFullView');
   if(gfv) gfv.classList.remove('on');
@@ -4943,11 +5073,11 @@ function openCt(padreId, editId) {
     ${($('cti')?.value || (c?.tipo||'obra')) !== 'interadministrativo' ? `
     <div style="margin-top:14px;border-top:1px solid var(--bd);padding-top:14px">
       <div style="font-size:11px;font-weight:500;color:var(--tx);margin-bottom:4px">Ubicación en el mapa <span style="font-size:10px;color:var(--mu);font-weight:400">(opcional — para el Visor de Obras)</span></div>
-      <div class="fg" style="margin-top:10px">
+      <div class="fg" style="margin-top:10px;display:none">
         <div class="fl2"><label>Latitud</label><input id="clat" type="number" step="0.000001" value="${c?.lat||''}" placeholder="Ej: 6.153700"></div>
         <div class="fl2"><label>Longitud</label><input id="clng" type="number" step="0.000001" value="${c?.lng||''}" placeholder="Ej: -75.374000"></div>
       </div>
-      <div style="font-size:11px;color:var(--mu);margin-top:6px">💡 También puedes ubicarla después directamente en el Visor de Obras haciendo clic en el mapa.</div>
+      <div style="font-size:11.5px;color:var(--mu2);margin-top:6px;line-height:1.5">🗺 Las formas del contrato (polígonos, líneas y puntos) se dibujan en la pestaña <b>Mapa</b> de su ficha y se ven todas juntas en el Visor de Obras.</div>
     </div>` : `
     <div style="margin-top:14px;border-top:1px solid var(--bd);padding-top:14px;background:var(--sf2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--mu)">
       Los contratos interadministrativos no llevan ubicación. Sus derivados (Obra, Consultoría, Interventoría) sí pueden tener ubicación en el mapa.
@@ -5095,6 +5225,7 @@ async function delCt(id) {
     D.cta = D.cta.filter(x => x.cid != cid);
     D.pa  = D.pa.filter(p  => p.cid != cid);
     D.pe  = D.pe.filter(p  => p.cid != cid);
+    D.ir  = D.ir.filter(p  => p.cid != cid);
     // Limpiar obrasVigiladas que apunten a este contrato
     D.ct.forEach(c => { if(c.obrasVigiladas) c.obrasVigiladas = c.obrasVigiladas.filter(id => id != cid); });
   }
@@ -6004,580 +6135,676 @@ new Chart(ctxB, {
   else toast('Permite ventanas emergentes para ver el informe', true);
 }
 
-// ── VISOR — conectado a D.ct ──────────────────────────────
-// El visor lee directamente los contratos del sistema.
-// Solo guarda lat/lng/foto/municipio extras en D (dentro del contrato).
-// Los colores se asignan por tipo de contrato.
+// ══════════════════════════════════════════════════════════════════════════════
+// INFORMES SEMANALES (solo contratos de tipo obra)
+// Un archivo Excel por semana. Cada informe: número, corte (desde/hasta) y el archivo.
+// D.ir = [{ id, cid, num, desde, hasta, adjuntos:[{ id, nombre, path, url, tam, tipo, fecha, rol }] }]
+// Los archivos van al bucket 'edeso-adjuntos' (contratos/<cid>/ir/…), como los demás adjuntos.
+// NO se lee el contenido del Excel: solo se guarda y se descarga.
+// ══════════════════════════════════════════════════════════════════════════════
+const IR_EXT = /\.(xlsx|xls|xlsm)$/i;
+let _irGuardando = false;
 
-var TIPO_COLOR={
-  obra:'#C8232A', consultoria:'#5c4fb5', interventoria:'#1e6fb0',
-  interadministrativo:'#c07a20'
-};
-var ETAPA_COLOR2={
-  Activo:'#1a8a4a', Vencido:'#C8232A', Prorrogado:'#1e6fb0', 'Sin fecha':'#7a8499'
-};
-
-function vGetColor(c){
-  return TIPO_COLOR[c.tipo]||'#7a8499';
+// Del más reciente al más antiguo: por fecha "hasta" del corte, luego "desde", número y registro
+function irLista(cid) {
+  return D.ir.filter(r => r.cid == cid).sort((a, b) =>
+    String(b.hasta || '').localeCompare(String(a.hasta || ''))
+    || String(b.desde || '').localeCompare(String(a.desde || ''))
+    || (Number(b.num) || 0) - (Number(a.num) || 0)
+    || Number(b.id) - Number(a.id));
 }
-function vGetEtapaColor(c){
-  var e=status(c);
-  if(e.cls==='bg'||e.cls==='bi') return '#1a8a4a';
-  if(e.cls==='bw') return '#c07a20';
-  if(e.cls==='br') return '#C8232A';
-  return '#7a8499';
+function irTabN(cid) {
+  const n = D.ir.filter(r => r.cid == cid).length;
+  return n ? ' <span class="nc">' + n + '</span>' : '';
+}
+function _irSumarDias(iso, n) { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return isoDateLocal(d); }
+
+function irHTML(cid) {
+  const lst = irLista(cid);
+  let h = '<div class="ir-head"><div><div class="ptg" style="margin:0">Informes semanales</div>'
+        + '<div class="ir-sub">Un archivo Excel por semana, del más reciente al más antiguo.</div></div>'
+        + '<button class="btn bgr" onclick="openInforme(' + cid + ')">+ Subir informe</button></div>';
+  if(!lst.length) {
+    return h + '<div class="ct-info-card"><div class="emp">Aún no hay informes semanales.<span class="ro-hide"><br>Sube el primero con «+ Subir informe».</span></div></div>';
+  }
+  lst.forEach(function(r) {
+    const a = (r.adjuntos || [])[0];
+    h += '<div class="ir-card"><div class="ir-main">'
+      + '<div class="ir-num">Informe N° ' + escapeHtml(r.num) + '</div>'
+      + '<div class="ir-corte">Corte: <b>' + fmt(r.desde) + '</b> → <b>' + fmt(r.hasta) + '</b></div>'
+      + '<div class="ir-file">' + (a
+          ? '📄 ' + escapeHtml(a.nombre || 'informe.xlsx') + (a.tam ? ' · ' + _fmtTam(a.tam) : '') + (a.fecha ? ' · subido el ' + fmt(a.fecha) : '')
+          : 'Sin archivo') + '</div></div>'
+      + '<div class="ir-acc">'
+      + (a ? '<a class="btn sm bgh" href="' + escapeAttr(_adjUrl(a)) + '" target="_blank" rel="noopener" download="' + escapeAttr(a.nombre || 'informe.xlsx') + '">⬇ Descargar</a>' : '')
+      + '<button class="btn sm bgh ro-hide" onclick="openInforme(' + r.cid + ',' + r.id + ')">Editar</button>'
+      + '<button class="btn sm brd" onclick="delInforme(' + r.id + ')">Eliminar</button>'
+      + '</div></div>';
+  });
+  return h;
+}
+// Redibuja solo la pestaña (sin recargar la ficha ni cambiar de pestaña)
+function irRefrescar(cid) {
+  const pane = $('ctpIr');
+  if(!pane || ctPageCid != cid) { if(ctPageCid) verCt(ctPageCid); return; }
+  pane.innerHTML = irHTML(cid);
+  const n = $('irTabN'); if(n) n.innerHTML = irTabN(cid);
 }
 
-// Contratos a mostrar en mapa = todos los contratos con lat/lng asignada
-function vGetLista(){
-  var q=document.getElementById('vsrch')?document.getElementById('vsrch').value.toLowerCase():'';
-  var ftipo=vFTipo;
-  return D.ct.filter(function(c){
-    var matchQ=!q||(c.num||'').toLowerCase().indexOf(q)>=0||(c.obj||'').toLowerCase().indexOf(q)>=0||(c.alias||'').toLowerCase().indexOf(q)>=0||(c.contratista||'').toLowerCase().indexOf(q)>=0;
-    var matchT=ftipo==='Todos'||(c.tipo||'')===(ftipo);
-    return matchQ&&matchT;
+function openInforme(cid, id) {
+  const r = id ? D.ir.find(x => x.id == id) : null;
+  if(id && !r) return;
+  const lst = irLista(cid);
+  // Sugerencias para uno nuevo: siguiente número y la semana siguiente al último corte
+  const num = r ? r.num : (lst.length ? Math.max.apply(null, lst.map(x => Number(x.num) || 0)) + 1 : 1);
+  let desde = r ? (r.desde || '') : '', hasta = r ? (r.hasta || '') : '';
+  if(!r && lst.length && lst[0].hasta) { desde = _irSumarDias(lst[0].hasta, 1); hasta = _irSumarDias(desde, 6); }
+  const a = r ? (r.adjuntos || [])[0] : null;
+  $('mTitle').textContent = r ? 'Editar informe semanal' : 'Subir informe semanal';
+  $('mBody').innerHTML = '<div class="fg">'
+    + '<div class="fl2 full"><label>N° de informe *</label><input id="ir_num" type="number" min="1" step="1" value="' + escapeAttr(num) + '"></div>'
+    + '<div class="fl2"><label>Corte desde *</label><input id="ir_desde" type="date" value="' + escapeAttr(desde) + '"></div>'
+    + '<div class="fl2"><label>Corte hasta *</label><input id="ir_hasta" type="date" value="' + escapeAttr(hasta) + '"></div>'
+    + (r
+        ? '<div class="fl2 full"><label>Archivo</label><div class="ir-file" style="padding:6px 0">📄 ' + escapeHtml(a ? a.nombre : '—') + '</div>'
+          + '<div style="font-size:11px;color:var(--mu)">Para cambiar el archivo, elimina este informe y sube otro.</div></div>'
+        : '<div class="fl2 full"><label>Archivo Excel *</label><input id="ir_file" type="file" accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">'
+          + '<div style="font-size:11px;color:var(--mu);margin-top:4px">.xlsx, .xls o .xlsm · máximo 25 MB. Solo se guarda: no se lee su contenido.</div></div>')
+    + '</div>';
+  $('mFoot').innerHTML = '<button class="btn bgh" onclick="closeModal()">Cancelar</button>'
+    + '<button class="btn bgr" id="irBtn" onclick="saveInforme(' + cid + ',' + (id || 'null') + ')">' + (r ? 'Guardar' : 'Subir informe') + '</button>';
+  openModal();
+}
+
+async function saveInforme(cid, id) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  if(_irGuardando) return;
+  const editId = (id && id !== 'null') ? id : null;
+  const r = editId ? D.ir.find(x => x.id == editId) : null;
+  if(editId && !r) { toast('Ese informe ya no existe', true); return; }
+  const numRaw = $('ir_num').value.trim(), num = Number(numRaw), desde = $('ir_desde').value, hasta = $('ir_hasta').value;
+  if(!numRaw || !Number.isInteger(num) || num < 1) { toast('El número de informe debe ser un entero positivo', true); return; }
+  if(!desde || !hasta) { toast('Indica las fechas del corte (desde y hasta)', true); return; }
+  if(desde > hasta) { toast('La fecha "desde" no puede ser posterior a la fecha "hasta"', true); return; }
+  if(D.ir.some(x => x.cid == cid && Number(x.num) === num && (!r || x.id != r.id))) { toast('Ya existe el informe N° ' + num + ' en este contrato', true); return; }
+
+  if(r) {                                              // editar: solo número y fechas
+    Object.assign(r, { num: num, desde: desde, hasta: hasta });
+    save(); closeModal(); irRefrescar(cid); toast('Informe actualizado');
+    return;
+  }
+  const inp = $('ir_file'), file = inp && inp.files && inp.files[0];
+  if(!file) { toast('Elige el archivo Excel del informe', true); return; }
+  if(!IR_EXT.test(file.name || '')) { toast('El archivo debe ser un Excel (.xlsx, .xls o .xlsm)', true); return; }
+  if(!file.size) { toast('El archivo está vacío', true); return; }
+  if(file.size > ADJ_MAX_BYTES) { toast('Archivo muy grande (máx. 25 MB)', true); return; }
+  if(!(await _fotoNubeLista())) return;                // sin sesión / sin conexión: no se guarda nada
+
+  _irGuardando = true;
+  const btn = $('irBtn'); if(btn) { btn.disabled = true; btn.textContent = 'Subiendo…'; }
+  toast('Subiendo el archivo…');
+  let up = null;
+  try {
+    up = await uploadAdjunto(file, cid, 'ir');         // primero el archivo…
+    if(!D.ct.some(c => c.id == cid)) { await _storageBorrar(ADJ_BUCKET, [up.path]); return; }   // el contrato se eliminó mientras tanto
+    D.ir.push({ id: Date.now(), cid: cid, num: num, desde: desde, hasta: hasta,      // …y después el registro
+                adjuntos: [{ id: Date.now() + Math.random(), nombre: file.name, path: up.path, url: up.url, tam: file.size, tipo: file.type || '', fecha: today(), rol: '' }] });
+    save(); closeModal(); irRefrescar(cid);
+    toast('Informe N° ' + num + ' subido');
+  } catch(e) {
+    console.warn('subir informe', e);
+    if(up) { try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(x) {} }     // no dejar un archivo huérfano en la nube
+    toast('No se pudo subir el informe: ' + ((e && e.message) || 'error desconocido'), true);
+    if(btn) { btn.disabled = false; btn.textContent = 'Subir informe'; }
+  } finally { _irGuardando = false; }
+}
+
+async function delInforme(id) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  const r = D.ir.find(x => x.id == id); if(!r) return;
+  if(!confirm('¿Eliminar el informe N° ' + r.num + '?\n\nTambién se borrará su archivo Excel de la nube y no se puede recuperar.')) return;
+  if(!(await _adjBorrarDe([r], false))) return;        // primero el archivo; si falla, no se elimina nada
+  D.ir = D.ir.filter(x => x.id != id);
+  save(); irRefrescar(r.cid);
+  toast('Informe eliminado');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MAPAS: formas dibujadas por contrato + Visor de Obras
+// Las formas (polígonos, líneas y puntos) se guardan en la tabla `edeso_formas` de Supabase
+// (una fila por forma: contrato_id, tipo, geom GeoJSON, nota). El Visor las muestra todas juntas.
+// Mapas gratuitos, sin clave: Esri World Street Map (mapa de calles) y Esri World Imagery (satélite), del mismo proveedor.
+// OpenStreetMap ya NO se usa como servidor de teselas (bloquea a algunos dominios públicos, p. ej. GitHub Pages) y CARTO
+// tampoco (ahora exige clave: sus teselas salen con la marca "API KEY REQUIRED").
+// Dibujo: Leaflet-Geoman (se carga solo al abrir la pestaña Mapa de un usuario con sesión).
+// ══════════════════════════════════════════════════════════════════════════════
+const MP_GEOMAN_CSS = 'https://cdn.jsdelivr.net/npm/@geoman-io/leaflet-geoman-free@2.17.0/dist/leaflet-geoman.css';
+const MP_GEOMAN_JS  = 'https://cdn.jsdelivr.net/npm/@geoman-io/leaflet-geoman-free@2.17.0/dist/leaflet-geoman.min.js';
+const MP_CENTRO     = [6.15, -75.38];      // Rionegro, Antioquia
+const MP_PALETA     = ['#e6194b','#3cb44b','#4363d8','#f58231','#911eb4','#00a3a3','#f032e6','#9a6324',
+                       '#800000','#808000','#000075','#c9a400','#e91e63','#2e7d32','#5d4037','#0288d1'];
+const MP_TIPOS      = { polygon:'Polígono', line:'Línea', point:'Punto' };
+
+let _mpFormas = null;        // caché de todas las formas: [{ id, contrato_id, tipo, geom, nota, creado_en }]
+let _mpPromCarga = null, _mpPromLibs = null;
+let _mpFicha = null;         // mapa abierto en la pestaña Mapa de una ficha
+let _mpVisor = null;         // mapa del Visor de Obras
+
+// ── Utilidades ────────────────────────────────────────────────────────────────
+// Color automático: uno por contrato, según su posición por id (igual en todos los dispositivos).
+function mpColor(cid) {
+  const ids = D.ct.map(c => Number(c.id)).sort((a, b) => a - b);
+  const i = Math.max(0, ids.indexOf(Number(cid)));
+  return i < MP_PALETA.length ? MP_PALETA[i] : 'hsl(' + Math.round((i * 137.508) % 360) + ',70%,42%)';
+}
+function mpContrato(cid) { return D.ct.find(c => String(c.id) === String(cid)) || null; }
+function mpNombreCt(c) { return c ? (c.alias ? c.alias : String(c.obj || '')).slice(0, 90) : 'Contrato eliminado'; }
+function mpErrTxt(e) {
+  if(e && (e.code === '42501' || /permission denied|row-level security|jwt/i.test(String(e.message || '')))) return 'no tienes permiso (inicia sesión)';
+  return (e && e.message) ? e.message : 'error desconocido';
+}
+function mpFormasDe(cid) { return (_mpFormas || []).filter(f => String(f.contrato_id) === String(cid)); }
+function mpRedondear(x) { return Array.isArray(x) ? x.map(mpRedondear) : (typeof x === 'number' ? Math.round(x * 1e6) / 1e6 : x); }
+function mpGeomLimpia(geom) { return { type: geom.type, coordinates: mpRedondear(geom.coordinates) }; }
+
+// Medidas (esfera): área en m² de anillos, longitud en m de una polilínea
+function _mpAnilloM2(anillo) {
+  const R = 6378137, rad = Math.PI / 180; let s = 0;
+  for(let i = 0, n = anillo.length; i < n; i++) {
+    const a = anillo[i], b = anillo[(i + 1) % n];
+    s += (b[0] - a[0]) * rad * (2 + Math.sin(a[1] * rad) + Math.sin(b[1] * rad));
+  }
+  return Math.abs(s * R * R / 2);
+}
+function _mpPolyM2(p) { return p.reduce((t, anillo, i) => t + (i === 0 ? 1 : -1) * _mpAnilloM2(anillo), 0); }
+function _mpLargoM(cs) {
+  const R = 6371008.8, rad = Math.PI / 180; let t = 0;
+  for(let i = 1; i < cs.length; i++) {
+    const dLat = (cs[i][1] - cs[i - 1][1]) * rad, dLng = (cs[i][0] - cs[i - 1][0]) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(cs[i - 1][1] * rad) * Math.cos(cs[i][1] * rad) * Math.sin(dLng / 2) ** 2;
+    t += 2 * R * Math.asin(Math.sqrt(h));
+  }
+  return t;
+}
+function mpMedida(f) {
+  const g = f.geom, n = (v, d) => v.toLocaleString('es-CO', { maximumFractionDigits: d });
+  if(f.tipo === 'polygon') {
+    const m2 = g.type === 'MultiPolygon' ? g.coordinates.reduce((t, p) => t + _mpPolyM2(p), 0) : _mpPolyM2(g.coordinates);
+    return m2 >= 10000 ? n(m2 / 10000, 2) + ' ha' : n(m2, 0) + ' m²';
+  }
+  if(f.tipo === 'line') { const m = _mpLargoM(g.coordinates); return m >= 1000 ? n(m / 1000, 2) + ' km' : n(m, 0) + ' m'; }
+  return n(g.coordinates[1], 5) + ', ' + n(g.coordinates[0], 5);
+}
+
+// ── Datos en Supabase ─────────────────────────────────────────────────────────
+async function mpCargar(force) {
+  if(_mpFormas && !force) return _mpFormas;
+  if(_mpPromCarga) return _mpPromCarga;
+  _mpPromCarga = (async function() {
+    if(!window.__sb) throw new Error('Sin conexión con Supabase');
+    let todas = [], desde = 0; const paso = 1000;
+    for(;;) {
+      const r = await window.__sb.from('edeso_formas').select('id,contrato_id,tipo,geom,nota,creado_en')
+        .order('creado_en', { ascending: true }).order('id', { ascending: true }).range(desde, desde + paso - 1);
+      if(r.error) throw r.error;
+      todas = todas.concat(r.data || []);
+      if(!r.data || r.data.length < paso) break;
+      desde += paso;
+    }
+    _mpFormas = todas;
+    try { if(typeof updateCounts === 'function') updateCounts(); } catch(e) {}
+    return _mpFormas;
+  })();
+  try { return await _mpPromCarga; } finally { _mpPromCarga = null; }
+}
+function _mpEscribible() { if(READONLY) throw new Error('Modo solo lectura'); if(!window.__sb) throw new Error('Sin conexión con Supabase'); }
+async function mpInsertar(cid, tipo, geom, nota) {
+  _mpEscribible();
+  const r = await window.__sb.from('edeso_formas').insert({ contrato_id: String(cid), tipo: tipo, geom: geom, nota: nota || '' }).select().single();
+  if(r.error) throw r.error;
+  (_mpFormas || (_mpFormas = [])).push(r.data);
+  return r.data;
+}
+async function mpActualizar(id, campos) {
+  _mpEscribible();
+  const r = await window.__sb.from('edeso_formas').update(campos).eq('id', id).select().single();
+  if(r.error) throw r.error;
+  const i = (_mpFormas || []).findIndex(f => f.id === id);
+  if(i >= 0) _mpFormas[i] = Object.assign(_mpFormas[i], r.data);
+  return r.data;
+}
+async function mpBorrar(id) {
+  _mpEscribible();
+  const r = await window.__sb.from('edeso_formas').delete().eq('id', id);
+  if(r.error) throw r.error;
+  if(_mpFormas) _mpFormas = _mpFormas.filter(f => f.id !== id);
+}
+// Al eliminar un contrato (y sus derivados) se borran sus formas. No bloquea la eliminación si falla.
+async function mpBorrarDeContratos(ids) {
+  try {
+    if(READONLY || !window.__sb || !ids.length) return true;
+    const r = await window.__sb.from('edeso_formas').delete().in('contrato_id', ids.map(String));
+    if(r.error) throw r.error;
+    if(_mpFormas) _mpFormas = _mpFormas.filter(f => ids.map(String).indexOf(String(f.contrato_id)) < 0);
+    return true;
+  } catch(e) {
+    console.warn('borrar formas del contrato', e);
+    if(typeof toast === 'function') toast('No se pudieron borrar las formas del mapa de este contrato: ' + mpErrTxt(e), true);
+    return false;
+  }
+}
+
+// ── Herramienta de dibujo (Leaflet-Geoman), carga diferida ────────────────────
+function mpCargarLibs() {
+  if(window.L && window.L.PM) return Promise.resolve();
+  if(_mpPromLibs) return _mpPromLibs;
+  _mpPromLibs = new Promise(function(res, rej) {
+    if(!window.L) return rej(new Error('El mapa no está disponible (sin conexión)'));
+    const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = MP_GEOMAN_CSS; document.head.appendChild(l);
+    const s = document.createElement('script'); s.src = MP_GEOMAN_JS;
+    s.onload = function() { window.L.PM ? res() : (_mpPromLibs = null, rej(new Error('Herramienta de dibujo incompleta'))); };
+    s.onerror = function() { _mpPromLibs = null; rej(new Error('No se pudo cargar la herramienta de dibujo')); };
+    document.head.appendChild(s);
+  });
+  return _mpPromLibs;
+}
+
+// ── Mapa base (Mapa / Satélite) ───────────────────────────────────────────────
+function mpCapasBase() {
+  return {
+    // Mapa de calles (Esri World Street Map). Datos reales hasta el zoom 19; el 20 se amplía.
+    mapa: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 20, maxNativeZoom: 19, attribution: 'Mapa © Esri, HERE, Garmin, © OpenStreetMap contributors' }),
+    sat: L.layerGroup([
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 20, maxNativeZoom: 19, attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics' }),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 20, maxNativeZoom: 19 })
+    ])
+  };
+}
+function mpCrearMapa(el) {
+  const map = L.map(el, { center: MP_CENTRO, zoom: 11, minZoom: 3, maxZoom: 20, zoomControl: false });
+  L.control.zoom({ position: 'bottomright', zoomInTitle: 'Acercar', zoomOutTitle: 'Alejar' }).addTo(map);
+  const capas = mpCapasBase();
+  let actual = 'mapa'; try { if(localStorage.getItem('edeso_mapbase') === 'sat') actual = 'sat'; } catch(e) {}
+  capas[actual].addTo(map);
+  const ctl = L.control({ position: 'topright' });
+  ctl.onAdd = function() {
+    const d = L.DomUtil.create('div', 'mp-base leaflet-bar');
+    d.innerHTML = '<button type="button" data-b="mapa">Mapa</button><button type="button" data-b="sat">Satélite</button>';
+    const pintar = function() { d.querySelectorAll('button').forEach(function(b) { b.classList.toggle('on', b.dataset.b === actual); b.setAttribute('aria-pressed', b.dataset.b === actual ? 'true' : 'false'); }); };
+    d.addEventListener('click', function(e) {
+      const b = e.target.closest('button'); if(!b || b.dataset.b === actual) return;
+      map.removeLayer(capas[actual]); actual = b.dataset.b; capas[actual].addTo(map);
+      try { localStorage.setItem('edeso_mapbase', actual); } catch(x) {}
+      pintar();
+    });
+    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+    pintar(); return d;
+  };
+  ctl.addTo(map);
+  mpBuscador(map);
+  map._mpBase = function() { return actual; };
+  return map;
+}
+
+// Buscador de lugares (Nominatim / OpenStreetMap, gratis): solo al enviar, sin autocompletar
+function mpBuscador(map) {
+  const ctl = L.control({ position: 'topright' });
+  ctl.onAdd = function() {
+    const d = L.DomUtil.create('div', 'mp-search');
+    d.innerHTML = '<button type="button" class="mp-search-b" title="Buscar un lugar" aria-label="Buscar un lugar">'
+      + '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l4 4"/></svg></button>'
+      + '<form class="mp-search-f"><input type="search" placeholder="Buscar lugar o dirección…" aria-label="Buscar lugar o dirección"><button type="submit">Ir</button></form>'
+      + '<div class="mp-search-r"></div>';
+    const btn = d.querySelector('.mp-search-b'), form = d.querySelector('.mp-search-f'), res = d.querySelector('.mp-search-r'), inp = form.querySelector('input');
+    btn.addEventListener('click', function() { const on = d.classList.toggle('abierto'); if(on) inp.focus(); else res.innerHTML = ''; });
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault(); const q = inp.value.trim(); if(!q) return;
+      res.innerHTML = '<div class="mp-search-i">Buscando…</div>';
+      try {
+        const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=co&accept-language=es&q=' + encodeURIComponent(q));
+        const j = await r.json();
+        if(!j.length) { res.innerHTML = '<div class="mp-search-i">Sin resultados</div>'; return; }
+        res.innerHTML = '';
+        j.forEach(function(it) {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'mp-search-i'; b.textContent = it.display_name;
+          b.addEventListener('click', function() {
+            const bb = it.boundingbox;
+            if(bb) map.fitBounds([[+bb[0], +bb[2]], [+bb[1], +bb[3]]], { maxZoom: 17 }); else map.setView([+it.lat, +it.lon], 16);
+            res.innerHTML = ''; d.classList.remove('abierto');
+          });
+          res.appendChild(b);
+        });
+      } catch(err) { res.innerHTML = '<div class="mp-search-i">No se pudo buscar. Revisa tu conexión.</div>'; }
+    });
+    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+    return d;
+  };
+  ctl.addTo(map);
+}
+
+// ── Formas en el mapa ─────────────────────────────────────────────────────────
+function mpEstilo(cid) { const c = mpColor(cid); return { color: c, weight: 3, opacity: .95, fillColor: c, fillOpacity: .28, className: 'mp-shape' }; }
+function mpEstilarCapa(capa, cid) {
+  const c = mpColor(cid);
+  if(capa.setRadius) { capa.setRadius(9); capa.setStyle({ color: '#fff', weight: 3, fillColor: c, fillOpacity: .95, opacity: 1, className: 'mp-shape' }); }
+  else capa.setStyle(mpEstilo(cid));
+}
+function mpCrearCapa(f) {
+  const g = f.geom; let capa;
+  if(g.type === 'Point') capa = L.circleMarker([g.coordinates[1], g.coordinates[0]], { radius: 9 });
+  else capa = L.geoJSON(g).getLayers()[0];
+  mpEstilarCapa(capa, f.contrato_id);
+  capa._mpId = f.id; capa._mpCid = String(f.contrato_id);
+  return capa;
+}
+// Recalcula el tamaño del mapa SOLO si sigue vivo y en pantalla (evita errores si ya se destruyó)
+function mpInvalidar(map) {
+  try { if(map && map._container && document.body.contains(map._container)) map.invalidateSize(); } catch(e) {}
+}
+function mpLimites(capas) {
+  const g = L.featureGroup(capas); const b = g.getBounds();
+  return b.isValid() ? b : null;
+}
+function mpIrA(ctx, capa) {
+  if(!capa) return;
+  if(capa.getBounds) ctx.map.fitBounds(capa.getBounds(), { maxZoom: 18, padding: [40, 40] });
+  else ctx.map.setView(capa.getLatLng(), Math.max(ctx.map.getZoom(), 17));
+}
+
+// Tarjeta de una forma (sobre el mapa): contrato, tipo, medida, nota y acciones
+function mpTarjetaCerrar(ctx) {
+  if(ctx.card) { ctx.card.remove(); ctx.card = null; }
+  if(ctx.sel) { try { mpEstilarCapa(ctx.sel, ctx.sel._mpCid); } catch(e) {} ctx.sel = null; }
+}
+function mpTarjeta(ctx, f, modo, capa) {
+  // modo: 'ver' | 'nueva'
+  // Si había una forma nueva sin guardar y se abre otra tarjeta, esa forma se descarta (no queda nada a medias)
+  if(ctx.pendiente && modo !== 'nueva') { try { ctx.map.removeLayer(ctx.pendiente._capa); } catch(e) {} ctx.pendiente = null; }
+  mpTarjetaCerrar(ctx);
+  const c = mpContrato(f.contrato_id), col = mpColor(f.contrato_id);
+  const editable = ctx.editable && !READONLY;
+  const el = document.createElement('div'); el.className = 'mp-card'; ctx.card = el;
+  const titulo = modo === 'nueva' ? 'Nueva forma' : escapeHtml(c ? c.num : 'Contrato eliminado');
+  const sub = modo === 'nueva' ? escapeHtml((c ? c.num + ' · ' : '') + MP_TIPOS[f.tipo]) : escapeHtml(mpNombreCt(c));
+  el.innerHTML = '<div class="mp-card-h"><span class="mp-dot" style="background:' + col + '"></span>'
+    + '<div class="mp-card-t"><b>' + titulo + '</b><span>' + sub + '</span></div>'
+    + '<button type="button" class="mp-x" aria-label="Cerrar">×</button></div>'
+    + '<div class="mp-card-m">' + MP_TIPOS[f.tipo] + ' · ' + escapeHtml(mpMedida(f)) + '</div>'
+    + '<div class="mp-card-c"></div><div class="mp-card-a"></div>';
+  const cuerpo = el.querySelector('.mp-card-c'), acc = el.querySelector('.mp-card-a');
+  const boton = function(txt, cls, fn) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm ' + cls; b.textContent = txt; b.addEventListener('click', fn); acc.appendChild(b); return b; };
+  const cerrar = function() { if(modo === 'nueva' && ctx.pendiente) { ctx.map.removeLayer(ctx.pendiente._capa); ctx.pendiente = null; } mpTarjetaCerrar(ctx); };
+  el.querySelector('.mp-x').addEventListener('click', cerrar);
+
+  const editorNota = function(inicial, alGuardar, alCancelar, txtGuardar) {
+    cuerpo.innerHTML = '<textarea class="mp-nota" rows="3" maxlength="2000" placeholder="Nota de esta forma (qué es, observaciones…)"></textarea>';
+    const ta = cuerpo.querySelector('textarea'); ta.value = inicial || ''; setTimeout(function() { ta.focus(); }, 30);
+    acc.innerHTML = '';
+    const bg = boton(txtGuardar || 'Guardar', 'bgr', async function() { bg.disabled = true; try { await alGuardar(ta.value.trim()); } catch(e) { toast('No se pudo guardar: ' + mpErrTxt(e), true); bg.disabled = false; } });
+    boton('Cancelar', 'bgh', alCancelar);
+  };
+
+  if(modo === 'nueva') {
+    editorNota('', async function(nota) {
+      const fila = await mpInsertar(f.contrato_id, f.tipo, f.geom, nota);
+      capa._mpId = fila.id; ctx.pendiente = null;
+      mpRegistrarCapa(ctx, fila, capa);
+      mpTarjetaCerrar(ctx); toast('Forma guardada'); mpRefrescarUI(ctx);
+    }, cerrar, 'Guardar forma');
+    acc.lastChild.textContent = 'Descartar';
+  } else {
+    const verNota = function() {
+      cuerpo.innerHTML = f.nota ? '<div class="mp-nota-t">' + escapeHtml(f.nota).replace(/\n/g, '<br>') + '</div>' : '<div class="mp-nota-t vacia">Sin nota</div>';
+      acc.innerHTML = '';
+      if(ctx.modo === 'visor') boton('Ver ficha', 'bgh', function() { verCt(c ? c.id : f.contrato_id); });
+      boton('Acercar', 'bgh', function() { mpIrA(ctx, ctx.capas[f.id]); });
+      if(editable) {
+        boton('Editar nota', 'bgh', function() {
+          editorNota(f.nota, async function(nota) { const fila = await mpActualizar(f.id, { nota: nota }); f.nota = fila.nota; verNota(); mpRefrescarUI(ctx); toast('Nota actualizada'); }, verNota);
+        });
+        boton('Eliminar', 'brd', async function() {
+          if(!confirm('¿Eliminar esta forma del mapa? No se puede deshacer.')) return;
+          try {
+            await mpBorrar(f.id);
+            const cp = ctx.capas[f.id];
+            if(cp) { (ctx.grupoDe ? ctx.grupoDe(f.contrato_id) : ctx.grupo).removeLayer(cp); delete ctx.capas[f.id]; }
+            mpTarjetaCerrar(ctx); mpRefrescarUI(ctx); toast('Forma eliminada');
+          }
+          catch(e) { toast('No se pudo eliminar: ' + mpErrTxt(e), true); }
+        });
+      }
+    };
+    verNota();
+    const cp = ctx.capas[f.id]; if(cp) { ctx.sel = cp; cp.setStyle({ weight: 5 }); if(cp.bringToFront) cp.bringToFront(); }
+  }
+  ctx.wrap.appendChild(el);
+}
+function mpRegistrarCapa(ctx, f, capa) {
+  ctx.capas[f.id] = capa;
+  (ctx.grupoDe ? ctx.grupoDe(f.contrato_id) : ctx.grupo).addLayer(capa);
+  if(!capa._mpEnlazada) {
+    capa._mpEnlazada = true;
+    capa.on('click', function(e) {
+      // Mientras se dibuja, el clic es para colocar vértices (aunque caiga sobre una forma ya existente): no abre la tarjeta
+      if(ctx.map.pm && ctx.map.pm.globalDrawModeEnabled && ctx.map.pm.globalDrawModeEnabled()) return;
+      L.DomEvent.stopPropagation(e);
+      const fila = (_mpFormas || []).find(x => x.id === capa._mpId); if(fila) mpTarjeta(ctx, fila, 'ver');
+    });
+    if(ctx.editable) {
+      let t = null;
+      const guardar = function() {
+        clearTimeout(t);
+        t = setTimeout(async function() {
+          try { await mpActualizar(capa._mpId, { geom: mpGeomLimpia(capa.toGeoJSON().geometry) }); mpRefrescarUI(ctx); }
+          catch(e) { toast('No se pudo guardar el cambio de la forma: ' + mpErrTxt(e), true); }
+        }, 500);
+      };
+      capa.on('pm:edit', guardar); capa.on('pm:dragend', guardar);
+    }
+  }
+}
+function mpRefrescarUI(ctx) { if(ctx.refrescar) ctx.refrescar(); }
+
+// ── Pestaña "Mapa" de la ficha del contrato ───────────────────────────────────
+function mpTabN(cid) {
+  if(!_mpFormas) return '';
+  const n = mpFormasDe(cid).length;
+  return n ? ' <span class="nc">' + n + '</span>' : '';
+}
+// Destruye un mapa sin dejar animaciones de zoom a medias (Leaflet lanza un error si se elimina durante una)
+function mpQuitarMapa(map) {
+  try { map._animatingZoom = false; map.stop(); } catch(e) {}
+  try { map.remove(); } catch(e) {}
+}
+function mpCerrarFicha() {
+  if(_mpFicha) { mpQuitarMapa(_mpFicha.map); _mpFicha = null; }
+}
+function mpListaFichaHTML(ctx) {
+  const fs = mpFormasDe(ctx.cid);
+  if(!fs.length) return '<div class="mp-vacio-l">' + (ctx.editable ? 'Este contrato aún no tiene formas. Usa la barra de dibujo del mapa para agregar polígonos, líneas o puntos.' : 'Este contrato aún no tiene formas dibujadas.') + '</div>';
+  return '<div class="mp-lista-t">Formas del contrato (' + fs.length + ')</div>' + fs.map(function(f) {
+    return '<button type="button" class="mp-fila" data-id="' + escapeAttr(f.id) + '"><span class="mp-dot" style="background:' + mpColor(f.contrato_id) + '"></span>'
+      + '<span class="mp-fila-t"><b>' + MP_TIPOS[f.tipo] + '</b> · ' + escapeHtml(mpMedida(f)) + '</span>'
+      + '<span class="mp-fila-n">' + (f.nota ? escapeHtml(f.nota) : '<i>Sin nota</i>') + '</span></button>';
+  }).join('');
+}
+async function mpAbrirFicha(cid) {
+  const pane = document.getElementById('ctpMapa'); if(!pane) return;
+  if(_mpFicha && String(_mpFicha.cid) === String(cid) && document.body.contains(_mpFicha.wrap)) {
+    const m0 = _mpFicha.map; setTimeout(function() { mpInvalidar(m0); }, 40); return;
+  }
+  mpCerrarFicha();
+  const editable = !READONLY;
+  pane.innerHTML = '<div class="mp-hint"></div><div class="mp-wrap"><div class="mp-map" id="mpFichaMap"></div><div class="mp-loading">Cargando mapa…</div></div><div class="mp-lista" id="mpFichaLista"></div>';
+  const wrap = pane.querySelector('.mp-wrap'), hint = pane.querySelector('.mp-hint'), carga = pane.querySelector('.mp-loading');
+  const col = mpColor(cid);
+  hint.innerHTML = '<span class="mp-dot" style="background:' + col + '"></span><span>' + (editable
+    ? 'Dibuja con la barra de la izquierda (polígono, línea o punto). Toca una forma para ver o editar su nota.'
+    : 'Toca una forma para ver su nota.') + ' El color de este contrato es asignado automáticamente.</span>';
+  let libsError = null;
+  try { await Promise.all([mpCargar(true), editable ? mpCargarLibs().catch(function(e) { libsError = e; }) : Promise.resolve()]); }
+  catch(e) {
+    carga.innerHTML = '<div><div style="font-weight:700;margin-bottom:6px">No se pudieron cargar las formas</div><div style="font-size:12px;color:var(--mu2);margin-bottom:12px">' + escapeHtml(mpErrTxt(e)) + '</div><button class="btn sm bgh" type="button">Reintentar</button></div>';
+    carga.querySelector('button').addEventListener('click', function() { mpCerrarFicha(); mpAbrirFicha(cid); });
+    return;
+  }
+  if(!document.body.contains(wrap) || typeof L === 'undefined') { carga.textContent = 'No se pudo cargar el mapa. Verifica la conexión.'; return; }
+  carga.remove();
+  const map = mpCrearMapa('mpFichaMap');
+  const ctx = _mpFicha = { modo: 'ficha', cid: cid, map: map, wrap: wrap, editable: editable && !libsError && !!(L.PM), capas: {}, grupo: L.featureGroup().addTo(map), card: null, sel: null, pendiente: null };
+  ctx.refrescar = function() { const l = document.getElementById('mpFichaLista'); if(l) l.innerHTML = mpListaFichaHTML(ctx); const n = document.getElementById('mpTabN'); if(n) n.innerHTML = mpTabN(cid); };
+  mpFormasDe(cid).forEach(function(f) { mpRegistrarCapa(ctx, f, mpCrearCapa(f)); });
+  const lim = mpLimites(Object.values(ctx.capas)); if(lim) map.fitBounds(lim, { maxZoom: 17, padding: [40, 40] });
+  document.getElementById('mpFichaLista').addEventListener('click', function(e) {
+    const b = e.target.closest('.mp-fila'); if(!b) return;
+    const f = (_mpFormas || []).find(x => x.id === b.dataset.id); if(!f) return;
+    mpIrA(ctx, ctx.capas[f.id]); mpTarjeta(ctx, f, 'ver'); wrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+  if(editable && libsError) hint.innerHTML += ' <b style="color:var(--rd-t)">No se pudo cargar la herramienta de dibujo: ' + escapeHtml(libsError.message) + '</b>';
+  if(ctx.editable) mpActivarDibujo(ctx);
+  ctx.refrescar();
+  setTimeout(function() { mpInvalidar(map); }, 60);
+}
+function mpActivarDibujo(ctx) {
+  const map = ctx.map, col = mpColor(ctx.cid);
+  map.pm.setLang('es');
+  map.pm.addControls({ position: 'topleft', drawMarker: false, drawCircleMarker: true, drawPolyline: true, drawRectangle: false, drawPolygon: true,
+    drawCircle: false, drawText: false, editMode: true, dragMode: true, cutPolygon: false, removalMode: false, rotateMode: false });
+  map.pm.setGlobalOptions({ snappable: true, allowSelfIntersection: false,
+    pathOptions: { color: col, fillColor: col, fillOpacity: .28, weight: 3, className: 'mp-shape' },
+    templineStyle: { color: col }, hintlineStyle: { color: col, dashArray: [5, 5] } });
+  map.on('pm:create', function(e) {
+    const capa = e.layer, tipo = e.shape === 'Polygon' ? 'polygon' : e.shape === 'Line' ? 'line' : (e.shape === 'CircleMarker' || e.shape === 'Marker') ? 'point' : null;
+    if(!tipo) { map.removeLayer(capa); return; }
+    if(ctx.pendiente) { try { map.removeLayer(ctx.pendiente._capa); } catch(x) {} ctx.pendiente = null; }
+    capa._mpCid = String(ctx.cid); mpEstilarCapa(capa, ctx.cid);
+    const f = { contrato_id: String(ctx.cid), tipo: tipo, geom: mpGeomLimpia(capa.toGeoJSON().geometry), nota: '', _capa: capa };
+    ctx.pendiente = f;
+    mpTarjeta(ctx, f, 'nueva', capa);
   });
 }
 
-// Contratos ubicados en mapa (tienen lat/lng)
-function vGetUbicados(){
-  return vGetLista().filter(function(c){return c.lat&&c.lng;});
+// ── Visor de Obras: las formas de TODOS los contratos ─────────────────────────
+VIEWS.visor = function() {
+  const svOpts = '<option value="">Todos los supervisores</option>' + D.sv.map(function(s) { return '<option value="' + s.id + '">' + escapeHtml(s.nombre.split(' ').slice(0, 2).join(' ')) + '</option>'; }).join('');
+  return '<div class="visor-shell mpv" id="mpv">'
+    + '<aside class="vsb" id="mpvSb" aria-label="Contratos con formas"><div class="vsb-hd">'
+    +   '<div class="mpv-tt"><div class="vsb-tt">Visor de Obras</div><div class="mpv-acc">'
+    +     '<button type="button" class="btn sm bgh" onclick="mpVisorRecargar()" title="Volver a leer las formas">↻</button>'
+    +     '<button type="button" class="btn sm bgh mpv-cerrar" onclick="mpVisorSheet(false)" aria-label="Cerrar lista">✕</button></div></div>'
+    +   '<div class="vsrch"><span class="vsrch-ic"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M10.5 10.5l3 3"/></svg></span>'
+    +   '<input id="mpvQ" placeholder="Buscar número, objeto, contratista…" oninput="mpVisorLista()"></div>'
+    +   '<div class="mpv-fila2"><select id="mpvSv" onchange="mpVisorLista()" aria-label="Filtrar por supervisor">' + svOpts + '</select>'
+    +   '<button type="button" class="btn sm bgh" onclick="mpVisorTodos(true)">Mostrar todos</button><button type="button" class="btn sm bgh" onclick="mpVisorTodos(false)">Ocultar</button></div>'
+    + '</div><div class="vlst" id="mpvLst"></div></aside>'
+    + '<div class="mpv-back" id="mpvBack" onclick="mpVisorSheet(false)"></div>'
+    + '<div class="vmw" id="mpvMapWrap"><div id="vmap"></div>'
+    +   '<div class="mpv-stats" id="mpvStats"></div>'
+    +   '<button type="button" class="mpv-btn" id="mpvBtn" onclick="mpVisorSheet(true)">☰ Contratos</button>'
+    +   '<div class="mp-loading" id="mpvLoad">Cargando formas…</div>'
+    + '</div></div>';
+};
+let _mpVisorTok = 0;          // invalida cargas en curso si el Visor se destruye o se reinicia
+function mpVisorDestruir() {
+  _mpVisorTok++;
+  if(_mpVisor) { mpQuitarMapa(_mpVisor.map); _mpVisor = null; }
+}
+function mpVisorSheet(on) { const s = document.getElementById('mpv'); if(s) s.classList.toggle('mpv-open', !!on); }
+async function mpVisorInit() {
+  const el = document.getElementById('vmap'); if(!el || typeof L === 'undefined') return;
+  mpVisorDestruir();
+  const tok = _mpVisorTok;
+  const carga = document.getElementById('mpvLoad');
+  try { await mpCargar(true); }
+  catch(e) {
+    if(carga) { carga.innerHTML = '<div><div style="font-weight:700;margin-bottom:6px">No se pudieron cargar las formas</div><div style="font-size:12px;color:var(--mu2);margin-bottom:12px">' + escapeHtml(mpErrTxt(e)) + '</div><button class="btn sm bgh" type="button" onclick="mpVisorRecargar()">Reintentar</button></div>'; }
+    return;
+  }
+  if(tok !== _mpVisorTok || !document.getElementById('vmap') || document.getElementById('vmap') !== el) return;   // el usuario salió o reabrió el Visor mientras cargaba
+  if(carga) carga.remove();
+  const map = mpCrearMapa(el);
+  const ctx = _mpVisor = { modo: 'visor', editable: false, map: map, wrap: document.getElementById('mpvMapWrap'), capas: {}, grupos: {}, ocultos: {}, card: null, sel: null };
+  ctx.grupoDe = function(cid) { const k = String(cid); if(!ctx.grupos[k]) { ctx.grupos[k] = L.featureGroup(); if(!ctx.ocultos[k]) ctx.grupos[k].addTo(map); } return ctx.grupos[k]; };
+  ctx.refrescar = function() { mpVisorLista(); };
+  (_mpFormas || []).filter(function(f) { return mpContrato(f.contrato_id); }).forEach(function(f) { mpRegistrarCapa(ctx, f, mpCrearCapa(f)); });
+  map.on('click', function() { mpTarjetaCerrar(ctx); });
+  mpVisorLista(); mpVisorAjustar();
+  setTimeout(function() { mpInvalidar(map); }, 80);
+}
+function mpVisorAjustar() {
+  const ctx = _mpVisor; if(!ctx) return;
+  const vis = Object.keys(ctx.grupos).filter(function(k) { return !ctx.ocultos[k]; }).map(function(k) { return ctx.grupos[k]; });
+  const cs = []; vis.forEach(function(g) { g.eachLayer(function(l) { cs.push(l); }); });
+  const lim = mpLimites(cs); if(lim) ctx.map.fitBounds(lim, { maxZoom: 16, padding: [40, 40] });
+}
+function mpVisorRecargar() {
+  const w = document.getElementById('mpvMapWrap'); if(!w) return;
+  mpVisorDestruir();
+  if(!document.getElementById('mpvLoad')) { const d = document.createElement('div'); d.className = 'mp-loading'; d.id = 'mpvLoad'; d.textContent = 'Cargando formas…'; w.appendChild(d); }
+  else document.getElementById('mpvLoad').textContent = 'Cargando formas…';
+  mpVisorInit();
+}
+function mpVisorFiltrados() {
+  const q = (document.getElementById('mpvQ') || {}).value || '', sv = (document.getElementById('mpvSv') || {}).value || '';
+  const cont = {};
+  (_mpFormas || []).forEach(function(f) { cont[String(f.contrato_id)] = (cont[String(f.contrato_id)] || 0) + 1; });
+  const ql = q.toLowerCase();
+  return D.ct.filter(function(c) {
+    if(!cont[String(c.id)]) return false;
+    if(sv && String(c.svid) !== String(sv)) return false;
+    return !ql || (c.num || '').toLowerCase().indexOf(ql) >= 0 || (c.obj || '').toLowerCase().indexOf(ql) >= 0 || (c.alias || '').toLowerCase().indexOf(ql) >= 0 || (c.contratista || '').toLowerCase().indexOf(ql) >= 0;
+  }).map(function(c) { return { c: c, n: cont[String(c.id)] }; });
+}
+function mpVisorLista() {
+  const lst = document.getElementById('mpvLst'), ctx = _mpVisor; if(!lst) return;
+  const items = mpVisorFiltrados();
+  const total = new Set((_mpFormas || []).filter(function(f) { return mpContrato(f.contrato_id); }).map(function(f) { return String(f.contrato_id); })).size;
+  const sinFormas = D.ct.length - total;
+  lst.innerHTML = items.length ? items.map(function(it) {
+    const k = String(it.c.id), oculto = ctx && ctx.ocultos[k];
+    return '<div class="mpv-item' + (oculto ? ' off' : '') + '" data-cid="' + escapeAttr(k) + '">'
+      + '<label class="mpv-chk" title="Mostrar u ocultar en el mapa"><input type="checkbox"' + (oculto ? '' : ' checked') + ' aria-label="Mostrar ' + escapeAttr(it.c.num) + '"><span class="mp-dot" style="background:' + mpColor(it.c.id) + '"></span></label>'
+      + '<button type="button" class="mpv-item-b"><b>' + escapeHtml(it.c.num) + '</b><span>' + escapeHtml(mpNombreCt(it.c)) + '</span></button>'
+      + '<span class="mpv-n" title="Formas">' + it.n + '</span></div>';
+  }).join('') : '<div class="emp" style="padding:24px 16px">' + (total ? 'Ningún contrato coincide con el filtro.' : 'Aún no hay formas dibujadas.<br><span style="font-size:11.5px">Se dibujan desde la pestaña «Mapa» de cada contrato.</span>') + '</div>';
+  if(sinFormas > 0 && items.length) lst.innerHTML += '<div class="mpv-nota">' + sinFormas + ' contrato(s) aún sin formas.</div>';
+  const st = document.getElementById('mpvStats'); if(st) st.innerHTML = '<b>' + total + '</b> contrato(s) · <b>' + (_mpFormas || []).filter(function(f) { return mpContrato(f.contrato_id); }).length + '</b> forma(s)';
+  lst.onclick = function(e) {
+    const it = e.target.closest('.mpv-item'); if(!it || !ctx) return;
+    const k = it.dataset.cid;
+    if(e.target.closest('.mpv-chk')) {
+      const on = e.target.closest('.mpv-chk').querySelector('input').checked;
+      if(e.target.tagName !== 'INPUT') return;          // el clic real llega al input; evitamos doble disparo
+      mpVisorMostrar(k, on); it.classList.toggle('off', !on); return;
+    }
+    if(ctx.ocultos[k]) { mpVisorMostrar(k, true); it.classList.remove('off'); const inp = it.querySelector('input'); if(inp) inp.checked = true; }
+    const g = ctx.grupos[k]; if(g && g.getBounds().isValid()) ctx.map.fitBounds(g.getBounds(), { maxZoom: 17, padding: [50, 50] });
+    mpVisorSheet(false);
+  };
+}
+function mpVisorMostrar(k, on) {
+  const ctx = _mpVisor; if(!ctx) return; const g = ctx.grupos[k]; if(!g) return;
+  ctx.ocultos[k] = !on;
+  if(on) g.addTo(ctx.map); else { ctx.map.removeLayer(g); if(ctx.sel && ctx.sel._mpCid === k) mpTarjetaCerrar(ctx); }
+}
+function mpVisorTodos(on) {
+  const ctx = _mpVisor; if(!ctx) return;
+  mpVisorFiltrados().forEach(function(it) { mpVisorMostrar(String(it.c.id), on); });
+  mpVisorLista();
 }
 
-var vM=null,vMk=[],vSId=null,vFTipo='Todos',vCl=true,vPM=false,vPendCtId=null;
-
-// Tipos únicos de contratos
-var TIPOS_CT=['obra','consultoria','interventoria','interadministrativo'];
-var TIPOS_LBL={obra:'Obra',consultoria:'Consultoría',interventoria:'Interventoría',interadministrativo:'Interadministrativo'};
-
-(function(){
-  var _uc=typeof updateCounts==='function'?updateCounts:null;
-  updateCounts=function(){
-    if(_uc)_uc();
-    var el=document.getElementById('nc_ob');
-    if(el)el.textContent=D.ct.filter(function(c){return c.lat&&c.lng;}).length;
+// Contador del menú: contratos que tienen formas dibujadas
+(function() {
+  const _uc = typeof updateCounts === 'function' ? updateCounts : null;
+  updateCounts = function() {
+    if(_uc) _uc();
+    const el = document.getElementById('nc_ob');
+    if(el) el.textContent = _mpFormas ? new Set(_mpFormas.filter(function(f) { return mpContrato(f.contrato_id); }).map(function(f) { return String(f.contrato_id); })).size : '';
   };
 })();
-
-VIEWS.visor=function(){
-  var svOpts='<option value="">Todos los supervisores</option>'
-    +D.sv.map(function(s){return '<option value="'+s.id+'">'+s.nombre.split(' ').slice(0,2).join(' ')+'</option>';}).join('');
-  var h='<div class="visor-shell">';
-  h+='<div class="vsb">';
-  h+='<div class="vsb-hd">';
-  h+='<div class="vsb-tt">Visor de Obras</div>';
-  // Buscador de dirección (Nominatim)
-  h+='<div style="position:relative;margin-bottom:10px">';
-  h+='<div style="display:flex;gap:6px">';
-  h+='<div style="position:relative;flex:1">';
-  h+='<span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none">📍</span>';
-  h+='<input id="vaddr" placeholder="Buscar dirección..." style="width:100%;background:#fff;border:1.5px solid var(--bd);border-radius:9px;padding:9px 12px 9px 32px;font-size:12.5px;font-family:\'Instrument Sans\',sans-serif;color:var(--tx);outline:none" onkeydown="if(event.key===\'Enter\')vAddrBuscar()" oninput="vAddrInput(this.value)">';
-  h+='</div>';
-  h+='<button onclick="vAddrBuscar()" style="background:var(--accent);color:#fff;border:none;border-radius:9px;padding:0 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:\'Instrument Sans\',sans-serif;white-space:nowrap;flex-shrink:0;min-height:40px">Ir</button>';
-  h+='</div>';
-  h+='<div id="vaddr-results" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--bd);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:2000;display:none;margin-top:4px;overflow:hidden;max-height:220px;overflow-y:auto"></div>';
-  h+='</div>';
-  // Buscador de contratos
-  h+='<div class="vsrch"><span class="vsrch-ic"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M10.5 10.5l3 3"/></svg></span>';
-  h+='<input id="vsrch" placeholder="Buscar número, objeto, contratista..." oninput="vFlt()"></div>';
-  h+='<div style="margin-top:10px;display:flex;gap:8px;align-items:center">';
-  h+='<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--mu);flex-shrink:0"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>';
-  h+='<select id="vsv" onchange="vFlt()" style="flex:1;background:#fff;border:1.5px solid var(--bd);border-radius:8px;padding:6px 10px;font-size:12px;font-family:\'Instrument Sans\',sans-serif;color:var(--tx);outline:none">'+svOpts+'</select>';
-  h+='</div></div>';
-  h+='<div class="vlst" id="vlst"></div>';
-  h+='</div>';
-  h+='<div class="vmw"><div id="vmap"></div>';
-  h+='<div class="vstats">';
-  h+='<div class="vst"><div class="vst-v" id="vs1">0</div><div class="vst-l">En mapa</div></div><div class="vdv"></div>';
-  h+='<div class="vst"><div class="vst-v" id="vs2" style="color:var(--mu)">0</div><div class="vst-l">Sin ubicar</div></div><div class="vdv"></div>';
-  h+='<div class="vst"><div class="vst-v" id="vs3" style="color:var(--mu2)">0</div><div class="vst-l">Total obras</div></div>';
-  h+='</div>';
-  h+='<div class="vdet" id="vdet"></div>';
-  h+='<div class="vcoh" id="vcoh">Haz clic en el mapa para ubicar el contrato</div>';
-  h+='<div class="vmctrl">';
-  h+='<button class="vmcb on" id="vbc" onclick="vTC()">⬤ Agrupar</button>';
-  h+='<button class="vmcb" onclick="vFitBounds()">⊙ Centrar</button>';
-  h+='</div>';
-  h+='<div class="vleg"><div class="vlegt">Estado de avance</div>';
-  h+='<div class="vlegi"><div class="vlegd" style="background:#16a34a"></div>≥ 80% en tiempo</div>';
-  h+='<div class="vlegi"><div class="vlegd" style="background:#d97706"></div>40-79% atención</div>';
-  h+='<div class="vlegi"><div class="vlegd" style="background:#C8232A"></div>< 40% alerta</div>';
-  h+='<div class="vlegi" style="margin-top:6px;border-top:1px solid var(--bd);padding-top:6px"><div class="vlegd" style="background:var(--bd2)"></div>Sin ubicar</div>';
-  h+='</div>';
-  h+='</div></div>';
-  return h;
-};
-
-function vIM(){
-  var mapEl=document.getElementById('vmap');
-  if(!mapEl) return;
-  if(typeof L === 'undefined'){
-    toast('No se pudo cargar el mapa. Verifica la conexión o intenta de nuevo.', true);
-    return;
-  }
-  var shell = document.querySelector('.visor-shell');
-  var h = shell ? shell.offsetHeight : (window.innerHeight-57);
-  mapEl.style.height = h + 'px';
-  if(vM){
-    setTimeout(function(){
-      if(vM){ vM.invalidateSize(); vRA(); }
-    },100);
-    return;
-  }
-  vM=L.map('vmap',{center:[6.15,-75.38],zoom:11,zoomControl:false,preferCanvas:true});
-  L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFyaWFuYTI0MDYiLCJhIjoiY21yZ3gzeXdjMDMxbjQ5b2lkd2ZxbTdnbSJ9.PHhvvNUm_yZH_D7eQr8ZkQ',{attribution:'© <a href="https://www.mapbox.com">Mapbox</a> © <a href="https://www.openstreetmap.org">OSM</a>',maxZoom:19,tileSize:512,zoomOffset:-1}).addTo(vM);
-  L.control.zoom({position:'bottomright'}).addTo(vM);
-  vM.on('click',function(e){
-    if(!vPM||!vPendCtId)return;
-    vPM=false;
-    var h=document.getElementById('vcoh');if(h)h.style.display='none';
-    vM.getContainer().style.cursor='';
-    // Guardar coordenadas en el contrato
-    var c=D.ct.filter(function(x){return x.id==vPendCtId;})[0];
-    if(c){
-      c.lat=e.latlng.lat;
-      c.lng=e.latlng.lng;
-      save();
-    }
-    vPendCtId=null;
-    vRA();
-    toast('Contrato ubicado en el mapa');
-  });
-  vRA();
-}
-
-function vFlt(){vRA();}
-
-function vRA(){
-  var busq  = (document.getElementById('vsrch')||{}).value||'';
-  var svFlt = (document.getElementById('vsv')||{}).value||'';
-
-  // Solo obras (las interventorías e IAs no tienen ubicación física)
-  var obras = D.ct.filter(function(c){
-    return c.tipo === 'obra' || c.tipo === 'consultoria';
-  });
-
-  // Aplicar filtros
-  if(svFlt) obras = obras.filter(function(c){ return String(c.svid) === String(svFlt); });
-  if(busq){
-    var q = busq.toLowerCase();
-    obras = obras.filter(function(c){
-      return (c.num||'').toLowerCase().includes(q)
-          || (c.obj||'').toLowerCase().includes(q)
-          || (c.alias||'').toLowerCase().includes(q)
-          || (c.contratista||'').toLowerCase().includes(q);
-    });
-  }
-
-  var conUb = obras.filter(function(c){return c.lat&&c.lng;});
-  var sinUb = obras.filter(function(c){return !c.lat||!c.lng;});
-
-  // Sidebar agrupado por IA padre
-  vRSBNew(obras);
-  vRMk(conUb);
-
-  var s1=document.getElementById('vs1'),s2=document.getElementById('vs2'),s3=document.getElementById('vs3');
-  if(s1)s1.textContent=conUb.length;
-  if(s2)s2.textContent=sinUb.length;
-  if(s3)s3.textContent=obras.length;
-}
-
-function vRSBNew(obras){
-  var el=document.getElementById('vlst'); if(!el) return;
-  if(!obras.length){
-    el.innerHTML='<div style="padding:24px 16px;text-align:center;color:rgba(255,255,255,.4);font-size:12.5px">Sin obras que coincidan</div>';
-    return;
-  }
-
-  // Agrupar por IA padre
-  var grupos={}, sinPadre=[];
-  obras.forEach(function(c){
-    if(c.pid){
-      if(!grupos[c.pid]) grupos[c.pid]={ia:D.ct.find(function(x){return x.id==c.pid;}),cts:[]};
-      grupos[c.pid].cts.push(c);
-    } else { sinPadre.push(c); }
-  });
-
-  var h='';
-
-  // Grupos con IA padre
-  Object.values(grupos).forEach(function(g){
-    if(!g.ia) return;
-    var totalPct=g.cts.length?Math.round(g.cts.reduce(function(s,c){return s+pctReal(c.id);},0)/g.cts.length):0;
-    var semCol=totalPct>=80?'#16a34a':totalPct>=40?'#d97706':'#C8232A';
-    h+='<div class="via-group">';
-    // IA header
-    h+='<div class="via-hd">';
-    h+='<div style="width:6px;height:6px;border-radius:50%;background:#C8232A;flex-shrink:0"></div>';
-    h+='<div style="flex:1;min-width:0"><div class="via-hd-num">'+g.ia.num+'</div>';
-    h+='<div class="via-hd-obj">'+(g.ia.obj||'').substring(0,55)+'…</div></div>';
-    h+='<div style="font-size:13px;font-weight:800;color:'+semCol+'">'+totalPct+'%</div>';
-    h+='</div>';
-    // Obras del IA
-    g.cts.forEach(function(c){
-      h+=vCardHTML(c);
-    });
-    h+='</div>';
-  });
-
-  // Obras sin padre
-  sinPadre.forEach(function(c){ h+=vCardHTML(c); });
-
-  el.innerHTML=h;
-}
-
-function vCardHTML(c){
-  var pct   = pctReal(c.id);
-  var sc    = semaforo(pct, pctEst2(c, today()));
-  var e     = status(c);
-  var sv    = svEfectivo(c);
-  var sel   = vSId===c.id?' sel':'';
-  var ubicada = c.lat&&c.lng;
-  return '<div class="vcard'+sel+'" onclick="vSO('+c.id+')">'
-    +'<div style="display:flex;align-items:flex-start;gap:10px">'
-    +'<div style="width:36px;height:36px;border-radius:50%;background:'+sc.color+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)">'+pct+'%</div>'
-    +'<div style="flex:1;min-width:0">'
-    +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px">'
-    +'<span style="font-size:12.5px;font-weight:700;color:var(--tx)">'+c.num+'</span>'
-    +'<span class="b '+e.cls+'" style="font-size:9px"><span class="bd_"></span>'+e.lbl+'</span>'
-    +(ubicada?'<span style="font-size:9px;color:var(--gr)">📍</span>':'<span style="font-size:9px;color:var(--mu)">⊘</span>')
-    +'</div>'
-    +'<div style="font-size:11.5px;color:var(--mu);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+c.obj+'</div>'
-    +(sv?'<div style="font-size:11px;color:var(--mu2);margin-top:3px">👤 '+sv.nombre.split(' ').slice(0,2).join(' ')+'</div>':'')
-    +'<div style="display:flex;align-items:center;gap:8px;margin-top:5px">'
-    +'<div style="flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+sc.color+';border-radius:2px"></div></div>'
-    +'<span style="font-size:10px;color:'+sc.color+';font-weight:700;min-width:28px">'+pct+'%</span>'
-    +(ubicada?'':'<button class="btn sm bgr" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();vUbicar('+c.id+')">Ubicar</button>')
-    +'</div>'
-    +'</div></div></div>';
-}
-
-function vRSB(list,elId,ubicado){
-  var el=document.getElementById(elId);if(!el)return;
-  if(!list.length){
-    el.innerHTML='<div style="padding:12px 14px;font-size:11px;color:var(--mu);text-align:center">'+(ubicado?'Ningún contrato ubicado aún':'Todos ubicados ✓')+'</div>';
-    return;
-  }
-  var h='';
-  list.forEach(function(c){
-    var col=vGetColor(c);
-    var sv=svEfectivo(c);
-    var e=status(c);
-    var sel=vSId===c.id?'sel':'';
-    var pct=ubicado?vGetPct(c):null;
-    var sem=ubicado?semaforo(pct,pctEst2(c)):null;
-    h+='<div class="vcard '+sel+'" onclick="vSO('+c.id+')">';
-    // Top row: dot + numero + badge estado
-    h+='<div class="vct" style="margin-bottom:4px">';
-    h+='<div class="vcdot" style="background:'+(ubicado?col:'var(--bd2)')+';width:9px;height:9px;margin-top:3px"></div>';
-    h+='<div style="flex:1;min-width:0">';
-    h+='<div style="font-size:11.5px;font-weight:700;color:'+(ubicado?col:'var(--mu2)')+';letter-spacing:.01em">'+c.num+'</div>';
-    h+='<div class="vcnm" style="font-weight:400;font-size:11px;color:var(--tx)">'+c.obj+'</div>';
-    h+='</div>';
-    h+='<span class="b '+e.cls+'" style="flex-shrink:0;font-size:9px;align-self:flex-start"><span class="bd_"></span>'+e.lbl+'</span>';
-    h+='</div>';
-    // Bottom row: supervisor + accion
-    h+='<div class="vcbt" style="margin-left:15px">';
-    if(!ubicado){
-      h+='<span style="font-size:10px;color:var(--mu);flex:1">'+(sv?sv.nombre:'Sin supervisor')+'</span>';
-      h+='<button class="btn sm bgr" style="font-size:10px;padding:2px 10px;flex-shrink:0" onclick="event.stopPropagation();vUbicar('+c.id+')">&#9654; Ubicar</button>';
-    } else {
-      h+='<span style="font-size:10px;color:var(--mu);flex:1">'+(sv?'<svg width="8" height="8" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> '+sv.nombre:'Sin supervisor')+'</span>';
-      h+='<div class="vpb" style="max-width:60px"><div class="vpbf" style="background:'+(sem?sem.color:col)+';width:'+pct+'%"></div></div>';
-      h+='<div class="vpl" style="color:'+(sem?sem.color:col)+';font-weight:700">'+pct+'%</div>';
-    }
-    h+='</div>';
-    h+='</div>';
-  });
-  el.innerHTML=h;
-}
-
-// % avance = promedio de actividades del contrato, o 0 si no tiene
-function vGetPct(c){
-  var acts=D.ac.filter(function(a){return a.cid==c.id&&!a.pid;});
-  if(!acts.length)return 0;
-  return Math.round(acts.reduce(function(s,a){return s+Number(a.pr||0);},0)/acts.length);
-}
-
-function vUbicar(ctId){
-  vPendCtId=ctId;
-  vPM=true;
-  var h=document.getElementById('vcoh');
-  if(h){h.style.display='block';h.textContent='Haz clic en el mapa para ubicar: '+( D.ct.filter(function(c){return c.id==ctId;})[0]?.num||'contrato');}
-  if(vM)vM.getContainer().style.cursor='crosshair';
-}
-
-function vSO(id){
-  vSId=id;
-  var c=D.ct.filter(function(x){return x.id==id;})[0];if(!c)return;
-  vRSB(vGetLista().filter(function(x){return!x.lat||!x.lng;}),'vlst-sin',false);
-  vRSB(vGetLista().filter(function(x){return x.lat&&x.lng;}),'vlst-con',true);
-  if(c.lat&&c.lng&&vM)vM.setView([c.lat,c.lng],14,{animate:true});
-  var pct=pctReal(c.id);
-  var col=pct>=80?'#16a34a':pct>=40?'#d97706':'#C8232A';
-  var ecol=vGetEtapaColor(c);
-  var sv=svEfectivo(c);
-  // Apoyos = personas asignadas a este contrato via D.cta
-  var apoyos = D.cta.filter(function(a){return a.cid==c.id;}).map(function(a){return D.ap.filter(function(x){return x.id==a.apid;})[0];}).filter(Boolean);
-
-  var tad=D.ad.filter(function(a){return a.cid==c.id;}).reduce(function(s,a){return s+Number(a.valor||0);},0);
-  var dp=document.getElementById('vdet');if(!dp)return;
-  dp.className='vdet on';
-  var h='<div class="vdb" style="background:'+col+'"></div>';
-  h+='<div class="vdh"><div>';
-  h+='<div style="font-size:9px;color:'+col+';text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-weight:600">'+(TIPOS_LBL[c.tipo]||c.tipo||'-')+'</div>';
-  h+='<div style="font-family:\'Instrument Sans\',sans-serif;font-size:13px;font-weight:600;color:var(--tx);letter-spacing:.01em;margin-bottom:3px">'+c.num+'</div>';
-  h+='<div style="font-size:11px;color:var(--mu);line-height:1.4">'+c.obj+'</div>';
-  h+='</div><button class="vdx" onclick="vCD()">&#x2715;</button></div>';
-  h+='<div class="vdbody">';
-  // Avance
-  h+='<div class="vdprog">';
-  h+='<div class="vdplbl">Avance de obra (actividades)</div>';
-  h+='<div class="vdpct" style="color:'+col+'">'+pct+'%</div>';
-  h+='<div class="vdpbg"><div class="vdpfl" style="background:'+col+';width:'+pct+'%"></div></div>';
-  h+='</div>';
-  // Estado y fechas
-  var e=status(c);
-  h+='<div class="vdeta"><div class="vdetd" style="background:'+ecol+'"></div><div class="vdett" style="color:'+ecol+'">'+e.lbl+'</div></div>';
-  // Info grid
-  h+='<div class="vdgrid">';
-  h+='<div class="vdit"><div class="vdil">No. contrato</div><div class="vdiv2">'+c.num+'</div></div>';
-  h+='<div class="vdit"><div class="vdil">Modalidad</div><div class="vdiv2">'+(c.mod||'—')+'</div></div>';
-  h+='<div class="vdit"><div class="vdil">Valor inicial</div><div class="vdiv2" style="color:var(--bl)">'+cop(c.valor)+'</div></div>';
-  h+='<div class="vdit"><div class="vdil">Valor total</div><div class="vdiv2" style="color:var(--bl)">'+cop(Number(c.valor||0)+tad)+'</div></div>';
-  h+='<div class="vdit"><div class="vdil">Inicio</div><div class="vdiv2">'+fmt(c.fstart)+'</div></div>';
-  h+='<div class="vdit"><div class="vdil">Fin'+((fechaFinReal(c)&&fechaFinReal(c)!==c.fend)?' (prorrogado)':'')+'</div><div class="vdiv2">'+fmt(fechaFinReal(c)||c.fend)+'</div></div>';
-  h+='<div class="vdit vdfu"><div class="vdil">Contratista</div><div class="vdiv2">'+(c.contratista||'—')+'</div></div>';
-  h+='</div>';
-  // Supervisor
-  if(sv){
-    h+='<div style="margin-top:10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:6px">Supervisor</div>';
-    h+='<div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:6px;padding:8px 10px;border-left:3px solid var(--accent)">';
-    h+='<div class="av" style="width:26px;height:26px;font-size:9px">'+ini(sv.nombre)+'</div>';
-    h+='<div><div style="font-weight:500;font-size:12px">'+sv.nombre+'</div>';
-    h+='<div style="font-size:10px;color:var(--mu)">'+(sv.cargo||'')+(sv.tel?' · '+sv.tel:'')+'</div></div></div>';
-  }
-  // Apoyos
-  if(apoyos.length){
-    h+='<div style="margin-top:10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:6px">Apoyos a la supervisión</div>';
-    apoyos.forEach(function(a){
-      h+='<div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:6px;padding:7px 10px;margin-bottom:5px;border-left:3px solid var(--bl)">';
-      h+='<div class="av" style="width:24px;height:24px;font-size:9px;background:var(--bl-d);border-color:var(--bl);color:var(--bl-t)">'+ini(a.nombre)+'</div>';
-      h+='<div><div style="font-weight:500;font-size:12px">'+a.nombre+'</div>';
-      h+='<div style="font-size:10px;color:var(--mu)">'+(a.cargo||'—')+(a.tel?' · '+a.tel:'')+'</div>'
-      +(a.email?'<div style="font-size:10px;color:var(--mu)">'+a.email+'</div>':'')
-      +'</div></div>';
-    });
-  }
-  // Botones
-  h+='<div style="display:flex;gap:6px;margin-top:10px">';
-  if(c.lat&&c.lng){
-    h+='<button class="btn brd" style="font-size:11px;flex:none" onclick="vQuitarUbicacion('+c.id+')" title="Mover en el mapa"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M1 8h14"/></svg> Mover</button>';
-  } else {
-    h+='<button class="btn bgr" style="font-size:11px;flex:none" onclick="vUbicar('+c.id+')"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="7" r="4"/><path d="M8 11v4M4 7H1M11 7h4"/></svg> Ubicar en mapa</button>';
-  }
-  h+='<button class="btn bgr" style="flex:1;font-size:11px" onclick="verCt('+c.id+')">Ver contrato completo</button>';
-  h+='</div>';
-  if(c.lat&&c.lng){
-    h+='<div style="font-size:10px;color:var(--mu);margin-top:6px;text-align:center">'+c.lat.toFixed(5)+', '+c.lng.toFixed(5)+'</div>';
-  }
-  h+='</div>';
-  dp.innerHTML=h;
-}
-
-function vQuitarUbicacion(id){
-  var c=D.ct.filter(function(x){return x.id==id;})[0];
-  if(!c)return;
-  c.lat=null;c.lng=null;save();vRA();vCD();vUbicar(id);
-}
-
-function vCD(){vSId=null;var d=document.getElementById('vdet');if(d)d.className='vdet';vRA();}
-
-function vMkI(col,pct,num){
-  // Círculo grande con % y número del contrato
-  var s=52;
-  var html='<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;background:'+col
-    +';border:3px solid rgba(255,255,255,.95);box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .18s;position:relative">'
-    +'<div style="font-size:13px;font-weight:900;color:#fff;line-height:1">'+pct+'%</div>'
-    +'<div style="font-size:8px;color:rgba(255,255,255,.8);font-weight:600;max-width:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;letter-spacing:-.01em">'+num+'</div>'
-    +'</div>';
-  return L.divIcon({className:'vmk',html:html,iconSize:[s,s],iconAnchor:[s/2,s/2]});
-}
-function vMkC(col,n,avgPct){
-  // Cluster: círculo más grande con cantidad y avance promedio
-  var html='<div style="width:52px;height:52px;border-radius:50%;background:rgba(15,23,42,.85);border:3px solid '+col
-    +';display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:\'Instrument Sans\',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4)">'
-    +'<div style="font-size:15px;font-weight:900;color:var(--tx);line-height:1">'+n+'</div>'
-    +'<div style="font-size:8px;color:var(--mu);font-weight:600">obras</div>'
-    +'</div>';
-  return L.divIcon({className:'vmk',html:html,iconSize:[52,52],iconAnchor:[26,26]});
-}
-
-function vFitBounds(){
-  if(!vM) return;
-  var pts = D.ct.filter(function(c){return c.lat&&c.lng&&(c.tipo==='obra'||c.tipo==='consultoria');});
-  if(!pts.length){ vM.setView([6.15,-75.38],11); return; }
-  var bounds = L.latLngBounds(pts.map(function(c){return [c.lat,c.lng];}));
-  vM.fitBounds(bounds,{padding:[40,40],maxZoom:15,animate:true});
-}
-
-// ─── BUSCADOR DE DIRECCIÓN (Nominatim / OpenStreetMap) ────────────────
-var vAddrTimer = null;
-var vAddrMk   = null;
-
-function vAddrInput(val) {
-  clearTimeout(vAddrTimer);
-  var res = document.getElementById('vaddr-results');
-  if(!val || val.length < 3) { if(res) res.style.display='none'; return; }
-  vAddrTimer = setTimeout(function(){ vAddrBuscar(); }, 600);
-}
-
-function vAddrBuscar() {
-  var inp = document.getElementById('vaddr');
-  var res = document.getElementById('vaddr-results');
-  if(!inp || !res) return;
-  var q = (inp.value||'').trim();
-  if(!q) return;
-
-  // Mapbox Geocoding API — mejor precisión para Colombia
-  var token = 'pk.eyJ1IjoibWFyaWFuYTI0MDYiLCJhIjoiY21yZ3gzeXdjMDMxbjQ5b2lkd2ZxbTdnbSJ9.PHhvvNUm_yZH_D7eQr8ZkQ';
-  var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
-    + encodeURIComponent(q)
-    + '.json?access_token=' + token
-    + '&language=es&country=co&limit=5'
-    + '&proximity=-75.3741,6.1549';  // centrado en Rionegro
-
-  res.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--mu)">Buscando…</div>';
-  res.style.display = 'block';
-
-  fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(data) {
-      var features = data.features || [];
-      if(!features.length) {
-        res.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--mu)">Sin resultados. Intenta con otro término.</div>';
-        return;
-      }
-      res.innerHTML = '';
-      features.forEach(function(f) {
-        var el = document.createElement('div');
-        el.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--bd);font-size:12.5px;color:var(--tx);transition:background .1s';
-        el.addEventListener('mouseover', function(){ this.style.background='var(--sf2)'; });
-        el.addEventListener('mouseout',  function(){ this.style.background=''; });
-        var lng = f.center[0], lat = f.center[1];
-        var name = f.place_name || f.text || '';
-        var mainName = f.text || name.split(',')[0];
-        var subName  = name.substring(mainName.length).replace(/^,\s*/,'');
-        (function(lt, ln, nm) {
-          el.addEventListener('click', function(){ vAddrSelect(lt, ln, nm); });
-        })(lat, lng, name.substring(0,80));
-        el.innerHTML = '<div style="font-weight:600">' + mainName + '</div>'
-          + (subName ? '<div style="font-size:11px;color:var(--mu);margin-top:2px">' + subName.substring(0,70) + '</div>' : '');
-        res.appendChild(el);
-      });
-    })
-    .catch(function() {
-      res.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--accent)">Error al buscar. Verifica tu conexión.</div>';
-    });
-}
-
-function vAddrSelect(lat, lng, name) {
-  var res = document.getElementById('vaddr-results');
-  var inp = document.getElementById('vaddr');
-  if(res) res.style.display = 'none';
-  if(inp) inp.value = name;
-  if(!vM) return;
-
-  // Quitar marcador anterior de búsqueda
-  if(vAddrMk) { try{ vM.removeLayer(vAddrMk); }catch(e){} vAddrMk=null; }
-
-  // Volar al lugar
-  vM.setView([lat, lng], 15, {animate:true});
-
-  // Pin de búsqueda (diferente a los de obras)
-  vAddrMk = L.marker([lat, lng], {
-    icon: L.divIcon({
-      className: '',
-      html: '<div style="width:32px;height:32px;border-radius:50% 50% 50% 0;background:var(--bl);border:3px solid #fff;transform:rotate(-45deg);box-shadow:0 3px 12px rgba(37,99,235,.4)">'
-          + '<div style="width:10px;height:10px;background:#fff;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(45deg)"></div>'
-          + '</div>',
-      iconSize: [32,32],
-      iconAnchor: [16,32]
-    })
-  }).addTo(vM);
-  vAddrMk.bindPopup('<div style="font-family:\'Instrument Sans\',sans-serif;font-size:12.5px;font-weight:600">' + name + '</div>').openPopup();
-
-  toast('📍 ' + name.substring(0,50));
-}
-
-// Cerrar resultados al hacer clic fuera
-document.addEventListener('click', function(e) {
-  var res = document.getElementById('vaddr-results');
-  var inp = document.getElementById('vaddr');
-  if(res && inp && !res.contains(e.target) && e.target !== inp) {
-    res.style.display = 'none';
-  }
-});
-
-function vSemColor(pct){
-  return pct>=80?'#16a34a':pct>=40?'#d97706':'#C8232A';
-}
-
-function vRMk(list){
-  vMk.forEach(function(m){vM&&vM.removeLayer(m);});vMk=[];if(!vM)return;
-  if(!vCl){
-    // Modo individual: un marcador por obra
-    list.forEach(function(c){
-      var pct=pctReal(c.id);
-      var col=vSemColor(pct);
-      var m=L.marker([c.lat,c.lng],{icon:vMkI(col,pct,c.num)});
-      m.bindTooltip(
-        '<div style="font-family:\'Instrument Sans\',sans-serif;padding:4px 2px">'
-        +'<div style="font-weight:700;font-size:12px">'+c.num+'</div>'
-        +'<div style="font-size:11px;color:#666;max-width:200px">'+c.obj.substring(0,60)+'</div>'
-        +'<div style="font-weight:700;color:'+col+';margin-top:3px">'+pct+'% ejecutado</div>'
-        +'</div>',
-        {direction:'top',offset:[0,-28],className:'vmk-tt'}
-      );
-      (function(id){m.on('click',function(){vSO(id);});})(c.id);
-      m.addTo(vM);vMk.push(m);
-    });
-  }else{
-    // Modo agrupado
-    var used=[],cls=[];
-    list.forEach(function(c,i){
-      if(used.indexOf(i)>=0)return;
-      var g=[c];used.push(i);
-      list.forEach(function(c2,j){
-        if(used.indexOf(j)>=0)return;
-        if(Math.sqrt(Math.pow(c.lat-c2.lat,2)+Math.pow(c.lng-c2.lng,2))<0.035){g.push(c2);used.push(j);}
-      });
-      cls.push(g);
-    });
-    cls.forEach(function(g){
-      var lat=g.reduce(function(s,c){return s+c.lat;},0)/g.length;
-      var lng=g.reduce(function(s,c){return s+c.lng;},0)/g.length;
-      if(g.length===1){
-        var c=g[0];
-        var pct=pctReal(c.id);
-        var col=vSemColor(pct);
-        var m=L.marker([lat,lng],{icon:vMkI(col,pct,c.num)});
-        m.bindTooltip(c.num+' · '+pct+'%',{direction:'top',offset:[0,-28],className:'vmk-tt'});
-        (function(id){m.on('click',function(){vSO(id);});})(c.id);
-        m.addTo(vM);vMk.push(m);
-      }else{
-        var avgPct=Math.round(g.reduce(function(s,c){return s+pctReal(c.id);},0)/g.length);
-        var col=vSemColor(avgPct);
-        var m=L.marker([lat,lng],{icon:vMkC(col,g.length,avgPct)});
-        m.bindTooltip(g.length+' obras · '+avgPct+'% promedio',{direction:'top',offset:[0,-28],className:'vmk-tt'});
-        (function(z,lz){m.on('click',function(){vM.setView([z,lz],vM.getZoom()+2);});})(lat,lng);
-        m.addTo(vM);vMk.push(m);
-      }
-    });
-  }
-}
-
-function vTC(){vCl=!vCl;var b=document.getElementById('vbc');b.classList.toggle('on',vCl);b.innerHTML=vCl?'&#9679; Agrupar':'&#9675; Individual';vRA();}
 
 function cOM(){document.getElementById('mov2').classList.remove('on');}
 document.getElementById('mov2').addEventListener('click',function(e){if(e.target.id==='mov2')cOM();});
@@ -6586,10 +6813,8 @@ document.getElementById('mov2').addEventListener('click',function(e){if(e.target
   var _r=render;
   var _lastView=null;
   render=function(){
-    // If leaving the visor, destroy the map so it can be re-created cleanly
-    if(_lastView==='visor' && view!=='visor'){
-      if(vM){ try{ vM.remove(); }catch(e){} vM=null; vMk=[]; }
-    }
+    // Al salir del Visor se destruye el mapa para recrearlo limpio la próxima vez
+    if(_lastView==='visor' && view!=='visor') mpVisorDestruir();
     _lastView=view;
     _r();
     if(view==='project'){
@@ -6607,14 +6832,7 @@ document.getElementById('mov2').addEventListener('click',function(e){if(e.target
           if(_visorTries < 20) setTimeout(_initVisor, 80);
           return;
         }
-        // Render sidebars immediately (they don't need the map)
-        vRA();
-        // Init/reinit map
-        vIM();
-        // Ensure map sizes correctly after CSS layout settles
-        setTimeout(function(){
-          if(vM){ vM.invalidateSize(); vRA(); }
-        }, 300);
+        mpVisorInit();
       }
       setTimeout(_initVisor, 60);
     }
@@ -6656,71 +6874,7 @@ function getDO(){return[
 // Patch updateCounts
 (function(){var _uc=typeof updateCounts==='function'?updateCounts:null;updateCounts=function(){if(_uc)_uc();};})();
 
-// Visor VIEW — zero backticks, pure string concat
-
-var vM2=null,vMk2=[],vSId2=null,vF='Todas',vCl2=true,vPM2=false;
-
-
-function vGF(){
-  var q=document.getElementById('vsrch')?document.getElementById('vsrch').value.toLowerCase():'';
-  return OBRAS2.filter(function(o){
-    return(vF==='Todas'||o.cat===vF)&&(!q||o.nombre.toLowerCase().indexOf(q)>=0||o.municipio.toLowerCase().indexOf(q)>=0);
-  });
-}
-
-function vRS(list){
-  var s1=document.getElementById('vs1'),s2=document.getElementById('vs2'),s3=document.getElementById('vs3');
-  if(!s1)return;
-  s1.textContent=list.length;
-  s2.textContent=(list.length?Math.round(list.reduce(function(s,o){return s+o.pct;},0)/list.length):0)+'%';
-  var mu=[];list.forEach(function(o){if(mu.indexOf(o.municipio)<0)mu.push(o.municipio);});
-  s3.textContent=mu.length||'-';
-}
-
-
-function vOA(){vPM2=true;var h=document.getElementById('vcoh');if(h)h.style.display='block';if(vM2)vM2.getContainer().style.cursor='crosshair';}
-function vOE(id){vSF2(OBRAS2.filter(function(o){return o.id==id;})[0],null,null);}
-function vSF2(o,lat,lng){
-  var isEdit=!!o,flat=o?o.lat:(lat||6.15),flng=o?o.lng:(lng||-75.38);
-  document.getElementById('mT2').textContent=isEdit?'Editar obra':'Registrar nueva obra';
-  var h='<div class="fg">';
-  h+='<div class="fl2 full"><label>Nombre *</label><input id="vfn" value="'+(o?o.nombre:'')+'" placeholder="Ej: Pavimentacion via El Rosal"></div>';
-  h+='<div class="fl2 full"><label>Objeto</label><textarea id="vfo">'+(o&&o.objeto?o.objeto:'')+'</textarea></div>';
-  h+='<div class="fl2"><label>Municipio *</label><input id="vfm" value="'+(o?o.municipio:'')+'" placeholder="Rionegro"></div>';
-  h+='<div class="fl2"><label>Categoria</label><select id="vfc">';
-  for(var i=0;i<VCATS2.length;i++)h+='<option value="'+VCATS2[i]+'"'+(o&&o.cat===VCATS2[i]?' selected':'')+'>'+VLB[VCATS2[i]]+'</option>';
-  h+='</select></div>';
-  h+='<div class="fl2"><label>Etapa</label><select id="vfe">';
-  ['Contratacion','Inicio','Ejecucion','Terminada'].forEach(function(e){h+='<option value="'+e+'"'+(o&&o.etapa===e?' selected':'')+'>'+e+'</option>';});
-  h+='</select></div>';
-  h+='<div class="fl2"><label>% Avance</label><input id="vfp" type="number" min="0" max="100" value="'+(o?o.pct:0)+'"></div>';
-  h+='<div class="fl2 full"><label>Contratista</label><input id="vfco" value="'+(o&&o.contratista?o.contratista:'')+'" placeholder="Razon social"></div>';
-  h+='<div class="fl2 full"><label>Supervisor</label><input id="vfs" value="'+(o&&o.supervisor?o.supervisor:'')+'" placeholder="Supervisor"></div>';
-  h+='<div class="fl2 full"><label>URL Foto</label><input id="vff" value="'+(o&&o.foto?o.foto:'')+'" placeholder="https://.../foto.jpg"></div>';
-  h+='<div class="fl2"><label>Latitud</label><input id="vflat" type="number" step="0.0001" value="'+parseFloat(flat).toFixed(6)+'"></div>';
-  h+='<div class="fl2"><label>Longitud</label><input id="vflng" type="number" step="0.0001" value="'+parseFloat(flng).toFixed(6)+'"></div>';
-  h+='</div>';
-  document.getElementById('mB2').innerHTML=h;
-  document.getElementById('mF2').innerHTML='<button class="btn bgh" onclick="cOM()">Cancelar</button>'
-    +'<button class="btn bgr" onclick="vSO2('+(o?o.id:'null')+')">'+(isEdit?'Guardar cambios':'Registrar obra')+'</button>';
-  document.getElementById('mov2').classList.add('on');
-}
-function vSO2(id){
-  var nm=document.getElementById('vfn').value.trim(),mu=document.getElementById('vfm').value.trim();
-  if(!nm||!mu){toast('Nombre y municipio son obligatorios',true);return;}
-  var data={nombre:nm,objeto:document.getElementById('vfo').value.trim(),municipio:mu,
-    cat:document.getElementById('vfc').value,etapa:document.getElementById('vfe').value,
-    pct:Math.min(100,Math.max(0,Number(document.getElementById('vfp').value)||0)),
-    contratista:document.getElementById('vfco').value.trim(),
-    supervisor:document.getElementById('vfs').value.trim(),
-    foto:document.getElementById('vff').value.trim(),
-    lat:parseFloat(document.getElementById('vflat').value)||6.15,
-    lng:parseFloat(document.getElementById('vflng').value)||-75.38};
-  if(id&&id!=='null'){var idx=OBRAS2.findIndex(function(o){return o.id==id;});if(idx>=0)Object.assign(OBRAS2[idx],data);}
-  else{data.id=Date.now();OBRAS2.push(data);}
-  saveO();cOM();vRA();if(data.lat&&vM)vM.setView([data.lat,data.lng],14);
-}
-function vDO(id){if(!confirm('Eliminar esta obra?'))return;OBRAS2=OBRAS2.filter(function(o){return o.id!=id;});saveO();vCD();vRA();}
+// (Se retiró el código del Visor antiguo basado en puntos. Los datos `OBRAS2` / lat-lng de contratos siguen guardados, sin mostrarse.)
 
 function toggleUbicacion() {
   var tipo = document.getElementById('cti')?.value;
@@ -8577,12 +8731,20 @@ async function _adjBorrarDe(recs, confirmar) {
 }
 
 // Al eliminar un contrato (y sus derivados): borra sus adjuntos y sus fotos de la nube.
+// Al eliminar un contrato: primero sus archivos (si fallan, no se elimina nada); después sus formas del mapa (esto no bloquea)
 async function _nubeBorrarContratos(rootId) {
+  if(!(await _nubeBorrarArchivosContratos(rootId))) return false;
+  const ids = [];
+  (function rec(cid) { ids.push(cid); kids(cid).forEach(h => rec(h.id)); })(rootId);
+  await mpBorrarDeContratos(ids);
+  return true;
+}
+async function _nubeBorrarArchivosContratos(rootId) {
   const ids = [];
   (function rec(cid) { ids.push(cid); kids(cid).forEach(h => rec(h.id)); })(rootId);
   const en = x => ids.some(i => i == x);
   const adj = [], fotos = [];
-  [].concat(D.pr, D.ad, D.su, D.pa, D.pl).filter(r => en(r.cid))
+  [].concat(D.pr, D.ad, D.su, D.pa, D.pl, D.ir).filter(r => en(r.cid))
     .forEach(r => (r.adjuntos || []).forEach(a => { if(a.path) adj.push(a.path); }));
   D.ct.filter(c => en(c.id)).forEach(c => (c.fotos || []).forEach(f => { if(f.path) fotos.push(f.path); }));
   if(!adj.length && !fotos.length) return true;
@@ -9265,7 +9427,8 @@ function exportarDatos() {
       polizas:      D.pl  || [],
       suspensiones: D.su  || [],
       pagos:        D.pa  || [],
-      pendientes:   D.pe  || []
+      pendientes:   D.pe  || [],
+      informes:     D.ir  || []
     }
   };
   var json = JSON.stringify(exportData, null, 2);
@@ -9299,7 +9462,8 @@ function importarDatos(input) {
         pl:  datos.polizas             || datos.pl  || [],
         su:  datos.suspensiones        || datos.su  || [],
         pa:  datos.pagos               || datos.pa  || [],
-        pe:  datos.pendientes          || datos.pe  || []
+        pe:  datos.pendientes          || datos.pe  || [],
+        ir:  datos.informes            || datos.ir  || []
       };
       var total = nuevo.sv.length + nuevo.ct.length;
       if(!confirm(
@@ -10325,6 +10489,7 @@ function xlDate(v) {
     // Prórrogas / Adiciones / Pólizas
     'openPr','savePr','delPr','openAd','saveAd','delAd','openPol','savePol','delPol',
     'openEtapa','saveEtapa','delEtapa',
+    'openInforme','saveInforme','delInforme',
     // Pendientes
     'openPend','savePend','delPend','cyclePendEstado',
     // Pagos
