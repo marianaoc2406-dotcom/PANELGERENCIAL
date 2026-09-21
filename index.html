@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EDESO · Panel Gerencial</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -714,6 +714,178 @@ nav.collapsed .ni:hover::after{opacity:1}
 .ctx-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0}
 .ctx-label{flex:1}
 .ctx-badge{font-size:9px;font-weight:700;background:var(--accent-d);color:var(--accent);padding:1px 6px;border-radius:8px}
+/* ═══════════════════════ RESPONSIVE (celular / tablet) ═══════════════════════
+   Todo va dentro de @media (o @supports): en escritorio (> 900 px) no cambia nada.
+   Fase A: menú hamburguesa + ficha del contrato.                               */
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+#navBackdrop{ display:none; }
+.tbl-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }   /* si la tabla no cabe (tableta / ventana angosta), se desliza en horizontal */
+/* 100vh falla en móviles (la barra del navegador): dvh usa la altura realmente visible */
+@supports (height:100dvh){
+  .shell{ height:100dvh; }
+  #ctPage{ height:calc(100dvh - 56px); }
+  .visor-shell{ height:calc(100dvh - 57px); }
+  .dash-bg{ min-height:calc(100dvh - 56px); }
+  .gantt-body{ max-height:calc(100dvh - 300px); }
+  .gfv-body .gantt-left .gantt-body{ max-height:calc(100dvh - 120px); }
+  .vdet{ max-height:calc(100dvh - 100px); }
+}
+
+/* ── ≤ 900 px: el menú lateral pasa a panel deslizable (hamburguesa) ── */
+@media (max-width:900px){
+  .shell, .shell.nav-collapsed{ grid-template-columns:1fr; }
+  main, #ctPage{ grid-column:1; }
+  nav, nav.collapsed{
+    position:fixed; top:58px; left:0; bottom:0; width:min(84vw,300px); min-width:0;
+    padding:10px 0 calc(20px + env(safe-area-inset-bottom)); z-index:1200;
+    transform:translateX(-105%); visibility:hidden;
+    transition:transform .22s ease, visibility 0s .22s;
+    overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  }
+  .shell.nav-open nav{ transform:translateX(0); visibility:visible; transition:transform .22s ease, visibility 0s; box-shadow:0 0 40px rgba(0,0,0,.28); }
+  /* el modo "solo íconos" es de escritorio: en el panel siempre se ven las etiquetas */
+  nav.collapsed .ns, nav.collapsed .nav-sep, nav.collapsed .ni-label, nav.collapsed .nc{ display:block; }
+  nav.collapsed .ni.on::before{ display:block; }
+  nav.collapsed .ni::after{ display:none; }
+  nav.collapsed .ni svg{ width:18px; height:18px; opacity:.5; }
+  nav.collapsed .ni.on svg{ opacity:1; }
+  .ni{ padding:13px 14px; font-size:14.5px; }
+  .ni svg{ width:18px; height:18px; }
+  #navBackdrop{
+    display:block; position:fixed; top:58px; left:0; right:0; bottom:0; z-index:1100;
+    background:rgba(15,20,36,.45); opacity:0; visibility:hidden;
+    transition:opacity .22s ease, visibility 0s .22s;
+  }
+  .shell.nav-open #navBackdrop{ opacity:1; visibility:visible; transition:opacity .22s ease, visibility 0s; }
+}
+
+/* ── ≤ 720 px: barra superior y ficha del contrato ── */
+@media (max-width:720px){
+  .topbar{ padding:0 max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left)); gap:8px; }
+  .brand span, .tsub{ display:none; }
+  .tb-admin, .tb-info{ display:none !important; }     /* Exportar / Importar / fecha: herramientas de escritorio */
+  .tright{ gap:6px; }
+  .ro-badge{ padding:3px 8px; }
+  main{ padding:14px 12px; }
+
+  /* Encabezado de la ficha: fila 1 = Volver · estado · avance · Editar; fila 2 = nombre completo */
+  .ctp-hd2-inner{ padding:10px 12px 0; }
+  .ctp-top-row{ flex-wrap:wrap; align-items:center; gap:8px 10px; margin-bottom:6px; }
+  .ctp-back2{ order:1; margin-top:0; padding:8px 12px; }
+  .ctp-kpis{ order:2; margin:0 0 0 auto; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  .ctp-kpis > div, .ctp-kpis .btn{ margin-left:0 !important; }
+  .ctp-titles{ order:3; flex:1 1 100% !important; }
+  .ctp-nombre{ white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; font-size:16px; line-height:1.3; }
+  .ctp-pct{ font-size:28px; }
+  .ctp-meta2{ gap:6px 14px; font-size:11.5px; padding:4px 0 10px; }
+  .ctp-meta2 span{ min-width:0; max-width:100%; }
+  /* Supervisor, contratista y objeto ya están en la pestaña Información: se ocultan para dejar más espacio al contenido */
+  .meta-persona, .ctp-obj-sub{ display:none !important; }
+
+  /* Pestañas: se deslizan con el dedo; difuminado a la derecha indica que hay más */
+  .ctp-tabs2{
+    margin:0 -12px; padding:0 44px 0 12px; scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);
+  }
+  .ctp-tabs2::-webkit-scrollbar{ display:none; }
+  .ctp-tab2{ padding:14px 14px; font-size:13px; flex-shrink:0; scroll-snap-align:center; }
+  .ctp-body{ padding:14px 12px calc(20px + env(safe-area-inset-bottom)); }
+
+  /* Indicadores de Pagos: 2 × 2 */
+  .kgrid4{ grid-template-columns:1fr 1fr !important; gap:10px !important; }
+
+  /* Tablas de datos: por defecto se desplazan en horizontal; las marcadas .etbl-cards se ven como tarjetas */
+  .etbl:not(.etbl-cards){ display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .etbl-cards, .etbl-cards tbody, .etbl-cards tr, .etbl-cards td{ display:block; width:100%; }
+  .etbl-cards thead{ display:none; }
+  .etbl-cards tr{ background:#fff; border:1px solid var(--bd); border-radius:12px; padding:8px 14px; margin-bottom:10px; box-shadow:var(--card-shadow); }
+  .etbl-cards tr:hover td{ background:none; }
+  .etbl-cards td{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; padding:7px 0; border-bottom:1px dashed var(--bd); text-align:right; font-size:13px; }
+  .etbl-cards tr td:last-child{ border-bottom:none; }
+  .etbl-cards td::before{ content:attr(data-label); flex-shrink:0; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--mu); text-align:left; padding-top:3px; }
+  .etbl-cards td[data-label=""]::before{ display:none; }
+  .etbl-cards td[data-label=""]{ justify-content:flex-end; padding-top:10px; }
+  .etbl-cards .adj-wrap{ justify-content:flex-end; margin-top:0; }
+  body.readonly .etbl-cards td[data-label=""]{ display:none; }   /* en modo consulta no hay acciones de edición */
+}
+
+/* ── ≤ 600 px: pólizas, multimedia y ventanas ── */
+@media (max-width:600px){
+  .pol-tbl{ table-layout:auto; }
+  .pol-tbl thead{ display:none; }
+  .pol-tbl, .pol-tbl tbody, .pol-tbl tr, .pol-tbl td{ display:block; width:100%; }
+  .pol-tbl tr{ background:var(--sf2); border:1px solid var(--bd); border-radius:10px; padding:8px 12px; margin-bottom:8px; }
+  .pol-tbl tr:last-child td{ border-bottom:none; }
+  .pol-tbl td{ display:flex; justify-content:space-between; align-items:center; gap:12px; border:none; padding:5px 0; text-align:right; }
+  .pol-tbl td::before{ content:attr(data-label); flex-shrink:0; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--mu); text-align:left; }
+  .pol-tbl td:first-child{ justify-content:flex-start; font-weight:700; font-size:13.5px; padding-bottom:7px; }
+  .pol-tbl td:first-child::before{ display:none; }
+  .pol-po{ padding:14px 12px; }
+  .pol-et-hd, .pol-et-adj{ padding-left:12px; padding-right:12px; }
+
+  .mm-grid{ grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; }
+  .mm-filtros{ width:100%; }
+  .mm-filtros label{ flex:1 1 130px; }
+  .mm-filtros input[type=date]{ width:100%; }
+
+  /* Ventanas (modales): a pantalla completa, salen desde abajo */
+  .ov, .mov2{ align-items:flex-end; padding:0; }
+  .mo, .mo.mo-wide{ width:100%; max-width:100%; max-height:92vh; max-height:92dvh; border-radius:16px 16px 0 0; }
+  .mh{ padding:14px 16px; }
+  .mb{ padding:16px; }
+  .mf{ padding:12px 16px calc(12px + env(safe-area-inset-bottom)); flex-wrap:wrap; }
+  .mf .btn{ flex:1 1 auto; }
+  .fg{ grid-template-columns:1fr; }
+  .ig{ grid-template-columns:1fr 1fr; }
+}
+
+/* Editor de pólizas en celular: cada campo del amparo lleva su rótulo (en escritorio los rótulos van en el encabezado) */
+@media (max-width:720px){
+  .pol-ed .pol-am:not(.pol-am-h){ grid-template-columns:minmax(0,1fr) minmax(0,1fr); }   /* que los campos de fecha se encojan en vez de sobresalir */
+  .pol-ed .pa-c{ min-width:0; }
+  .pol-ed .pa-c::before{ content:attr(data-l); display:block; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--mu); margin-bottom:3px; }
+  .pol-ed .pol-am:not(.pol-am-h){ padding-bottom:10px; margin-bottom:10px; border-bottom:1px dashed var(--bd2); }
+  .pol-ed .pol-am .adj-x{ grid-column:1/-1; justify-self:end; border:1px solid var(--bd2); border-radius:8px; padding:5px 14px; }
+}
+
+/* ── Gantt: en celular el panel de actividades se compacta y todo el conjunto se desliza en horizontal ── */
+@media (max-width:720px){
+  .gantt-wrap, .gfv-body .gantt-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .gantt-left{ width:auto; position:sticky; left:0; z-index:3; background:#fff; box-shadow:2px 0 6px rgba(0,0,0,.07); }
+  .gantt-hcell.dates, .gantt-cell.dates, .gantt-hcell.val, .gantt-cell.val{ display:none; }   /* fechas y valor: se ven en el detalle */
+  .gantt-hcell.act, .gantt-cell.act{ width:150px; }
+  .gantt-right{ flex:0 0 auto; overflow-x:visible; }
+  .gfv-toolbar{ padding:8px 12px; gap:8px; }
+}
+
+/* ── ≤ 560 px: tarjetas de la ficha (Información, Seguimiento, etc.) ── */
+@media (max-width:560px){
+  .seg-corte{ flex-wrap:wrap; gap:10px 14px; }
+  .seg-corte > div:nth-child(2){ flex:1 1 220px; min-width:0; }
+  .ct-info-card{ padding:16px; }
+  .ct-field{ flex-direction:column; align-items:stretch; gap:3px; padding:9px 0; }
+  .ct-fl{ min-width:0; font-size:11px; }
+  .ct-fv{ text-align:left; flex:none; overflow-wrap:anywhere; }
+}
+
+/* ── Pantallas táctiles: sin zoom automático de iOS al enfocar, y botones cómodos de tocar ── */
+@media (pointer:coarse){
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), select, textarea{ font-size:16px; }
+  .btn{ min-height:40px; }
+  .btn.sm{ min-height:34px; }
+  .adj-x{ padding:6px 10px; }
+}
+
+/* ── Puente Fase B (mínimo): que el Resumen y las listas no se desborden al llegar a una ficha ── */
+@media (max-width:720px){
+  .krow, .krow2{ grid-template-columns:repeat(2,1fr); gap:10px; }
+  .ct-cards, .pgrid.c2, .pgrid.c32{ grid-template-columns:1fr; }
+  .dash-bg{ margin:-14px -12px; padding:14px 12px; }
+}
+@media (max-width:420px){
+  .krow, .krow2{ grid-template-columns:1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -731,7 +903,7 @@ nav.collapsed .ni:hover::after{opacity:1}
 
 <!-- TOPBAR -->
 <header class="topbar">
-  <button class="nav-toggle" onclick="toggleNav()" title="Ocultar/mostrar menú" id="navToggleBtn">
+  <button class="nav-toggle" onclick="toggleNav()" title="Menú" id="navToggleBtn" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir o cerrar el menú">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
       <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
     </svg>
@@ -742,11 +914,11 @@ nav.collapsed .ni:hover::after{opacity:1}
     <span style="font-size:12px;font-weight:500;color:var(--mu2);letter-spacing:.01em">Panel Gerencial</span>
   </div>
   <div class="tright">
-    <button onclick="exportarDatos()" style="background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;color:var(--mu2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.color='var(--tx)';this.style.borderColor='var(--bd)'" onmouseout="this.style.color='var(--mu2)';this.style.borderColor='var(--bd2)'">
+    <button class="tb-admin" onclick="exportarDatos()" style="background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;color:var(--mu2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.color='var(--tx)';this.style.borderColor='var(--bd)'" onmouseout="this.style.color='var(--mu2)';this.style.borderColor='var(--bd2)'">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v9M5 8l3 3 3-3M2 13h12"/></svg>
       Exportar
     </button>
-    <label class="ro-hide" style="background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;color:var(--mu2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.color='var(--tx)';this.style.borderColor='var(--bd)'" onmouseout="this.style.color='var(--mu2)';this.style.borderColor='var(--bd2)'">
+    <label class="ro-hide tb-admin" style="background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 11px;color:var(--mu2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;font-weight:500" onmouseover="this.style.color='var(--tx)';this.style.borderColor='var(--bd)'" onmouseout="this.style.color='var(--mu2)';this.style.borderColor='var(--bd2)'">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 14V5M5 8l3-3 3 3M2 3h12"/></svg>
       Importar
       <input type="file" accept=".json" onchange="importarDatos(this)" style="display:none">
@@ -767,12 +939,12 @@ nav.collapsed .ni:hover::after{opacity:1}
     <button id="btnMigrarFotos" class="ro-hide" onclick="migrarFotosANube()" style="display:none;background:#d97706;border:1px solid #b45309;border-radius:7px;padding:5px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;align-items:center;gap:6px;transition:all .15s;font-weight:700;box-shadow:0 2px 6px rgba(217,119,6,.25);white-space:nowrap" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'" title="Sube a la nube las fotos antiguas guardadas dentro de los datos. Exporta el respaldo antes.">
       ☁ Migrar <span id="btnMigrarFotosN">0</span> foto(s) a la nube
     </button>
-    <span class="dot"></span><span id="topInfo">—</span>
+    <span class="dot tb-info"></span><span id="topInfo" class="tb-info">—</span>
   </div>
 </header>
 
 <!-- NAV -->
-<nav>
+<nav id="mainNav" aria-label="Menú principal">
   <div class="ns">General</div>
   <div class="ni on" data-v="dashboard" data-label="Resumen ejecutivo">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
@@ -814,6 +986,7 @@ nav.collapsed .ni:hover::after{opacity:1}
     <span class="ni-label">Visor de Obras</span><span class="nc" id="nc_ob">0</span>
   </div>
 </nav>
+<div id="navBackdrop" onclick="closeNavMobile()"></div>
 
 <!-- MAIN -->
 <main id="main"></main>
@@ -1748,7 +1921,7 @@ function seguimientoHTML(id) {
     cortes.forEach(function(co, i) {
       const dif = co.pctReal - co.pctEst;
       const sc  = semaforo(co.pctReal, co.pctEst);
-      html += `<div style="background:#fff;border:1px solid var(--bd);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:16px;border-left:3px solid ${sc.color}">
+      html += `<div class="seg-corte" style="background:#fff;border:1px solid var(--bd);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:16px;border-left:3px solid ${sc.color}">
         <div style="min-width:90px">
           <div style="font-size:12px;font-weight:600;color:var(--tx)">${fmt(co.fecha)}</div>
           <div style="font-size:10px;color:var(--mu);margin-top:2px">Corte #${cortes.length - i}</div>
@@ -1795,6 +1968,7 @@ document.querySelectorAll('.ni').forEach(el => {
     document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
     el.classList.add('on');
     view = el.dataset.v;
+    if(typeof closeNavMobile === 'function') closeNavMobile();   // en móvil, cerrar el panel al elegir una opción
     render();
   });
 });
@@ -4187,7 +4361,7 @@ function verCt(id) {
         <div class="ctp-titles" style="flex:1;min-width:0">
           <div class="ctp-tipo" style="color:${sem.color}">${c.num} &nbsp;·&nbsp; ${c.tipo||'Contrato'}</div>
           <div class="ctp-nombre" title="${escapeAttr(c.obj)}">${c.alias ? escapeHtml(c.alias) : c.obj}</div>
-          ${c.alias ? `<div style="font-size:12.5px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px" title="${escapeAttr(c.obj)}">${c.obj}</div>` : ''}
+          ${c.alias ? `<div class="ctp-obj-sub" style="font-size:12.5px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px" title="${escapeAttr(c.obj)}">${c.obj}</div>` : ''}
         </div>
         <div class="ctp-kpis">
           ${badge(e.cls, e.lbl)}
@@ -4199,8 +4373,8 @@ function verCt(id) {
         </div>
       </div>
       <div class="ctp-meta2">
-        ${sv ? `<span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> <b>${sv.nombre}</b>${sv.cargo?' · '+sv.cargo:''}${c.pid && !c.svid ? ' <span style="font-size:9px;opacity:.6;font-style:italic">(del padre)</span>' : ''}</span>` : ''}
-        ${c.contratista ? `<span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><rect x="1" y="2" width="14" height="13" rx="1"/><path d="M5 15V9h6v6"/><path d="M5 5h2M9 5h2M5 7.5h2M9 7.5h2"/></svg> ${c.contratista}</span>` : ''}
+        ${sv ? `<span class="meta-persona"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> <b>${sv.nombre}</b>${sv.cargo?' · '+sv.cargo:''}${c.pid && !c.svid ? ' <span style="font-size:9px;opacity:.6;font-style:italic">(del padre)</span>' : ''}</span>` : ''}
+        ${c.contratista ? `<span class="meta-persona"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><rect x="1" y="2" width="14" height="13" rx="1"/><path d="M5 15V9h6v6"/><path d="M5 5h2M9 5h2M5 7.5h2M9 7.5h2"/></svg> ${c.contratista}</span>` : ''}
         ${c.fai ? `<span style="color:${sem.color}"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><rect x="1" y="3" width="14" height="12" rx="1"/><path d="M1 7h14M5 1v4M11 1v4"/></svg> Acta: <b>${fmt(c.fai)}</b></span>` : (c.fstart ? `<span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><rect x="1" y="3" width="14" height="12" rx="1"/><path d="M1 7h14M5 1v4M11 1v4"/></svg> <b>${fmt(c.fstart)}</b></span>` : '')}
         <span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px;opacity:.6"><path d="M3 2h10M3 14h10M5 2C5 7 11 7 11 14M11 2C11 7 5 7 5 14"/></svg> Fin: <b>${fmt(fechaFinReal(c) || c.fend)}</b>${(fechaFinReal(c) && fechaFinReal(c) !== c.fend) ? ` <span style="font-size:10px;color:var(--bl);font-weight:600" title="Fin contractual inicial: ${fmt(c.fend)}">(prorrogado)</span>` : ''}</span>
         <span style="color:var(--bl);font-weight:700"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="8" cy="8" r="6"/><path d="M8 4v1.5M8 10.5V12M10 6.5C10 5.7 9.1 5 8 5s-2 .7-2 1.5c0 .9.9 1.3 2 1.5 1.1.2 2 .7 2 1.5S9.1 11 8 11s-2-.7-2-1.5"/></svg> ${cop(Number(c.valor||0)+tad)}</span>
@@ -4460,6 +4634,8 @@ function ctpSwTab(el, pane) {
   document.querySelectorAll('.ctp-pane').forEach(p => p.classList.remove('on'));
   el.classList.add('on');
   const p = $(pane); if(p) p.classList.add('on');
+  // La pestaña elegida se centra en la barra deslizable (móvil / ventanas angostas)
+  if(_mqNavMovil.matches) { try { el.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' }); } catch(e) {} }
 }
 
 function ctpRenderGantt(cid) {
@@ -6514,13 +6690,13 @@ function _polAmparosTabla(po, vigente) {
     let est = '';
     if(vigente) {
       const s = _polEstado(a.hasta);
-      est = '<td style="white-space:nowrap"><span class="b ' + s.cls + '"><span class="bd_"></span>' + s.lbl + '</span>'
+      est = '<td data-label="Estado" style="white-space:nowrap"><span class="b ' + s.cls + '"><span class="bd_"></span>' + s.lbl + '</span>'
           + (s.dias !== null ? ' <span style="font-size:11px;font-weight:600;color:' + s.color + '">'
               + (s.dias >= 0 ? s.dias + ' día(s)' : 'hace ' + Math.abs(s.dias) + ' día(s)') + '</span>' : '')
           + '</td>';
     }
-    h += '<tr><td>' + escapeAttr(a.clase || '—') + '</td><td style="text-align:right">' + cop(a.valor) + '</td>'
-       + '<td>' + fmt(a.desde) + '</td><td>' + fmt(a.hasta) + '</td>' + est + '</tr>';
+    h += '<tr><td data-label="Clase de amparo">' + escapeAttr(a.clase || '—') + '</td><td data-label="Valor asegurado" style="text-align:right">' + cop(a.valor) + '</td>'
+       + '<td data-label="Vigencia desde">' + fmt(a.desde) + '</td><td data-label="Vigencia hasta">' + fmt(a.hasta) + '</td>' + est + '</tr>';
   });
   return h + '</tbody></table></div>';
 }
@@ -6641,10 +6817,10 @@ function polizasHTML(cid) {
 function _polAmparoRow(a) {
   a = a || {};
   return '<div class="pol-am" data-am="1" data-aid="' + escapeAttr(a.id || '') + '">'
-    + '<input class="pa-clase" placeholder="Ej: Cumplimiento" value="' + escapeAttr(a.clase || '') + '">'
-    + '<input class="pa-valor" type="number" min="0" step="any" placeholder="0" value="' + (a.valor ? escapeAttr(a.valor) : '') + '">'
-    + '<input class="pa-desde" type="date" value="' + escapeAttr(a.desde || '') + '">'
-    + '<input class="pa-hasta" type="date" value="' + escapeAttr(a.hasta || '') + '">'
+    + '<div class="pa-c" data-l="Clase de amparo *"><input class="pa-clase" placeholder="Ej: Cumplimiento" value="' + escapeAttr(a.clase || '') + '"></div>'
+    + '<div class="pa-c" data-l="Valor asegurado"><input class="pa-valor" type="number" min="0" step="any" placeholder="0" value="' + (a.valor ? escapeAttr(a.valor) : '') + '"></div>'
+    + '<div class="pa-c" data-l="Vigencia desde"><input class="pa-desde" type="date" value="' + escapeAttr(a.desde || '') + '"></div>'
+    + '<div class="pa-c" data-l="Vigencia hasta *"><input class="pa-hasta" type="date" value="' + escapeAttr(a.hasta || '') + '"></div>'
     + '<button type="button" class="adj-x" title="Quitar amparo" onclick="polDelAmparo(this)">×</button></div>';
 }
 function _polPolizaBlock(po) {
@@ -7574,7 +7750,7 @@ function pagosContratoHTML(cid) {
   var h = '<div style="max-width:1200px;width:100%;margin:0 auto">';
 
   // KPI cards
-  h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">';
+  h += '<div class="kgrid4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">';
   h += '<div class="kcard bl"><div class="klbl">Valor total contrato</div><div class="kval sm">' + cop(valTotal) + '</div>';
   if(tad) h += '<div class="ksub">' + cop(ct.valor) + ' + ' + cop(tad) + ' adiciones</div>';
   h += '</div>';
@@ -7617,7 +7793,7 @@ function pagosContratoHTML(cid) {
   if(pagos.length === 0) {
     h += '<div class="ct-info-card"><div class="emp">Sin pagos registrados.<br><br><button class="btn bgr" onclick="openPago(' + cid + ')">+ Registrar primer pago</button></div></div>';
   } else {
-    h += '<table class="etbl"><thead><tr>';
+    h += '<div class="tbl-scroll"><table class="etbl etbl-cards"><thead><tr>';
     h += '<th>Pago No.</th><th>Fecha</th><th style="text-align:right">Valor</th><th style="text-align:right">Acumulado</th><th style="text-align:right">Saldo tras pago</th><th>Observaciones</th><th>Adjuntos</th><th></th>';
     h += '</tr></thead><tbody>';
     var acum = 0;
@@ -7625,17 +7801,17 @@ function pagosContratoHTML(cid) {
       acum += Number(p.valor||0);
       var saldoTras = valTotal - acum;
       h += '<tr>';
-      h += '<td style="font-weight:700;color:var(--bl)">' + (p.num||'—') + '</td>';
-      h += '<td style="color:var(--mu2);font-size:12px">' + fmt(p.fecha) + '</td>';
-      h += '<td style="text-align:right;font-weight:600;color:var(--gr)">' + cop(p.valor) + '</td>';
-      h += '<td style="text-align:right;font-size:12px;color:var(--bl)">' + cop(acum) + '</td>';
-      h += '<td style="text-align:right;font-size:12px;color:' + (saldoTras > 0 ? 'var(--accent)' : 'var(--gr)') + ';font-weight:600">' + cop(Math.max(0,saldoTras)) + '</td>';
-      h += '<td style="font-size:11.5px;color:var(--mu2)">' + (p.obs||'—') + '</td>';
-      h += '<td>' + adjuntosHTML('pa', p) + '</td>';
-      h += '<td style="white-space:nowrap"><button class="btn sm bgh" onclick="openPago(' + cid + ',' + p.id + ')">Editar</button> <button class="btn sm brd" onclick="delPago(' + p.id + ')">Eliminar</button></td>';
+      h += '<td data-label="Pago No." style="font-weight:700;color:var(--bl)">' + (p.num||'—') + '</td>';
+      h += '<td data-label="Fecha" style="color:var(--mu2);font-size:12px">' + fmt(p.fecha) + '</td>';
+      h += '<td data-label="Valor" style="text-align:right;font-weight:600;color:var(--gr)">' + cop(p.valor) + '</td>';
+      h += '<td data-label="Acumulado" style="text-align:right;font-size:12px;color:var(--bl)">' + cop(acum) + '</td>';
+      h += '<td data-label="Saldo tras pago" style="text-align:right;font-size:12px;color:' + (saldoTras > 0 ? 'var(--accent)' : 'var(--gr)') + ';font-weight:600">' + cop(Math.max(0,saldoTras)) + '</td>';
+      h += '<td data-label="Observaciones" style="font-size:11.5px;color:var(--mu2)">' + (p.obs||'—') + '</td>';
+      h += '<td data-label="Adjuntos">' + adjuntosHTML('pa', p) + '</td>';
+      h += '<td data-label="" class="pago-acc" style="white-space:nowrap"><button class="btn sm bgh" onclick="openPago(' + cid + ',' + p.id + ')">Editar</button> <button class="btn sm brd" onclick="delPago(' + p.id + ')">Eliminar</button></td>';
       h += '</tr>';
     });
-    h += '</tbody></table>';
+    h += '</tbody></table></div>';
   }
 
   h += '</div>';
@@ -8426,9 +8602,21 @@ function cerrarGanttFull(cid) {
 
 
 // ── NAV TOGGLE ───────────────────────────────────────────────
+// En pantallas ≤ 900 px el menú es un panel deslizable (hamburguesa); en escritorio se colapsa a íconos.
+const _mqNavMovil = window.matchMedia ? window.matchMedia('(max-width:900px)') : { matches:false };
+function setNavAbierto(on) {
+  const shell = document.querySelector('.shell'); if(!shell) return;
+  shell.classList.toggle('nav-open', !!on);
+  const b = document.getElementById('navToggleBtn'); if(b) b.setAttribute('aria-expanded', on ? 'true' : 'false');
+}
+function closeNavMobile() { setNavAbierto(false); }
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNavMobile(); });
+if(_mqNavMovil.addEventListener) _mqNavMovil.addEventListener('change', function(e){ if(!e.matches) closeNavMobile(); });
+
 function toggleNav() {
   const nav   = document.querySelector('nav');
   const shell = document.querySelector('.shell');
+  if(_mqNavMovil.matches) { setNavAbierto(!shell.classList.contains('nav-open')); return; }   // móvil: abrir/cerrar panel
   nav.classList.toggle('collapsed');
   shell.classList.toggle('nav-collapsed');
   localStorage.setItem('navCollapsed', nav.classList.contains('collapsed') ? '1' : '0');
