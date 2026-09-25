@@ -5036,7 +5036,7 @@ function openCt(padreId, editId) {
     <div class="fl2 full"><label>Contratista / Empresa</label><input id="ccont" value="${c?.contratista||''}" placeholder="Nombre o razón social"></div>
     <div class="fl2 full"><label>Contratante</label><input id="ccontante" value="${c?.contratante||''}" placeholder="Ej: Municipio de Rionegro"></div>
     <div class="fl2 full"><label>Rep. Legal del contratista</label><input id="creplegal" value="${c?.repLegal||''}" placeholder="Nombre del representante legal"></div>
-    <div class="fl2"><label>Valor inicial (COP)</label><input id="cval" type="number" value="${c?.valor||''}" placeholder="0"></div>
+    <div class="fl2"><label>Valor inicial (COP)</label><input id="cval" type="number" value="${c?.valor||''}" placeholder="0" oninput="onValorInicialChange()"></div>
     <div class="fl2"><label>Modalidad</label><select id="cmod">
       <option value="">—</option>
       <option value="CD" ${c?.mod==='CD'?'selected':''}>CD · Contratación directa</option>
@@ -5053,6 +5053,28 @@ function openCt(padreId, editId) {
         ${(D.estados||[]).map(e=>'<option value="'+e.id+'" '+(( c?.estado||'')===(e.id)?'selected':'')+' style="color:'+e.color+'">'+e.label+'</option>').join('')}
       </select></div>
     <div class="fl2 full"><label>Observaciones</label><textarea id="cobs2">${c?.obs||''}</textarea></div>
+    <div class="full" style="margin-top:14px;border-top:1px solid var(--bd);padding-top:14px">
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);font-weight:700;margin-bottom:10px">PAGO INICIAL</div>
+      <div class="fl2 full"><label>Tipo de pago inicial</label>
+        <select id="ctpi" onchange="toggleTipoPagoInicial()">
+          <option value="ninguno"    ${(c?.tipoPagoInicial||'ninguno')==='ninguno'?'selected':''}>Ninguno</option>
+          <option value="anticipo"   ${c?.tipoPagoInicial==='anticipo'?'selected':''}>Anticipo (se amortiza en cada pago)</option>
+          <option value="anticipado" ${c?.tipoPagoInicial==='anticipado'?'selected':''}>Pago anticipado (no se amortiza)</option>
+        </select>
+      </div>
+      <div class="fg" id="cpi_anticipo_wrap" style="margin-top:10px;display:${c?.tipoPagoInicial==='anticipo'?'grid':'none'}">
+        <div class="fl2"><label>% de anticipo</label><input id="ctpi_pct" type="number" min="0" max="100" step="0.01" value="${c?.pctAnticipo||''}" placeholder="Ej: 10" oninput="recalcAnticipoForm()"></div>
+        <div class="fl2"><label>Valor del anticipo (COP)</label><input id="ctpi_valor" type="number" min="0" step="1" value="${c?.valorAnticipo||''}" placeholder="0"></div>
+        <div class="full" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button type="button" class="btn sm bgh" onclick="recalcAnticipoForm()">↺ Recalcular desde el %</button>
+          <span style="font-size:11px;color:var(--mu)">Se calcula sobre el Valor inicial. Puedes ajustar el valor a mano; el botón vuelve al cálculo automático.</span>
+        </div>
+      </div>
+      <div id="cpi_anticipado_wrap" style="margin-top:10px;display:${c?.tipoPagoInicial==='anticipado'?'block':'none'}">
+        <div class="fl2"><label>Valor del pago anticipado (COP)</label><input id="ctpi_valor2" type="number" min="0" step="1" value="${c?.valorPagoAnticipado||''}" placeholder="0" oninput="recalcPagoAnticipadoForm()"></div>
+        <div id="ctpi_pct2_display" style="font-size:11px;color:var(--mu);margin-top:6px">—</div>
+      </div>
+    </div>
     <div style="margin-top:14px;border-top:1px solid var(--bd);padding-top:14px">
       <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);font-weight:700;margin-bottom:10px">AIU — Administración, Imprevistos y Utilidad</div>
       <div class="fg" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
@@ -5091,6 +5113,8 @@ function openCt(padreId, editId) {
     toggleTrackingMode();
     var pidEl = document.getElementById('cpid');
     if(pidEl) pidEl.addEventListener('change', toggleObrasVigiladas);
+    // Pago inicial: mostrar el % sobre valor inicial si ya hay un pago anticipado guardado
+    if($('ctpi') && $('ctpi').value === 'anticipado') recalcPagoAnticipadoForm();
   }, 50);
 }
 
@@ -5121,7 +5145,13 @@ function saveCt(id, isSub) {
     : undefined;
 
   const trackingMode = ['obra','consultoria'].includes(tipo) ? ($('ctracking')?.value||'gantt') : null;
-  const data  = { num, obj, alias:$('calias')?.value.trim()||'', tipo, trackingMode, contratista:$('ccont').value.trim(), contratante:$('ccontante')?.value.trim()||null, repLegal:$('creplegal')?.value.trim()||null, valor:$('cval').value||null, mod:$('cmod').value, fstart, fend, fai, obs:$('cobs2').value.trim(), estado:$('cestado')?.value||'', pid:pid||null, svid:svid||null, lat, lng, aiu:{adm:aiuAdm, imp:aiuImp, util:aiuUtil} };
+  const tipoPagoInicial = $('ctpi')?.value || 'ninguno';
+  const data  = { num, obj, alias:$('calias')?.value.trim()||'', tipo, trackingMode, contratista:$('ccont').value.trim(), contratante:$('ccontante')?.value.trim()||null, repLegal:$('creplegal')?.value.trim()||null, valor:$('cval').value||null, mod:$('cmod').value, fstart, fend, fai, obs:$('cobs2').value.trim(), estado:$('cestado')?.value||'', pid:pid||null, svid:svid||null, lat, lng, aiu:{adm:aiuAdm, imp:aiuImp, util:aiuUtil},
+    tipoPagoInicial,
+    pctAnticipo:         tipoPagoInicial === 'anticipo'   ? (Number($('ctpi_pct')?.value)   || 0) : null,
+    valorAnticipo:        tipoPagoInicial === 'anticipo'   ? (Number($('ctpi_valor')?.value)  || 0) : null,
+    valorPagoAnticipado:  tipoPagoInicial === 'anticipado' ? (Number($('ctpi_valor2')?.value) || 0) : null,
+  };
   if(obrasVigiladas !== undefined) data.obrasVigiladas = obrasVigiladas;
 
   if(id && id !== 'null') { Object.assign(D.ct.find(c => c.id == id), data); }
@@ -5207,6 +5237,41 @@ function toggleSvField() {
   var wrap = document.getElementById('csvid_wrap');
   if(!wrap) return;
   wrap.style.display = tipo === 'interadministrativo' ? 'none' : 'block';
+}
+
+// ── PAGO INICIAL (Anticipo / Pago anticipado) — formulario de contrato ───────
+function toggleTipoPagoInicial() {
+  var tipo  = document.getElementById('ctpi')?.value || 'ninguno';
+  var wrapA = document.getElementById('cpi_anticipo_wrap');
+  var wrapB = document.getElementById('cpi_anticipado_wrap');
+  if(wrapA) wrapA.style.display = tipo === 'anticipo' ? 'grid' : 'none';
+  if(wrapB) wrapB.style.display = tipo === 'anticipado' ? 'block' : 'none';
+  if(tipo === 'anticipado') recalcPagoAnticipadoForm();
+}
+
+// El valor del anticipo se recalcula solo al cambiar el %; "Recalcular" repite
+// el mismo cálculo para volver al valor automático tras un ajuste manual.
+function recalcAnticipoForm() {
+  var pct  = parseFloat(document.getElementById('ctpi_pct')?.value) || 0;
+  var cval = parseFloat(document.getElementById('cval')?.value) || 0;
+  var valEl = document.getElementById('ctpi_valor');
+  if(valEl) valEl.value = Math.round(cval * pct / 100);
+}
+
+function recalcPagoAnticipadoForm() {
+  var cval = parseFloat(document.getElementById('cval')?.value) || 0;
+  var val  = parseFloat(document.getElementById('ctpi_valor2')?.value) || 0;
+  var pctEl = document.getElementById('ctpi_pct2_display');
+  if(!pctEl) return;
+  var pct = cval ? (val / cval * 100) : 0;
+  pctEl.textContent = 'Representa el ' + pct.toFixed(2) + '% del valor inicial del contrato.';
+}
+
+// El Valor inicial alimenta ambos cálculos (anticipo automático y % del pago anticipado)
+function onValorInicialChange() {
+  var tipo = document.getElementById('ctpi')?.value || 'ninguno';
+  if(tipo === 'anticipo') recalcAnticipoForm();
+  if(tipo === 'anticipado') recalcPagoAnticipadoForm();
 }
 
 async function delCt(id) {
@@ -6143,15 +6208,28 @@ new Chart(ctxB, {
 // NO se lee el contenido del Excel: solo se guarda y se descarga.
 // ══════════════════════════════════════════════════════════════════════════════
 const IR_EXT = /\.(xlsx|xls|xlsm)$/i;
+const IR_MASIVO_MAX = 20;
 let _irGuardando = false;
 
-// Del más reciente al más antiguo: por fecha "hasta" del corte, luego "desde", número y registro
+// Un informe está "organizado" cuando ya tiene número y corte. Los subidos en tanda
+// (ver irSubirVarios) nacen sin ellos y se completan después con Editar.
+function _irOrganizado(r) { return r.num != null && r.num !== '' && !!r.desde && !!r.hasta; }
+
+// Primero los SIN organizar (más reciente subido arriba, para completarlos ya);
+// debajo, los organizados del más reciente al más antiguo por fecha "hasta" del corte.
 function irLista(cid) {
-  return D.ir.filter(r => r.cid == cid).sort((a, b) =>
-    String(b.hasta || '').localeCompare(String(a.hasta || ''))
-    || String(b.desde || '').localeCompare(String(a.desde || ''))
-    || (Number(b.num) || 0) - (Number(a.num) || 0)
-    || Number(b.id) - Number(a.id));
+  return D.ir.filter(r => r.cid == cid).sort((a, b) => {
+    const oa = _irOrganizado(a), ob = _irOrganizado(b);
+    if(oa !== ob) return oa ? 1 : -1;
+    if(!oa) {
+      const fa = (a.adjuntos || [])[0] && (a.adjuntos[0].fecha || ''), fb = (b.adjuntos || [])[0] && (b.adjuntos[0].fecha || '');
+      return String(fb || '').localeCompare(String(fa || '')) || Number(b.id) - Number(a.id);
+    }
+    return String(b.hasta || '').localeCompare(String(a.hasta || ''))
+      || String(b.desde || '').localeCompare(String(a.desde || ''))
+      || (Number(b.num) || 0) - (Number(a.num) || 0)
+      || Number(b.id) - Number(a.id);
+  });
 }
 function irTabN(cid) {
   const n = D.ir.filter(r => r.cid == cid).length;
@@ -6161,14 +6239,32 @@ function _irSumarDias(iso, n) { const d = new Date(iso + 'T00:00:00'); d.setDate
 
 function irHTML(cid) {
   const lst = irLista(cid);
+  const sinOrganizar = lst.filter(function(r) { return !_irOrganizado(r); }).length;
   let h = '<div class="ir-head"><div><div class="ptg" style="margin:0">Informes semanales</div>'
-        + '<div class="ir-sub">Un archivo Excel por semana, del más reciente al más antiguo.</div></div>'
-        + '<button class="btn bgr" onclick="openInforme(' + cid + ')">+ Subir informe</button></div>';
+        + '<div class="ir-sub">Un archivo Excel por semana, del más reciente al más antiguo.'
+        + (sinOrganizar ? ' <b style="color:var(--am-t)">' + sinOrganizar + ' sin organizar.</b>' : '') + '</div></div>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+        + '<button class="btn bgh ro-hide" onclick="irSubirVarios(' + cid + ')">+ Subir varios</button>'
+        + '<button class="btn bgr" onclick="openInforme(' + cid + ')">+ Subir informe</button>'
+        + '</div></div>';
   if(!lst.length) {
-    return h + '<div class="ct-info-card"><div class="emp">Aún no hay informes semanales.<span class="ro-hide"><br>Sube el primero con «+ Subir informe».</span></div></div>';
+    return h + '<div class="ct-info-card"><div class="emp">Aún no hay informes semanales.<span class="ro-hide"><br>Sube el primero con «+ Subir informe», o varios con «+ Subir varios».</span></div></div>';
   }
   lst.forEach(function(r) {
     const a = (r.adjuntos || [])[0];
+    if(!_irOrganizado(r)) {
+      h += '<div class="ir-card" style="border-left-color:var(--am)"><div class="ir-main">'
+        + '<div class="ir-num" style="color:var(--am-t)">⚠ Falta asignar número y corte</div>'
+        + '<div class="ir-file">' + (a
+            ? '📄 ' + escapeHtml(a.nombre || 'informe.xlsx') + (a.tam ? ' · ' + _fmtTam(a.tam) : '') + (a.fecha ? ' · subido el ' + fmt(a.fecha) : '')
+            : 'Sin archivo') + '</div></div>'
+        + '<div class="ir-acc">'
+        + (a ? '<a class="btn sm bgh" href="' + escapeAttr(_adjUrl(a)) + '" target="_blank" rel="noopener" download="' + escapeAttr(a.nombre || 'informe.xlsx') + '">⬇ Descargar</a>' : '')
+        + '<button class="btn sm bgr" onclick="openInforme(' + r.cid + ',' + r.id + ')">Completar datos</button>'
+        + '<button class="btn sm brd" onclick="delInforme(' + r.id + ')">Eliminar</button>'
+        + '</div></div>';
+      return;
+    }
     h += '<div class="ir-card"><div class="ir-main">'
       + '<div class="ir-num">Informe N° ' + escapeHtml(r.num) + '</div>'
       + '<div class="ir-corte">Corte: <b>' + fmt(r.desde) + '</b> → <b>' + fmt(r.hasta) + '</b></div>'
@@ -6195,10 +6291,11 @@ function openInforme(cid, id) {
   const r = id ? D.ir.find(x => x.id == id) : null;
   if(id && !r) return;
   const lst = irLista(cid);
-  // Sugerencias para uno nuevo: siguiente número y la semana siguiente al último corte
-  const num = r ? r.num : (lst.length ? Math.max.apply(null, lst.map(x => Number(x.num) || 0)) + 1 : 1);
-  let desde = r ? (r.desde || '') : '', hasta = r ? (r.hasta || '') : '';
-  if(!r && lst.length && lst[0].hasta) { desde = _irSumarDias(lst[0].hasta, 1); hasta = _irSumarDias(desde, 6); }
+  const org = lst.filter(_irOrganizado);   // el orden ahora pone primero los sin organizar; las sugerencias se calculan solo entre los ya organizados
+  // Sugerencias para uno nuevo (o uno sin organizar que se está completando): siguiente número y la semana siguiente al último corte
+  const num = (r && r.num != null && r.num !== '') ? r.num : (org.length ? Math.max.apply(null, org.map(x => Number(x.num) || 0)) + 1 : 1);
+  let desde = (r && r.desde) ? r.desde : '', hasta = (r && r.hasta) ? r.hasta : '';
+  if(!desde && !hasta && org.length && org[0].hasta) { desde = _irSumarDias(org[0].hasta, 1); hasta = _irSumarDias(desde, 6); }
   const a = r ? (r.adjuntos || [])[0] : null;
   $('mTitle').textContent = r ? 'Editar informe semanal' : 'Subir informe semanal';
   $('mBody').innerHTML = '<div class="fg">'
@@ -6259,10 +6356,67 @@ async function saveInforme(cid, id) {
   } finally { _irGuardando = false; }
 }
 
+// ── Subida en tanda (varios Excel a la vez) ────────────────────────────────────
+// Quedan SIN número ni corte (num/desde/hasta = null): aparecen arriba con el aviso
+// "Falta asignar número y corte" hasta que se completan uno a uno con Editar/"Completar datos".
+// Se suben de a uno (secuencial), no en paralelo: si uno falla, los demás igual se intentan.
+function irSubirVarios(cid) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  if(_irGuardando) { toast('Espera a que termine la subida en curso…', true); return; }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.accept = '.xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel';
+  input.onchange = function() {
+    const files = Array.from(input.files || []);
+    if(!files.length) return;
+    if(files.length > IR_MASIVO_MAX) { toast('Selecciona máximo ' + IR_MASIVO_MAX + ' archivos por tanda (elegiste ' + files.length + ').', true); return; }
+    irGuardarMasivo(cid, files);
+  };
+  input.click();
+}
+
+async function irGuardarMasivo(cid, files) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  if(_irGuardando) { toast('Espera a que termine la subida en curso…', true); return; }
+  if(!(await _fotoNubeLista())) return;                  // sin sesión / sin conexión: no se sube nada
+
+  _irGuardando = true;
+  let ok = 0, fail = 0;
+  try {
+    for(let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if(!IR_EXT.test(file.name || '')) { toast('No es un Excel válido: ' + file.name, true); fail++; continue; }
+      if(!file.size) { toast('Archivo vacío: ' + file.name, true); fail++; continue; }
+      if(file.size > ADJ_MAX_BYTES) { toast('Archivo muy grande (máx. 25 MB): ' + file.name, true); fail++; continue; }
+      const msg = 'Subiendo ' + (i + 1) + ' de ' + files.length + ': ' + file.name;
+      toast(msg);
+      const tick = setInterval(() => toast(msg), 2000);   // mantiene el aviso visible en archivos grandes
+      let up = null;
+      try {
+        up = await uploadAdjunto(file, cid, 'ir');
+        if(!D.ct.some(c => c.id == cid)) { await _storageBorrar(ADJ_BUCKET, [up.path]); break; }   // el contrato se eliminó mientras tanto
+        D.ir.push({ id: Date.now() + Math.random(), cid: cid, num: null, desde: null, hasta: null,   // sin organizar: se completa después
+                    adjuntos: [{ id: Date.now() + Math.random(), nombre: file.name, path: up.path, url: up.url, tam: file.size, tipo: file.type || '', fecha: today(), rol: '' }] });
+        save(); irRefrescar(cid); ok++;
+      } catch(e) {
+        console.warn('subir informe (masivo)', e);
+        if(up) { try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(x) {} }   // no dejar un archivo huérfano en la nube
+        fail++;
+        toast('No se pudo subir "' + file.name + '": ' + ((e && e.message) || 'error desconocido'), true);
+      } finally { clearInterval(tick); }
+    }
+  } finally { _irGuardando = false; }
+
+  if(ok && !fail) toast(ok + ' informe(s) subido(s) sin organizar — complétalos con «Completar datos».');
+  else if(ok) toast(ok + ' subido(s), ' + fail + ' con error', true);
+  else toast('No se pudo subir ningún archivo', true);
+}
+
 async function delInforme(id) {
   if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
   const r = D.ir.find(x => x.id == id); if(!r) return;
-  if(!confirm('¿Eliminar el informe N° ' + r.num + '?\n\nTambién se borrará su archivo Excel de la nube y no se puede recuperar.')) return;
+  if(!confirm('¿Eliminar el informe ' + (r.num != null && r.num !== '' ? ('N° ' + r.num) : '(sin organizar)') + '?\n\nTambién se borrará su archivo Excel de la nube y no se puede recuperar.')) return;
   if(!(await _adjBorrarDe([r], false))) return;        // primero el archivo; si falla, no se elimina nada
   D.ir = D.ir.filter(x => x.id != id);
   save(); irRefrescar(r.cid);
@@ -8017,6 +8171,38 @@ function pagosContratoHTML(cid) {
   h += '</div>';
   h += '</div>';
 
+  // Pago inicial (Anticipo / Pago anticipado) — no afecta los indicadores de arriba,
+  // que siguen siempre sobre el valor bruto del contrato.
+  var esAnticipo   = ct.tipoPagoInicial === 'anticipo';
+  var esAnticipado = ct.tipoPagoInicial === 'anticipado';
+  if(esAnticipo) {
+    var anticipoTotal  = Number(ct.valorAnticipo||0);
+    // Pagos sin % de amortización (formato anterior o casos sin amortizar) cuentan como 0.
+    var amortAcum = pagos.reduce(function(s,p){ return s + Math.round(Number(p.valor||0) * Number(p.pctAmortizacion||0) / 100); }, 0);
+    var saldoAmort = anticipoTotal - amortAcum;
+    var pctAmort = anticipoTotal ? Math.round(amortAcum/anticipoTotal*100) : 0;
+    var sobreAmort = anticipoTotal > 0 && amortAcum > anticipoTotal;
+    h += '<div style="background:var(--sf2);border-radius:10px;padding:16px 20px;margin-bottom:20px;border:1px solid var(--bd)">';
+    h += '<div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:700;margin-bottom:10px">Anticipo (' + (ct.pctAnticipo||0) + '% del valor inicial)</div>';
+    h += '<div class="kgrid4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">';
+    h += '<div class="kcard bl"><div class="klbl">Anticipo total</div><div class="kval sm">' + cop(anticipoTotal) + '</div></div>';
+    h += '<div class="kcard"><div class="klbl">Amortizado a la fecha</div><div class="kval sm" style="color:var(--gr)">' + cop(amortAcum) + '</div></div>';
+    h += '<div class="kcard am"><div class="klbl">Saldo por amortizar</div><div class="kval sm">' + cop(Math.max(0,saldoAmort)) + '</div></div>';
+    h += '<div class="kcard"><div class="klbl">% amortizado</div><div class="kval" style="color:' + (pctAmort>=100?'var(--gr)':'var(--accent)') + '">' + pctAmort + '%</div></div>';
+    h += '</div>';
+    h += '<div style="height:10px;background:var(--bd);border-radius:5px;overflow:hidden;margin-top:12px"><div style="height:100%;width:' + Math.min(100,pctAmort) + '%;background:var(--accent);border-radius:5px;transition:width .5s"></div></div>';
+    if(sobreAmort) h += '<div style="margin-top:10px;font-size:12px;font-weight:700;color:#c0392b">&#9888; La amortización acumulada (' + cop(amortAcum) + ') supera el valor del anticipo (' + cop(anticipoTotal) + ').</div>';
+    h += '</div>';
+  } else if(esAnticipado) {
+    var pctSobreInicial = Number(ct.valor||0) ? (Number(ct.valorPagoAnticipado||0)/Number(ct.valor)*100) : 0;
+    h += '<div style="background:var(--sf2);border-radius:10px;padding:16px 20px;margin-bottom:20px;border:1px solid var(--bd)">';
+    h += '<div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:700;margin-bottom:10px">Pago anticipado (no se amortiza)</div>';
+    h += '<div class="kgrid4" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">';
+    h += '<div class="kcard bl"><div class="klbl">Valor del pago anticipado</div><div class="kval sm">' + cop(ct.valorPagoAnticipado||0) + '</div></div>';
+    h += '<div class="kcard"><div class="klbl">% del valor inicial</div><div class="kval sm">' + pctSobreInicial.toFixed(1) + '%</div></div>';
+    h += '</div></div>';
+  }
+
   // Botón agregar
   h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">';
   h += '<div style="font-size:13px;font-weight:600;color:var(--tx)">Registro de pagos</div>';
@@ -8028,7 +8214,9 @@ function pagosContratoHTML(cid) {
     h += '<div class="ct-info-card"><div class="emp">Sin pagos registrados.<br><br><button class="btn bgr" onclick="openPago(' + cid + ')">+ Registrar primer pago</button></div></div>';
   } else {
     h += '<div class="tbl-scroll"><table class="etbl etbl-cards"><thead><tr>';
-    h += '<th>Pago No.</th><th>Fecha</th><th style="text-align:right">Valor</th><th style="text-align:right">Acumulado</th><th style="text-align:right">Saldo tras pago</th><th>Observaciones</th><th>Adjuntos</th><th></th>';
+    h += '<th>Pago No.</th><th>Fecha</th><th style="text-align:right">Valor</th>';
+    if(esAnticipo) h += '<th style="text-align:right">% amort.</th><th style="text-align:right">Amortizado</th><th style="text-align:right">Neto</th>';
+    h += '<th style="text-align:right">Acumulado</th><th style="text-align:right">Saldo tras pago</th><th>Observaciones</th><th>Adjuntos</th><th></th>';
     h += '</tr></thead><tbody>';
     var acum = 0;
     pagos.forEach(function(p) {
@@ -8038,6 +8226,14 @@ function pagosContratoHTML(cid) {
       h += '<td data-label="Pago No." style="font-weight:700;color:var(--bl)">' + (p.num||'—') + '</td>';
       h += '<td data-label="Fecha" style="color:var(--mu2);font-size:12px">' + fmt(p.fecha) + '</td>';
       h += '<td data-label="Valor" style="text-align:right;font-weight:600;color:var(--gr)">' + cop(p.valor) + '</td>';
+      if(esAnticipo) {
+        var pctA = Number(p.pctAmortizacion||0);
+        var amortP = Math.round(Number(p.valor||0) * pctA / 100);
+        var netoP = Number(p.valor||0) - amortP;
+        h += '<td data-label="% amort." style="text-align:right;font-size:12px;color:var(--mu2)">' + pctA + '%</td>';
+        h += '<td data-label="Amortizado" style="text-align:right;font-size:12px;color:var(--accent)">' + cop(amortP) + '</td>';
+        h += '<td data-label="Neto" style="text-align:right;font-size:12px;font-weight:600;color:var(--gr)">' + cop(netoP) + '</td>';
+      }
       h += '<td data-label="Acumulado" style="text-align:right;font-size:12px;color:var(--bl)">' + cop(acum) + '</td>';
       h += '<td data-label="Saldo tras pago" style="text-align:right;font-size:12px;color:' + (saldoTras > 0 ? 'var(--accent)' : 'var(--gr)') + ';font-weight:600">' + cop(Math.max(0,saldoTras)) + '</td>';
       h += '<td data-label="Observaciones" style="font-size:11.5px;color:var(--mu2)">' + (p.obs||'—') + '</td>';
@@ -8061,7 +8257,7 @@ function openPago(cid, pid) {
   $('mBody').innerHTML = `
     <div class="fg">
       <div class="fl2 full"><label>Contrato *</label>
-        <select id="pa_cid">${ctOptions}</select>
+        <select id="pa_cid" onchange="toggleAmortizacionPago(${p?p.id:'null'})">${ctOptions}</select>
       </div>
       <div class="fl2"><label>Número de pago</label>
         <input id="pa_num" value="${p?p.num||'':''}" placeholder="Ej: Pago No. 1">
@@ -8070,7 +8266,12 @@ function openPago(cid, pid) {
         <input type="date" id="pa_fecha" value="${p?p.fecha||'':''}">
       </div>
       <div class="fl2 full"><label>Valor *</label>
-        <input type="number" id="pa_valor" value="${p?p.valor||'':''}" placeholder="0" min="0" step="1">
+        <input type="number" id="pa_valor" value="${p?p.valor||'':''}" placeholder="0" min="0" step="1" oninput="calcAmortizacionPreview()">
+      </div>
+      <div class="fl2 full" id="pa_amort_wrap" style="display:none">
+        <label>% de amortización de esta acta</label>
+        <input id="pa_pctam" type="number" min="0" max="100" step="0.01" value="${p&&p.pctAmortizacion!=null?p.pctAmortizacion:''}" placeholder="Ej: 10" oninput="calcAmortizacionPreview()">
+        <div id="pa_amort_preview" style="font-size:11px;color:var(--mu);margin-top:6px">—</div>
       </div>
       <div class="fl2 full"><label>Observaciones</label>
         <textarea id="pa_obs" rows="2" placeholder="Concepto, número de factura, resolución…">${p?p.obs||'':''}</textarea>
@@ -8080,6 +8281,36 @@ function openPago(cid, pid) {
     <button class="btn bgh" onclick="closeModal()">Cancelar</button>
     <button class="btn bgr" onclick="guardarPago(${pid||'null'})">Guardar pago</button>`;
   openModal();
+  toggleAmortizacionPago(pid);
+}
+
+// Muestra el campo de % de amortización solo si el contrato es de tipo Anticipo.
+// En un pago nuevo, prellena con el % de la acta anterior del mismo contrato.
+function toggleAmortizacionPago(pid) {
+  var cid = Number($('pa_cid')?.value);
+  var ct  = D.ct.find(function(x){ return x.id == cid; });
+  var wrap = $('pa_amort_wrap');
+  if(!wrap) return;
+  var esAnticipo = !!(ct && ct.tipoPagoInicial === 'anticipo');
+  wrap.style.display = esAnticipo ? 'block' : 'none';
+  if(esAnticipo) {
+    if(!pid && $('pa_pctam') && !$('pa_pctam').value) {
+      var pagosCt = D.pa.filter(function(x){ return x.cid == cid; }).sort(function(a,b){ return (a.fecha||'').localeCompare(b.fecha||''); });
+      var last = pagosCt.length ? pagosCt[pagosCt.length-1] : null;
+      if(last && last.pctAmortizacion != null) $('pa_pctam').value = last.pctAmortizacion;
+    }
+    calcAmortizacionPreview();
+  }
+}
+
+function calcAmortizacionPreview() {
+  var el = $('pa_amort_preview');
+  if(!el) return;
+  var valor = Number($('pa_valor')?.value) || 0;
+  var pct   = Number($('pa_pctam')?.value) || 0;
+  var amort = Math.round(valor * pct / 100);
+  var neto  = valor - amort;
+  el.innerHTML = 'Amortizado: <b>' + cop(amort) + '</b> · Neto a pagar: <b>' + cop(neto) + '</b>';
 }
 
 function guardarPago(pid) {
@@ -8088,6 +8319,8 @@ function guardarPago(pid) {
   var fecha = $('pa_fecha').value;
   var valor = Number($('pa_valor').value)||0;
   var obs   = $('pa_obs').value.trim();
+  var ct    = D.ct.find(function(x){ return x.id == cid; });
+  var pctam = (ct && ct.tipoPagoInicial === 'anticipo') ? (Number($('pa_pctam')?.value)||0) : null;
 
   if(!cid) { toast('Selecciona un contrato.', true); return; }
   if(!fecha) { toast('La fecha es obligatoria.', true); return; }
@@ -8095,9 +8328,9 @@ function guardarPago(pid) {
 
   if(pid) {
     var p = D.pa.find(function(x){ return x.id == pid; });
-    if(p) { p.cid=cid; p.num=num; p.fecha=fecha; p.valor=valor; p.obs=obs; }
+    if(p) { p.cid=cid; p.num=num; p.fecha=fecha; p.valor=valor; p.obs=obs; p.pctAmortizacion=pctam; }
   } else {
-    D.pa.push({ id: Date.now()+Math.random(), cid, num, fecha, valor, obs });
+    D.pa.push({ id: Date.now()+Math.random(), cid, num, fecha, valor, obs, pctAmortizacion:pctam });
   }
   save();
   closeModal();
