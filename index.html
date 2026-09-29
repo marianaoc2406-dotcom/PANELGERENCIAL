@@ -1218,7 +1218,7 @@ button.mp-search-i{cursor:pointer}button.mp-search-i:hover{background:var(--sf2)
 
 // ─── STORE ───────────────────────────────────────────────
 const KEY = 'edeso_v4';
-let D = JSON.parse(localStorage.getItem(KEY) || 'null') || { sv:[], ct:[], pr:[], ad:[], ac:[], ap:[], cta:[], co:[], pl:[], su:[], pa:[], ir:[] };
+let D = JSON.parse(localStorage.getItem(KEY) || 'null') || { sv:[], ct:[], pr:[], ad:[], ac:[], ap:[], cta:[], co:[], pl:[], su:[], pa:[], ir:[], cm:[], ff:[] };
 if(!D.pl) D.pl = [];
 // Pendientes / checklist por contrato
 if(!D.pe) D.pe = [];
@@ -1230,7 +1230,7 @@ if(!D.pa) D.pa = []; // migración pagos
 // ap[]  = personas de apoyo: {id, nombre, cargo, cedula, tel, email}
 // cta[] = asignaciones apoyo-contrato: {id, cid, apid}
 // co[]  = cortes de seguimiento: {id, cid, fecha, pct, obs}
-['sv','ct','pr','ad','ac','ap','cta','co','ir'].forEach(k => { if(!D[k]) D[k] = []; });
+['sv','ct','pr','ad','ac','ap','cta','co','ir','cm','ff'].forEach(k => { if(!D[k]) D[k] = []; });
 // Migración: asegurar campo pred en actividades
 D.ac.forEach(a => {
   if(!a.pred) a.pred = [];
@@ -1341,7 +1341,7 @@ function __edesoLoadPanel(remote){
   if(!remote || typeof remote!=='object') return;
   for(var k in D){ if(Object.prototype.hasOwnProperty.call(D,k)) delete D[k]; }
   Object.assign(D, remote);
-  ['sv','ct','pr','ad','ac','ap','cta','co','pl','su','pa','pe','ir'].forEach(function(k){ if(!D[k]) D[k]=[]; });
+  ['sv','ct','pr','ad','ac','ap','cta','co','pl','su','pa','pe','ir','cm','ff'].forEach(function(k){ if(!D[k]) D[k]=[]; });
   try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
 }
 function __edesoLoadObras(remote){
@@ -4584,6 +4584,8 @@ function verCt(id) {
         <div class="ctp-tab2 on" onclick="ctpSwTab(this,'ctpInfo')" style="color:${sem.color}"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="2" y="1" width="12" height="14" rx="1.5"/><path d="M5 5h6M5 8h6M5 11h4"/></svg> Información</div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpSeg')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M1 13l4-4 3 2 4-5 2-2"/><path d="M11 4h3v3"/></svg> Seguimiento</div>
         ${c.tipo === 'obra' ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpIr')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M2 6h12M6 2v12"/></svg> Informes semanales<span id="irTabN">${irTabN(id)}</span></div>` : ''}
+        <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpCm')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><circle cx="8" cy="4" r="2"/><circle cx="3" cy="7" r="1.6"/><circle cx="13" cy="7" r="1.6"/><path d="M2 14h12M4.5 14v-2.5a3.5 3.5 0 017 0V14"/></svg> Comités<span id="cmTabN">${cmTabN(id)}</span></div>
+        ${c.tipo === 'interadministrativo' ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpFf')"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M4 1h6l3 3v11H4z"/><path d="M10 1v3h3"/><path d="M6.5 8h4M6.5 10.5h4M6.5 13h2.5"/></svg> Ficha financiera<span id="ffTabN">${ffTabN(id)}</span></div>` : ''}
         <div class="ctp-tab2 tb-oculto" onclick="ctpSwTab(this,'ctpMM');renderFotos(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="4" width="14" height="10" rx="2"/><circle cx="8" cy="9" r="2.5"/><path d="M5.5 4l1-2h3l1 2"/></svg> Multimedia <span id="mmTabN">${(c.fotos||[]).length ? '('+(c.fotos||[]).length+')' : ''}</span></div>
         <div class="ctp-tab2" onclick="ctpSwTab(this,'ctpMapa');mpAbrirFicha(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><path d="M8 14s5-4.2 5-8A5 5 0 003 6c0 3.8 5 8 5 8z"/><circle cx="8" cy="6" r="1.8"/></svg> Mapa<span id="mpTabN">${mpTabN(id)}</span></div>
         ${(c.tipo !== 'interadministrativo' && c.tipo !== 'interventoria' && (c.trackingMode||'gantt') !== 'pct') ? `<div class="ctp-tab2" onclick="ctpSwTab(this,'ctpGantt');abrirGanttFull(${id})"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline-block;vertical-align:-1px"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 7h14M5 3v10M11 3v10"/></svg> Gantt</div>` : ''}
@@ -4671,6 +4673,12 @@ function verCt(id) {
 
     ${c.tipo === 'obra' ? `<!-- INFORMES SEMANALES (solo contratos de obra) -->
     <div class="ctp-pane" id="ctpIr">${irHTML(id)}</div>` : ''}
+
+    <!-- COMITÉS (todos los contratos) -->
+    <div class="ctp-pane" id="ctpCm">${cmHTML(id)}</div>
+
+    ${c.tipo === 'interadministrativo' ? `<!-- FICHA FINANCIERA (solo contratos interadministrativos) -->
+    <div class="ctp-pane" id="ctpFf">${ffHTML(id)}</div>` : ''}
 
     <!-- MULTIMEDIA: la pestaña está oculta (clase tb-oculto en su botón); el panel y sus funciones siguen aquí por si se necesitan después -->
     <div class="ctp-pane" id="ctpMM">
@@ -5291,6 +5299,8 @@ async function delCt(id) {
     D.pa  = D.pa.filter(p  => p.cid != cid);
     D.pe  = D.pe.filter(p  => p.cid != cid);
     D.ir  = D.ir.filter(p  => p.cid != cid);
+    D.cm  = D.cm.filter(p  => p.cid != cid);
+    D.ff  = D.ff.filter(p  => p.cid != cid);
     // Limpiar obrasVigiladas que apunten a este contrato
     D.ct.forEach(c => { if(c.obrasVigiladas) c.obrasVigiladas = c.obrasVigiladas.filter(id => id != cid); });
   }
@@ -6421,6 +6431,331 @@ async function delInforme(id) {
   D.ir = D.ir.filter(x => x.id != id);
   save(); irRefrescar(r.cid);
   toast('Informe eliminado');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COMITÉS (todos los contratos)
+// Un archivo por comité (Word, PDF o cualquier tipo). Sin número: se ordenan por fecha.
+// D.cm = [{ id, cid, fecha, adjuntos:[{ id, nombre, path, url, tam, tipo, fecha, rol }] }]
+// Los archivos van al bucket 'edeso-adjuntos' (contratos/<cid>/cm/…). OJO: D.co son los cortes de seguimiento.
+// Misma mecánica que los informes semanales: subida individual (con fecha) o en tanda (sin fecha, se completa después).
+// ══════════════════════════════════════════════════════════════════════════════
+const CM_MASIVO_MAX = 20;
+let _cmGuardando = false;
+
+function _cmOrganizado(r) { return !!r.fecha; }
+
+// Primero los SIN fecha (más reciente subido arriba); debajo, los fechados del más reciente al más antiguo.
+function cmLista(cid) {
+  return D.cm.filter(r => r.cid == cid).sort((a, b) => {
+    const oa = _cmOrganizado(a), ob = _cmOrganizado(b);
+    if(oa !== ob) return oa ? 1 : -1;
+    if(!oa) {
+      const fa = (a.adjuntos || [])[0] && (a.adjuntos[0].fecha || ''), fb = (b.adjuntos || [])[0] && (b.adjuntos[0].fecha || '');
+      return String(fb || '').localeCompare(String(fa || '')) || Number(b.id) - Number(a.id);
+    }
+    return String(b.fecha).localeCompare(String(a.fecha)) || Number(b.id) - Number(a.id);
+  });
+}
+function cmTabN(cid) {
+  const n = D.cm.filter(r => r.cid == cid).length;
+  return n ? ' <span class="nc">' + n + '</span>' : '';
+}
+
+function cmHTML(cid) {
+  const lst = cmLista(cid);
+  const sinOrganizar = lst.filter(function(r) { return !_cmOrganizado(r); }).length;
+  let h = '<div class="ir-head"><div><div class="ptg" style="margin:0">Comités</div>'
+        + '<div class="ir-sub">Un archivo por comité, del más reciente al más antiguo.'
+        + (sinOrganizar ? ' <b style="color:var(--am-t)">' + sinOrganizar + ' sin fecha.</b>' : '') + '</div></div>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+        + '<button class="btn bgh ro-hide" onclick="cmSubirVarios(' + cid + ')">+ Subir varios</button>'
+        + '<button class="btn bgr" onclick="openComite(' + cid + ')">+ Subir comité</button>'
+        + '</div></div>';
+  if(!lst.length) {
+    return h + '<div class="ct-info-card"><div class="emp">Aún no hay comités.<span class="ro-hide"><br>Sube el primero con «+ Subir comité», o varios con «+ Subir varios».</span></div></div>';
+  }
+  lst.forEach(function(r) {
+    const a = (r.adjuntos || [])[0];
+    const org = _cmOrganizado(r);
+    h += '<div class="ir-card"' + (org ? '' : ' style="border-left-color:var(--am)"') + '><div class="ir-main">'
+      + (org
+          ? '<div class="ir-num">Comité del ' + fmt(r.fecha) + '</div>'
+          : '<div class="ir-num" style="color:var(--am-t)">⚠ Falta asignar fecha</div>')
+      + '<div class="ir-file">' + (a
+          ? '📄 ' + escapeHtml(a.nombre || 'comite') + (a.tam ? ' · ' + _fmtTam(a.tam) : '') + (a.fecha ? ' · subido el ' + fmt(a.fecha) : '')
+          : 'Sin archivo') + '</div></div>'
+      + '<div class="ir-acc">'
+      + (a ? '<a class="btn sm bgh" href="' + escapeAttr(_adjUrl(a)) + '" target="_blank" rel="noopener" download="' + escapeAttr(a.nombre || 'comite') + '">⬇ Descargar</a>' : '')
+      + (org
+          ? '<button class="btn sm bgh ro-hide" onclick="openComite(' + r.cid + ',' + r.id + ')">Editar</button>'
+          : '<button class="btn sm bgr" onclick="openComite(' + r.cid + ',' + r.id + ')">Completar datos</button>')
+      + '<button class="btn sm brd" onclick="delComite(' + r.id + ')">Eliminar</button>'
+      + '</div></div>';
+  });
+  return h;
+}
+// Redibuja solo la pestaña (sin recargar la ficha ni cambiar de pestaña)
+function cmRefrescar(cid) {
+  const pane = $('ctpCm');
+  if(!pane || ctPageCid != cid) { if(ctPageCid) verCt(ctPageCid); return; }
+  pane.innerHTML = cmHTML(cid);
+  const n = $('cmTabN'); if(n) n.innerHTML = cmTabN(cid);
+}
+
+function openComite(cid, id) {
+  const r = id ? D.cm.find(x => x.id == id) : null;
+  if(id && !r) return;
+  const fecha = (r && r.fecha) ? r.fecha : (r ? '' : today());
+  const a = r ? (r.adjuntos || [])[0] : null;
+  $('mTitle').textContent = r ? 'Editar comité' : 'Subir comité';
+  $('mBody').innerHTML = '<div class="fg">'
+    + '<div class="fl2 full"><label>Fecha del comité *</label><input id="cm_fecha" type="date" value="' + escapeAttr(fecha) + '"></div>'
+    + (r
+        ? '<div class="fl2 full"><label>Archivo</label><div class="ir-file" style="padding:6px 0">📄 ' + escapeHtml(a ? a.nombre : '—') + '</div>'
+          + '<div style="font-size:11px;color:var(--mu)">Para cambiar el archivo, elimina este comité y sube otro.</div></div>'
+        : '<div class="fl2 full"><label>Archivo *</label><input id="cm_file" type="file">'
+          + '<div style="font-size:11px;color:var(--mu);margin-top:4px">Word, PDF o cualquier tipo · máximo 25 MB.</div></div>')
+    + '</div>';
+  $('mFoot').innerHTML = '<button class="btn bgh" onclick="closeModal()">Cancelar</button>'
+    + '<button class="btn bgr" id="cmBtn" onclick="saveComite(' + cid + ',' + (id || 'null') + ')">' + (r ? 'Guardar' : 'Subir comité') + '</button>';
+  openModal();
+}
+
+async function saveComite(cid, id) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  if(_cmGuardando) return;
+  const editId = (id && id !== 'null') ? id : null;
+  const r = editId ? D.cm.find(x => x.id == editId) : null;
+  if(editId && !r) { toast('Ese comité ya no existe', true); return; }
+  const fecha = $('cm_fecha').value;
+  if(!fecha) { toast('Indica la fecha del comité', true); return; }
+
+  if(r) {                                              // editar: solo la fecha
+    r.fecha = fecha;
+    save(); closeModal(); cmRefrescar(cid); toast('Comité actualizado');
+    return;
+  }
+  const inp = $('cm_file'), file = inp && inp.files && inp.files[0];
+  if(!file) { toast('Elige el archivo del comité', true); return; }
+  if(!file.size) { toast('El archivo está vacío', true); return; }
+  if(file.size > ADJ_MAX_BYTES) { toast('Archivo muy grande (máx. 25 MB)', true); return; }
+  if(!(await _fotoNubeLista())) return;                // sin sesión / sin conexión: no se guarda nada
+
+  _cmGuardando = true;
+  const btn = $('cmBtn'); if(btn) { btn.disabled = true; btn.textContent = 'Subiendo…'; }
+  toast('Subiendo el archivo…');
+  let up = null;
+  try {
+    up = await uploadAdjunto(file, cid, 'cm');         // primero el archivo…
+    if(!D.ct.some(c => c.id == cid)) { await _storageBorrar(ADJ_BUCKET, [up.path]); return; }   // el contrato se eliminó mientras tanto
+    D.cm.push({ id: Date.now(), cid: cid, fecha: fecha,                              // …y después el registro
+                adjuntos: [{ id: Date.now() + Math.random(), nombre: file.name, path: up.path, url: up.url, tam: file.size, tipo: file.type || '', fecha: today(), rol: '' }] });
+    save(); closeModal(); cmRefrescar(cid);
+    toast('Comité del ' + fmt(fecha) + ' subido');
+  } catch(e) {
+    console.warn('subir comité', e);
+    if(up) { try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(x) {} }     // no dejar un archivo huérfano en la nube
+    toast('No se pudo subir el comité: ' + ((e && e.message) || 'error desconocido'), true);
+    if(btn) { btn.disabled = false; btn.textContent = 'Subir comité'; }
+  } finally { _cmGuardando = false; }
+}
+
+// ── Subida en tanda (varios archivos a la vez) ─────────────────────────────────
+// Quedan SIN fecha (fecha = null): aparecen arriba con el aviso "Falta asignar fecha"
+// hasta que se completan uno a uno con "Completar datos". Se suben de a uno (secuencial).
+function cmSubirVarios(cid) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  if(_cmGuardando) { toast('Espera a que termine la subida en curso…', true); return; }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.onchange = function() {
+    const files = Array.from(input.files || []);
+    if(!files.length) return;
+    if(files.length > CM_MASIVO_MAX) { toast('Selecciona máximo ' + CM_MASIVO_MAX + ' archivos por tanda (elegiste ' + files.length + ').', true); return; }
+    cmGuardarMasivo(cid, files);
+  };
+  input.click();
+}
+
+async function cmGuardarMasivo(cid, files) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  if(_cmGuardando) { toast('Espera a que termine la subida en curso…', true); return; }
+  if(!(await _fotoNubeLista())) return;                  // sin sesión / sin conexión: no se sube nada
+
+  _cmGuardando = true;
+  let ok = 0, fail = 0;
+  try {
+    for(let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if(!file.size) { toast('Archivo vacío: ' + file.name, true); fail++; continue; }
+      if(file.size > ADJ_MAX_BYTES) { toast('Archivo muy grande (máx. 25 MB): ' + file.name, true); fail++; continue; }
+      const msg = 'Subiendo ' + (i + 1) + ' de ' + files.length + ': ' + file.name;
+      toast(msg);
+      const tick = setInterval(() => toast(msg), 2000);   // mantiene el aviso visible en archivos grandes
+      let up = null;
+      try {
+        up = await uploadAdjunto(file, cid, 'cm');
+        if(!D.ct.some(c => c.id == cid)) { await _storageBorrar(ADJ_BUCKET, [up.path]); break; }   // el contrato se eliminó mientras tanto
+        D.cm.push({ id: Date.now() + Math.random(), cid: cid, fecha: null,             // sin fecha: se completa después
+                    adjuntos: [{ id: Date.now() + Math.random(), nombre: file.name, path: up.path, url: up.url, tam: file.size, tipo: file.type || '', fecha: today(), rol: '' }] });
+        save(); cmRefrescar(cid); ok++;
+      } catch(e) {
+        console.warn('subir comité (masivo)', e);
+        if(up) { try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(x) {} }   // no dejar un archivo huérfano en la nube
+        fail++;
+        toast('No se pudo subir "' + file.name + '": ' + ((e && e.message) || 'error desconocido'), true);
+      } finally { clearInterval(tick); }
+    }
+  } finally { _cmGuardando = false; }
+
+  if(ok && !fail) toast(ok + ' comité(s) subido(s) sin fecha — complétalos con «Completar datos».');
+  else if(ok) toast(ok + ' subido(s), ' + fail + ' con error', true);
+  else toast('No se pudo subir ningún archivo', true);
+}
+
+async function delComite(id) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  const r = D.cm.find(x => x.id == id); if(!r) return;
+  if(!confirm('¿Eliminar el comité ' + (r.fecha ? 'del ' + fmt(r.fecha) : '(sin fecha)') + '?\n\nTambién se borrará su archivo de la nube y no se puede recuperar.')) return;
+  if(!(await _adjBorrarDe([r], false))) return;        // primero el archivo; si falla, no se elimina nada
+  D.cm = D.cm.filter(x => x.id != id);
+  save(); cmRefrescar(r.cid);
+  toast('Comité eliminado');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FICHA FINANCIERA (solo contratos interadministrativos)
+// Un Excel con el presupuesto y la ficha financiera. La más reciente (por fecha) es la VIGENTE;
+// las anteriores quedan como historial para trazabilidad (ej. se sube una nueva con cada adición).
+// D.ff = [{ id, cid, fecha, nota, adjuntos:[{ id, nombre, path, url, tam, tipo, fecha, rol }] }]
+// Los archivos van al bucket 'edeso-adjuntos' (contratos/<cid>/ff/…). Si el contrato cambia de tipo,
+// las fichas no se borran: solo se ocultan (la pestaña solo existe en interadministrativos).
+// ══════════════════════════════════════════════════════════════════════════════
+const FF_NOTA_MAX = 80;
+let _ffGuardando = false;
+
+// De la más reciente a la más antigua; con la misma fecha, gana la subida de última.
+function ffLista(cid) {
+  return D.ff.filter(r => r.cid == cid).sort((a, b) =>
+    String(b.fecha || '').localeCompare(String(a.fecha || '')) || Number(b.id) - Number(a.id));
+}
+function ffTabN(cid) {
+  const n = D.ff.filter(r => r.cid == cid).length;
+  return n ? ' <span class="nc">' + n + '</span>' : '';
+}
+
+function _ffCard(r, vigente) {
+  const a = (r.adjuntos || [])[0];
+  return '<div class="ir-card"' + (vigente ? ' style="border-left-color:var(--gr);border-left-width:6px"' : ' style="border-left-color:var(--bd2);box-shadow:none"') + '><div class="ir-main">'
+    + (vigente ? '<div style="font-size:10.5px;letter-spacing:.1em;font-weight:800;color:var(--gr);margin-bottom:4px">VIGENTE</div>' : '')
+    + '<div class="ir-num"' + (vigente ? '' : ' style="font-size:13px;font-weight:700"') + '>' + escapeHtml(r.nota || 'Ficha financiera') + '</div>'
+    + '<div class="ir-corte">Fecha: <b>' + fmt(r.fecha) + '</b></div>'
+    + '<div class="ir-file">' + (a
+        ? '📄 ' + escapeHtml(a.nombre || 'ficha.xlsx') + (a.tam ? ' · ' + _fmtTam(a.tam) : '') + (a.fecha ? ' · subido el ' + fmt(a.fecha) : '')
+        : 'Sin archivo') + '</div></div>'
+    + '<div class="ir-acc">'
+    + (a ? '<a class="btn sm bgh" href="' + escapeAttr(_adjUrl(a)) + '" target="_blank" rel="noopener" download="' + escapeAttr(a.nombre || 'ficha.xlsx') + '">⬇ Descargar</a>' : '')
+    + '<button class="btn sm bgh ro-hide" onclick="openFicha(' + r.cid + ',' + r.id + ')">Editar</button>'
+    + '<button class="btn sm brd" onclick="delFicha(' + r.id + ')">Eliminar</button>'
+    + '</div></div>';
+}
+
+function ffHTML(cid) {
+  const lst = ffLista(cid);
+  let h = '<div class="ir-head"><div><div class="ptg" style="margin:0">Ficha financiera</div>'
+        + '<div class="ir-sub">Presupuesto y ficha financiera en Excel. La más reciente es la vigente; las anteriores quedan en el historial.</div></div>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+        + '<button class="btn bgr" onclick="openFicha(' + cid + ')">+ Subir ficha financiera</button>'
+        + '</div></div>';
+  if(!lst.length) {
+    return h + '<div class="ct-info-card"><div class="emp">Aún no hay ficha financiera.<span class="ro-hide"><br>Súbela con «+ Subir ficha financiera».</span></div></div>';
+  }
+  h += _ffCard(lst[0], true);
+  if(lst.length > 1) {
+    h += '<div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);font-weight:700;margin:22px 0 10px">Historial (' + (lst.length - 1) + ')</div>';
+    lst.slice(1).forEach(function(r) { h += _ffCard(r, false); });
+  }
+  return h;
+}
+// Redibuja solo la pestaña (sin recargar la ficha ni cambiar de pestaña)
+function ffRefrescar(cid) {
+  const pane = $('ctpFf');
+  if(!pane || ctPageCid != cid) { if(ctPageCid) verCt(ctPageCid); return; }
+  pane.innerHTML = ffHTML(cid);
+  const n = $('ffTabN'); if(n) n.innerHTML = ffTabN(cid);
+}
+
+function openFicha(cid, id) {
+  const r = id ? D.ff.find(x => x.id == id) : null;
+  if(id && !r) return;
+  const fecha = r ? (r.fecha || '') : today();
+  const a = r ? (r.adjuntos || [])[0] : null;
+  $('mTitle').textContent = r ? 'Editar ficha financiera' : 'Subir ficha financiera';
+  $('mBody').innerHTML = '<div class="fg">'
+    + '<div class="fl2 full"><label>Fecha *</label><input id="ff_fecha" type="date" value="' + escapeAttr(fecha) + '"></div>'
+    + '<div class="fl2 full"><label>Nota *</label><input id="ff_nota" type="text" maxlength="' + FF_NOTA_MAX + '" placeholder="Ej: Versión inicial, Con adición 1" value="' + escapeAttr(r ? (r.nota || '') : '') + '"></div>'
+    + (r
+        ? '<div class="fl2 full"><label>Archivo</label><div class="ir-file" style="padding:6px 0">📄 ' + escapeHtml(a ? a.nombre : '—') + '</div>'
+          + '<div style="font-size:11px;color:var(--mu)">Para cambiar el archivo, elimina esta ficha y sube otra.</div></div>'
+        : '<div class="fl2 full"><label>Archivo Excel *</label><input id="ff_file" type="file" accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">'
+          + '<div style="font-size:11px;color:var(--mu);margin-top:4px">.xlsx, .xls o .xlsm · máximo 25 MB. Solo se guarda: no se lee su contenido.</div></div>')
+    + '</div>';
+  $('mFoot').innerHTML = '<button class="btn bgh" onclick="closeModal()">Cancelar</button>'
+    + '<button class="btn bgr" id="ffBtn" onclick="saveFicha(' + cid + ',' + (id || 'null') + ')">' + (r ? 'Guardar' : 'Subir ficha') + '</button>';
+  openModal();
+}
+
+async function saveFicha(cid, id) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  if(_ffGuardando) return;
+  const editId = (id && id !== 'null') ? id : null;
+  const r = editId ? D.ff.find(x => x.id == editId) : null;
+  if(editId && !r) { toast('Esa ficha ya no existe', true); return; }
+  const fecha = $('ff_fecha').value, nota = $('ff_nota').value.trim().slice(0, FF_NOTA_MAX);
+  if(!fecha) { toast('Indica la fecha de la ficha', true); return; }
+  if(!nota) { toast('Escribe una nota corta (ej. "Versión inicial")', true); return; }
+
+  if(r) {                                              // editar: solo fecha y nota
+    Object.assign(r, { fecha: fecha, nota: nota });
+    save(); closeModal(); ffRefrescar(cid); toast('Ficha actualizada');
+    return;
+  }
+  const inp = $('ff_file'), file = inp && inp.files && inp.files[0];
+  if(!file) { toast('Elige el archivo Excel de la ficha', true); return; }
+  if(!IR_EXT.test(file.name || '')) { toast('El archivo debe ser un Excel (.xlsx, .xls o .xlsm)', true); return; }
+  if(!file.size) { toast('El archivo está vacío', true); return; }
+  if(file.size > ADJ_MAX_BYTES) { toast('Archivo muy grande (máx. 25 MB)', true); return; }
+  if(!(await _fotoNubeLista())) return;                // sin sesión / sin conexión: no se guarda nada
+
+  _ffGuardando = true;
+  const btn = $('ffBtn'); if(btn) { btn.disabled = true; btn.textContent = 'Subiendo…'; }
+  toast('Subiendo el archivo…');
+  let up = null;
+  try {
+    up = await uploadAdjunto(file, cid, 'ff');         // primero el archivo…
+    if(!D.ct.some(c => c.id == cid)) { await _storageBorrar(ADJ_BUCKET, [up.path]); return; }   // el contrato se eliminó mientras tanto
+    D.ff.push({ id: Date.now(), cid: cid, fecha: fecha, nota: nota,                  // …y después el registro
+                adjuntos: [{ id: Date.now() + Math.random(), nombre: file.name, path: up.path, url: up.url, tam: file.size, tipo: file.type || '', fecha: today(), rol: '' }] });
+    save(); closeModal(); ffRefrescar(cid);
+    toast('Ficha financiera subida');
+  } catch(e) {
+    console.warn('subir ficha financiera', e);
+    if(up) { try { await _storageBorrar(ADJ_BUCKET, [up.path]); } catch(x) {} }     // no dejar un archivo huérfano en la nube
+    toast('No se pudo subir la ficha: ' + ((e && e.message) || 'error desconocido'), true);
+    if(btn) { btn.disabled = false; btn.textContent = 'Subir ficha'; }
+  } finally { _ffGuardando = false; }
+}
+
+async function delFicha(id) {
+  if(READONLY) { toast('Modo solo lectura — no puedes editar', true); return; }
+  const r = D.ff.find(x => x.id == id); if(!r) return;
+  if(!confirm('¿Eliminar la ficha financiera "' + (r.nota || '') + '" del ' + fmt(r.fecha) + '?\n\nTambién se borrará su archivo Excel de la nube y no se puede recuperar.')) return;
+  if(!(await _adjBorrarDe([r], false))) return;        // primero el archivo; si falla, no se elimina nada
+  D.ff = D.ff.filter(x => x.id != id);
+  save(); ffRefrescar(r.cid);
+  toast('Ficha eliminada');
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -8977,7 +9312,7 @@ async function _nubeBorrarArchivosContratos(rootId) {
   (function rec(cid) { ids.push(cid); kids(cid).forEach(h => rec(h.id)); })(rootId);
   const en = x => ids.some(i => i == x);
   const adj = [], fotos = [];
-  [].concat(D.pr, D.ad, D.su, D.pa, D.pl, D.ir).filter(r => en(r.cid))
+  [].concat(D.pr, D.ad, D.su, D.pa, D.pl, D.ir, D.cm || [], D.ff || []).filter(r => en(r.cid))
     .forEach(r => (r.adjuntos || []).forEach(a => { if(a.path) adj.push(a.path); }));
   D.ct.filter(c => en(c.id)).forEach(c => (c.fotos || []).forEach(f => { if(f.path) fotos.push(f.path); }));
   if(!adj.length && !fotos.length) return true;
@@ -9661,7 +9996,9 @@ function exportarDatos() {
       suspensiones: D.su  || [],
       pagos:        D.pa  || [],
       pendientes:   D.pe  || [],
-      informes:     D.ir  || []
+      informes:     D.ir  || [],
+      comites:      D.cm  || [],
+      fichasFinancieras: D.ff || []
     }
   };
   var json = JSON.stringify(exportData, null, 2);
@@ -9696,7 +10033,9 @@ function importarDatos(input) {
         su:  datos.suspensiones        || datos.su  || [],
         pa:  datos.pagos               || datos.pa  || [],
         pe:  datos.pendientes          || datos.pe  || [],
-        ir:  datos.informes            || datos.ir  || []
+        ir:  datos.informes            || datos.ir  || [],
+        cm:  datos.comites             || datos.cm  || [],
+        ff:  datos.fichasFinancieras   || datos.ff  || []
       };
       var total = nuevo.sv.length + nuevo.ct.length;
       if(!confirm(
